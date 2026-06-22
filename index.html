@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ Thống Game Trí Tuệ - Thầy Toàn A.I</title>
+  <meta name="description" content="Hệ thống trò chơi trí tuệ học tập Toán học lớp 6-9 thiết kế bởi Thầy Toàn A.I. Tích hợp AI Camera tương tác bằng cử chỉ tay.">
+  <meta name="keywords" content="Thầy Toàn A.I, Game Toán Học, AI Camera, Trò chơi học tập, Toán THCS, giaoviendoimoi">
+  <link rel="stylesheet" href="index.css">
+  
+  <!-- MediaPipe Hands dependencies via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header>
+    <h1 class="logo" style="margin: 0; font-size: 24px;">
+      🏆 THẦY TOÀN A.I <span>| Game Center</span>
+    </h1>
+    <div class="nav-links">
+      <button class="nav-btn active" id="btnDashboard">Dashboard</button>
+      <button class="nav-btn" id="btnQuestions">Ngân Hàng Câu Hỏi</button>
+      <button class="nav-btn" id="btnLeaderboard">Bảng Xếp Hạng</button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <div class="main-wrapper">
+    
+    <!-- Sidebar Settings -->
+    <aside class="sidebar">
+      <h3>Cấu Hình Phòng Học</h3>
+      
+      <div class="control-group">
+        <label for="inputPlayerName">Tên Học Sinh / Đội</label>
+        <input type="text" id="inputPlayerName" class="select-custom" placeholder="Nhập tên..." value="Học sinh Ẩn danh" style="width: 100%;">
+      </div>
+      
+      <div class="control-group">
+        <label for="selectGrade">Khối Lớp</label>
+        <select id="selectGrade" class="select-custom">
+          <option value="6">Toán Lớp 6</option>
+          <option value="7">Toán Lớp 7</option>
+          <option value="8" selected>Toán Lớp 8</option>
+          <option value="9">Toán Lớp 9</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="selectTopic">Chủ Đề</label>
+        <select id="selectTopic" class="select-custom">
+          <option value="all">Tất cả chủ đề</option>
+          <option value="algebra" selected>Đại số & Số học</option>
+          <option value="geometry">Hình học</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="selectDifficulty">Độ Khó</label>
+        <select id="selectDifficulty" class="select-custom">
+          <option value="easy">Nhận biết (Dễ)</option>
+          <option value="medium" selected>Thông hiểu (Vừa)</option>
+          <option value="hard">Vận dụng (Khó)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label>Âm Thanh Trò Chơi</label>
+        <div class="audio-toggle">
+          <span>Phát Tiếng</span>
+          <label class="switch">
+            <input type="checkbox" id="soundSwitch" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      
+      <div style="margin-top: auto; font-size: 11px; color: var(--text-muted); text-align: center;">
+        Phiên bản 4.5 • Thầy Toàn A.I
+      </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="content-panel" id="mainContent">
+      
+      <!-- Games Dashboard View -->
+      <div id="dashboardView">
+        <h2 style="font-family: var(--font-display); font-size: 28px; margin-bottom: 24px;" class="pulse-text">
+          Chọn Trò Chơi Trí Tuệ
+        </h2>
+        
+        <div class="game-grid">
+          
+          <!-- Card 1: Kéo Co Kiến Thức -->
+          <div class="game-card" data-game="tug-of-war">
+            <div class="game-icon">🤼</div>
+            <div class="game-title">Kéo Co Kiến Thức</div>
+            <div class="game-desc">Thi đấu kéo co 2 đội (hoặc đấu với Máy). Trả lời đúng để kéo dây thừng về phía mình!</div>
+            <div class="game-tag">Đối Kháng / Lớp Học</div>
+          </div>
+
+          <!-- Card 2: Lật Mảnh Ghép Trí Uẩn -->
+          <div class="game-card" data-game="flip-puzzle">
+            <div class="game-icon">🧩</div>
+            <div class="game-title">Lật Mảnh Ghép Trí Uẩn</div>
+            <div class="game-desc">Vượt qua các câu hỏi toán học để mở từng ô bí mật, lật mở bức tranh AI ẩn giấu.</div>
+            <div class="game-tag">Tư Duy / Giải Mã</div>
+          </div>
+
+          <!-- Card 3: Ninja Toán Học AI (Camera) -->
+          <div class="game-card" data-game="ninja-toan">
+            <div class="game-icon">🖐️</div>
+            <div class="game-title">Ninja Toán Học AI</div>
+            <div class="game-desc">Chỉ ngón trỏ trước camera để chém bay các bục đáp án đúng. Công nghệ nhận diện cử chỉ 2026.</div>
+            <div class="game-tag">AI Camera / Vận Động</div>
+          </div>
+
+          <!-- Card 4: Đường Lên Đỉnh Olympia -->
+          <div class="game-card" data-game="quiz-climb">
+            <div class="game-icon">🏔️</div>
+            <div class="game-title">Đỉnh Cao Olympia</div>
+            <div class="game-desc">Trả lời nhanh các câu hỏi để leo lên đỉnh núi. Đừng quên kích hoạt "Ngôi sao hy vọng"!</div>
+            <div class="game-tag">Tốc Độ / Tính Toán</div>
+          </div>
+
+          <!-- Card 5: Đào Vàng Tri Thức -->
+          <div class="game-card" data-game="gold-miner">
+            <div class="game-icon">⛏️</div>
+            <div class="game-title">Đào Vàng Tri Thức</div>
+            <div class="game-desc">Phóng móc gắp các cục vàng mang đáp án đúng. Đòi hỏi sự khéo léo và tính toán nhanh.</div>
+            <div class="game-tag">Khéo Léo / Nhanh Nhạy</div>
+          </div>
+
+          <!-- Card 6: Bắn Cung Toán Học -->
+          <div class="game-card" data-game="archery-math">
+            <div class="game-icon">🏹</div>
+            <div class="game-title">Bắn Cung Toán Học</div>
+            <div class="game-desc">Nhắm bắn cung tên vào các mục tiêu đáp án chính xác. Điều chỉnh góc bắn khéo léo.</div>
+            <div class="game-tag">Vật Lý / Nhắm Bắn</div>
+          </div>
+
+          <!-- Card 7: Ghép Đôi Thẻ Bài -->
+          <div class="game-card" data-game="memory-match">
+            <div class="game-icon">🃏</div>
+            <div class="game-title">Ghép Đôi Thằng Đẳng Thức</div>
+            <div class="game-desc">Lật các thẻ bài để tìm và ghép cặp biểu thức tương ứng với phân tích nhân tử của nó.</div>
+            <div class="game-tag">Trí Nhớ / Công Thức</div>
+          </div>
+
+          <!-- Card 8: Rùa Bay Toán Học -->
+          <div class="game-card" data-game="flappy-math">
+            <div class="game-icon">🐢</div>
+            <div class="game-title">Rùa Bay Toán Học</div>
+            <div class="game-desc">Giữ chú rùa bay cân bằng lách qua các cổng đáp án đúng. Game vui nhộn và thử thách.</div>
+            <div class="game-tag">Phản Xạ / Vui Nhộn</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Question Bank View (Muted Tab) -->
+      <div id="questionsView" style="display: none;">
+        <h2 style="font-family: var(--font-display); font-size: 28px; margin-bottom: 24px;">
+          Ngân Hàng Câu Hỏi Lớp 8
+        </h2>
+        <div id="questionListContainer" style="display: flex; flex-direction: column; gap: 15px;">
+          <!-- Questions will be loaded here dynamically -->
+        </div>
+      </div>
+
+      <!-- Leaderboard View -->
+      <div id="leaderboardView" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px;">
+          <h2 style="font-family: var(--font-display); font-size: 28px;" class="pulse-text">
+            Bảng Xếp Hạng Cao Thủ
+          </h2>
+          <button class="btn-primary" id="btnClearLeaderboard" style="background: linear-gradient(135deg, #ef4444, #b91c1c); font-size: 14px; padding: 8px 16px;">
+            🗑️ Xóa Lịch Sử
+          </button>
+        </div>
+        <div class="leaderboard-table-container">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Hạng</th>
+                <th>Người Chơi</th>
+                <th>Trò Chơi</th>
+                <th>Khối Lớp</th>
+                <th>Độ Khó</th>
+                <th>Điểm Số</th>
+                <th>Thời Gian</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Play Screen Overlay -->
+      <div class="play-screen" id="playScreen">
+        <div class="play-header">
+          <div class="play-title" id="activeGameTitle">Tên Trò Chơi</div>
+          <button class="back-btn" id="btnBackToDashboard">Thoát Game</button>
+        </div>
+        
+        <div class="game-viewport" id="gameViewport">
+          <!-- Main canvas for game render -->
+          <canvas id="gameCanvas"></canvas>
+          
+          <!-- Hidden Video element for Camera-based Hand Tracking -->
+          <video id="webcam" autoplay playsinline style="display: none;"></video>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Loading scripts -->
+  <script src="app.js"></script>
+  <script src="tug-of-war.js"></script>
+  <script src="flip-puzzle.js"></script>
+  <script src="ninja-toan.js"></script>
+  <script src="quiz-climb.js"></script>
+  <script src="gold-miner.js"></script>
+  <script src="archery-math.js"></script>
+  <script src="memory-match.js"></script>
+  <script src="flappy-math.js"></script>
+
+</body>
+</html>

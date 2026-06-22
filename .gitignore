@@ -1,0 +1,23 @@
+# Logs and databases
+*.log
+*.local
+
+# ZIP archives and templates
+*.zip
+
+# Temporary/archive folders
+archive/
+boc-tach-pdf-v1.0/
+development/
+editorial/
+publishing/
+research/
+review/
+skills/
+skl_agent_kit-main/
+solo-builder-kit/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
