@@ -10,6 +10,16 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.4.0] - 2026-06-22
+
+### Added
+- Tạo script **Chay_Local.bat** tự động chạy HTTP Server và mở trình duyệt để giáo viên chơi offline tại lớp học dễ dàng.
+- Thiết lập tệp cấu hình **vercel.json** quy định các header bảo mật và rút gọn URL.
+- Biên soạn bộ tài liệu **Huong_Dan_Su_Dung.md** hướng dẫn chi tiết luật chơi, quản lý câu hỏi, và xuất điểm CSV.
+- Hoàn thành Audit bảo mật & tối ưu SEO (meta tags, headings, offline-mode fallbacks).
+
+---
+
 ## [1.3.0] - 2026-06-22
 
 ### Added

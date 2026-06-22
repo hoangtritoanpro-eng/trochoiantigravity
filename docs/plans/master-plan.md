@@ -12,7 +12,7 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
 | **Phase 1** | Khởi Tạo & Core Logic | `[x]` | Xây dựng khung nền móng và các logic cốt lõi. |
 | **Phase 2** | UI/UX & Tính năng chính | `[x]` | Phát triển các giao diện người dùng chính và kết nối dữ liệu. |
 | **Phase 3** | Tính năng Nâng cao & Tối ưu | `[x]` | Hoàn thiện các tính năng phụ trợ, tối ưu hóa trải nghiệm & hiệu năng. |
-| **Phase 4** | Deploy & Bàn giao | `[ ]` | Đóng gói sản phẩm, deploy môi trường production và viết tài liệu HDSD. |
+| **Phase 4** | Deploy & Bàn giao | `[x]` | Đóng gói sản phẩm, deploy môi trường production và viết tài liệu HDSD. |
 
 ---
 
@@ -44,7 +44,7 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
 ### Phase 4: Deploy & Bàn giao
 - **Mục tiêu:** Đưa sản phẩm lên môi trường thực tế và hoàn tất bàn giao.
 - **Các task chính:**
-  - [ ] Cấu hình deploy tự động (Vercel, Netlify, Docker...).
-  - [ ] Viết tài liệu Hướng Dẫn Sử Dụng (HDSD) chi tiết cho người dùng cuối.
-  - [ ] Chạy audit toàn diện về bảo mật và SEO.
+  - [x] Cấu hình deploy tự động (Vercel, Netlify, Docker...).
+  - [x] Viết tài liệu Hướng Dẫn Sử Dụng (HDSD) chi tiết cho người dùng cuối.
+  - [x] Chạy audit toàn diện về bảo mật và SEO.
 - **Expected Output:** Link production hoạt động ổn định, tài liệu HDSD hoàn chỉnh.
