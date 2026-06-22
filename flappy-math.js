@@ -252,7 +252,7 @@ const FlappyMathGame = {
     // Question
     const qW = Math.min(w * 0.7, 750);
     const qH = 75;
-    drawGlassCard(ctx, currentQ.q, w / 2 - qW / 2, 80, qW, qH, 'var(--bg-panel)', 'var(--border-glass)', '#fff', '18px');
+    drawGlassCard(ctx, currentQ.q, w / 2 - qW / 2, 80, qW, qH, 'rgba(255, 255, 255, 0.92)', 'rgba(15, 23, 42, 0.15)', '#0f172a', '18px');
   },
 
   drawEndScreen(w, h) {

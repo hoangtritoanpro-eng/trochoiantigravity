@@ -197,7 +197,7 @@ const TugOfWarGame = {
     const qH = 100;
     const qX = w / 2 - qW / 2;
     const qY = 60;
-    drawGlassCard(ctx, currentQ.q, qX, qY, qW, qH, 'var(--bg-panel)', 'var(--border-glass)', '#fff', '22px');
+    drawGlassCard(ctx, currentQ.q, qX, qY, qW, qH, 'rgba(255, 255, 255, 0.92)', 'rgba(15, 23, 42, 0.15)', '#0f172a', '22px');
 
     // Draw Options Grid
     const btnW = qW / 2 - 15;
@@ -212,7 +212,7 @@ const TugOfWarGame = {
       const by = optY + row * (btnH + 15);
       
       let bg = 'rgba(255, 255, 255, 0.85)';
-      let border = 'var(--border-glass)';
+      let border = 'rgba(15, 23, 42, 0.15)';
       let textCol = '#0f172a';
 
       if (this.gameState === 'ANSWERED') {

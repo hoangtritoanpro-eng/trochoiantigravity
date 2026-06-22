@@ -10,6 +10,15 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.5.1] - 2026-06-22
+
+### Fixed
+- **Câu hỏi không hiển thị trong 5 game Canvas:** Lỗi do `var(--bg-panel)` và `var(--border-glass)` (CSS Custom Properties) không được Canvas 2D API đọc. Khi Canvas nhận string này, nó fallback về màu đen, khiến logic `isDark` đổi chữ sang đen → chữ đen trên nền đen = vô hình.
+  - Fix trong: `quiz-climb.js`, `flappy-math.js`, `archery-math.js`, `gold-miner.js`, `tug-of-war.js`, `memory-match.js`
+  - Thay thế bằng màu thực: `rgba(255, 255, 255, 0.92)` (nền trắng mờ), `rgba(15, 23, 42, 0.15)` (viền xám nhẹ), `#0f172a` (chữ tối).
+
+---
+
 ## [1.5.0] - 2026-06-22
 
 ### Changed

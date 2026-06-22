@@ -145,12 +145,12 @@ const MemoryMatchGame = {
       ctx.save();
       
       let bg = '#ffffff';
-      let border = 'var(--border-glass)';
+      let border = 'rgba(15, 23, 42, 0.15)';
       let text = '';
 
       if (card.flipped) {
         bg = '#ffffff';
-        border = 'var(--primary)';
+        border = '#10b981';
         text = card.text;
       } else {
         // Card Back (draw pattern)
