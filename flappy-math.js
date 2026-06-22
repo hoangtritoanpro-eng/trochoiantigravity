@@ -170,10 +170,10 @@ const FlappyMathGame = {
     const h = this.canvas.height;
     ctx.clearRect(0, 0, w, h);
 
-    // Dynamic blue background
+    // Bright daylight sky background
     const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#0f172a');
-    grad.addColorStop(1, '#0284c7');
+    grad.addColorStop(0, '#e0f2fe');
+    grad.addColorStop(1, '#bae6fd');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
@@ -184,15 +184,19 @@ const FlappyMathGame = {
 
     // Draw Turtle (Cute green flappy avatar)
     ctx.save();
-    ctx.shadowColor = 'var(--primary)';
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = 'var(--primary)';
+    ctx.shadowColor = 'rgba(16, 185, 129, 0.3)';
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = '#10b981';
     ctx.beginPath();
     ctx.arc(this.turtleX, this.turtleY, this.turtleRadius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = '#0f172a';
     ctx.beginPath();
     ctx.arc(this.turtleX + 8, this.turtleY - 5, 5, 0, Math.PI * 2); // Eye
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(this.turtleX + 9, this.turtleY - 6, 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 
@@ -209,21 +213,21 @@ const FlappyMathGame = {
     const topLimit = this.gateGapY - this.gateGapHeight / 2;
     const botLimit = this.gateGapY + this.gateGapHeight / 2;
 
-    // Draw top panel (A door)
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-    ctx.strokeStyle = this.correctDoor === 'top' && this.passedGate ? 'var(--primary)' : 'rgba(255,255,255,0.08)';
+    // Draw top panel (A door) - light glass style
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.82)';
+    ctx.strokeStyle = this.correctDoor === 'top' && this.passedGate ? 'var(--primary)' : 'rgba(15, 23, 42, 0.12)';
     ctx.lineWidth = 3;
     ctx.fillRect(this.gateX, 0, this.gateWidth, topLimit);
     ctx.strokeRect(this.gateX, 0, this.gateWidth, topLimit);
 
-    // Draw bottom panel (B door)
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+    // Draw bottom panel (B door) - light glass style
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.82)';
     ctx.fillRect(this.gateX, botLimit, this.gateWidth, h - botLimit);
     ctx.strokeRect(this.gateX, botLimit, this.gateWidth, h - botLimit);
 
-    // Door options text labels
-    ctx.fillStyle = '#fff';
-    ctx.font = "bold 13px 'Outfit'";
+    // Door options text labels - dark for readability
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 15px 'Fredoka', sans-serif";
     ctx.textAlign = 'center';
     
     // Draw answers in doors
@@ -236,9 +240,9 @@ const FlappyMathGame = {
     const currentQ = this.questions[this.currentQIdx];
     if (!currentQ) return;
 
-    // Score
-    ctx.fillStyle = '#fff';
-    ctx.font = "bold 18px 'Outfit'";
+    // Score - slate text on light background
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 18px 'Fredoka', sans-serif";
     ctx.textAlign = 'left';
     ctx.fillText(`⭐ Điểm: ${this.score * 10} | Câu ${this.currentQIdx + 1}/5`, 30, 35);
     

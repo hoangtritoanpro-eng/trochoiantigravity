@@ -128,10 +128,10 @@ const ArcheryMathGame = {
     const h = this.canvas.height;
     ctx.clearRect(0, 0, w, h);
 
-    // Deep starry evening sky background
+    // Bright daylight sky background
     const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#090d16');
-    grad.addColorStop(1, '#1e1b4b');
+    grad.addColorStop(0, '#bae6fd');
+    grad.addColorStop(1, '#f0f9ff');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
@@ -143,12 +143,11 @@ const ArcheryMathGame = {
       if (target.hit) return;
 
       ctx.save();
-      // Glowing neon outer ring
-      ctx.shadowColor = 'var(--secondary)';
-      ctx.shadowBlur = 10;
-      ctx.strokeStyle = '#fff';
+      ctx.shadowColor = 'rgba(15, 23, 42, 0.08)';
+      ctx.shadowBlur = 5;
+      ctx.strokeStyle = 'rgba(15, 23, 42, 0.15)';
       ctx.lineWidth = 3;
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
       ctx.beginPath();
       ctx.arc(target.x, target.y, target.r, 0, Math.PI * 2);
       ctx.fill();
@@ -162,8 +161,8 @@ const ArcheryMathGame = {
 
       // Text label
       ctx.shadowBlur = 0;
-      ctx.fillStyle = '#fff';
-      ctx.font = "bold 13px 'Outfit'";
+      ctx.fillStyle = '#ffffff'; // white text on red circle
+      ctx.font = "bold 13px 'Fredoka', sans-serif";
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(target.text, target.x, target.y);
@@ -186,7 +185,7 @@ const ArcheryMathGame = {
   drawBow(w, h) {
     const ctx = this.ctx;
     ctx.save();
-    ctx.strokeStyle = '#fff';
+    ctx.strokeStyle = '#854d0e'; // warm brown wooden bow
     ctx.lineWidth = 4;
     ctx.beginPath();
 
@@ -195,7 +194,7 @@ const ArcheryMathGame = {
     ctx.stroke();
 
     // Draw Bowstring
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.strokeStyle = 'rgba(15, 23, 42, 0.4)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     
@@ -226,7 +225,7 @@ const ArcheryMathGame = {
       let tvx = Math.cos(angle) * power;
       let tvy = Math.sin(angle) * power;
 
-      ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.7)';
       ctx.lineWidth = 2;
       ctx.setLineDash([5, 5]);
       ctx.beginPath();
@@ -275,8 +274,8 @@ const ArcheryMathGame = {
     if (!currentQ) return;
 
     // Score
-    ctx.fillStyle = '#fff';
-    ctx.font = "bold 18px 'Outfit'";
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 18px 'Fredoka', sans-serif";
     ctx.textAlign = 'left';
     ctx.fillText(`⭐ Điểm: ${this.score * 10} | Câu ${this.currentQIdx + 1}/5`, 30, 35);
     

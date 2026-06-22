@@ -10,6 +10,24 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.5.0] - 2026-06-22
+
+### Changed
+- **Giao Diện Tươi Sáng (Bright Theme):** Chuyển đổi toàn bộ giao diện từ tông màu tối cyberpunk sang tông màu sáng pastel thân thiện với học sinh.
+- **Phông chữ mới:** Tích hợp phông chữ bo tròn **Fredoka** (tiêu đề) và **Quicksand** (nội dung) từ Google Fonts — dễ đọc, dễ thương và phù hợp lứa tuổi.
+- **Canvas 8 Game:** Chuyển đổi tất cả 8 màn hình trò chơi:
+  - **Kéo Co:** Sân cỏ xanh mướt, dây thừng nâu đất, bục đáp án kính sáng.
+  - **Lật Mảnh Ghép:** Nền trời xanh gradient nhạt, ô phủ kính trắng mờ dễ nhìn.
+  - **Ninja Toán Học AI:** HUD trắng mờ, bục A/B xanh biển nổi bật camera.
+  - **Đỉnh Cao Olympia:** Trời xanh ban ngày, núi xanh lá mát mẻ.
+  - **Đào Vàng Tri Thức:** Vùng hầm cát vàng ấm áp, cục vàng sáng chói.
+  - **Bắn Cung Toán Học:** Bầu trời ngày trong sáng, cung nâu gỗ tự nhiên.
+  - **Ghép Đôi Thẻ Bài:** Nền oải hương pastel, mặt sau thẻ gradient xanh biển–tím.
+  - **Rùa Bay Toán Học:** Nền trời xanh ngọc, cổng kính trắng chữ tối rõ nét.
+- **Helper UI:** Cập nhật hàm `drawGlassCard` tự động thích ứng màu chữ/viền theo nền sáng/tối.
+
+---
+
 ## [1.4.0] - 2026-06-22
 
 ### Added

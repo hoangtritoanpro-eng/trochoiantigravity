@@ -128,8 +128,11 @@ const FlipPuzzleGame = {
     const h = this.canvas.height;
     ctx.clearRect(0, 0, w, h);
 
-    // Main background dark
-    ctx.fillStyle = '#0f172a';
+    // Main background bright theme (Pearly bright gradient)
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+    bgGrad.addColorStop(0, '#f0f6ff');
+    bgGrad.addColorStop(1, '#dbeafe');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
     // Setup board sizing
@@ -156,7 +159,7 @@ const FlipPuzzleGame = {
       
       // Draw text "THẦY TOÀN A.I" inside the secret layer
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 36px Outfit';
+      ctx.font = "bold 36px 'Fredoka', sans-serif";
       ctx.textAlign = 'center';
       ctx.fillText('THẦY TOÀN A.I', bx + boardSize/2, by + boardSize/2);
     }
@@ -171,18 +174,18 @@ const FlipPuzzleGame = {
       const cy = by + cell.row * cellSize;
 
       ctx.save();
-      // Glass card style for grid cell
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      // Glass card style for grid cell (bright translucent glass)
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
       ctx.fillRect(cx + 3, cy + 3, cellSize - 6, cellSize - 6);
       
       // Glowing cell borders
-      ctx.strokeStyle = this.selectedCell === cell ? 'var(--primary)' : 'rgba(255,255,255,0.08)';
+      ctx.strokeStyle = this.selectedCell === cell ? 'var(--primary)' : 'rgba(15, 23, 42, 0.12)';
       ctx.lineWidth = this.selectedCell === cell ? 3 : 1;
       ctx.strokeRect(cx + 3, cy + 3, cellSize - 6, cellSize - 6);
 
       // Question Number
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 24px Outfit';
+      ctx.fillStyle = '#0f172a';
+      ctx.font = "bold 18px 'Fredoka', sans-serif";
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(`Mảnh ${cell.row * 3 + cell.col + 1}`, cx + cellSize/2, cy + cellSize/2);
@@ -191,8 +194,8 @@ const FlipPuzzleGame = {
     });
 
     // Draw overlay instruction text
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 16px Outfit';
+    ctx.fillStyle = '#1e293b';
+    ctx.font = "bold 15px 'Fredoka', sans-serif";
     ctx.textAlign = 'center';
     ctx.fillText('Lật mở 9 mảnh ghép bằng câu hỏi Toán, hoặc đoán từ khóa để giành chiến thắng!', w / 2, by - 25);
 
@@ -200,11 +203,11 @@ const FlipPuzzleGame = {
     if (this.gameState === 'GAME_WON') {
       drawGlassCard(
         ctx,
-        `🎉 CHIẾN THẮNG!\nBạn đã giải mã thành công!\nTừ khóa: ${this.keyword}`,
+        `🎉 CHIẾN THẮNG!\n\nBạn đã giải mã thành công!\nTừ khóa: ${this.keyword}`,
         w / 2 - 250,
         h / 2 - 80,
         500,
-        160,
+        180,
         'rgba(15, 23, 42, 0.95)',
         'var(--primary)',
         '#fff',

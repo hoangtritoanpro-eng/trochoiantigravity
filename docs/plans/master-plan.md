@@ -13,6 +13,7 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
 | **Phase 2** | UI/UX & Tính năng chính | `[x]` | Phát triển các giao diện người dùng chính và kết nối dữ liệu. |
 | **Phase 3** | Tính năng Nâng cao & Tối ưu | `[x]` | Hoàn thiện các tính năng phụ trợ, tối ưu hóa trải nghiệm & hiệu năng. |
 | **Phase 4** | Deploy & Bàn giao | `[x]` | Đóng gói sản phẩm, deploy môi trường production và viết tài liệu HDSD. |
+| **Phase 5** | Giao Diện Tươi Sáng & Bright Theme | `[ ]` | Chuyển đổi giao diện sang tông tươi sáng và phông chữ Fredoka & Quicksand cho trẻ em. |
 
 ---
 
@@ -48,3 +49,11 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
   - [x] Viết tài liệu Hướng Dẫn Sử Dụng (HDSD) chi tiết cho người dùng cuối.
   - [x] Chạy audit toàn diện về bảo mật và SEO.
 - **Expected Output:** Link production hoạt động ổn định, tài liệu HDSD hoàn chỉnh.
+
+### Phase 5: Giao Diện Tươi Sáng & Phông Chữ Trẻ Em (Bright Theme)
+- **Mục tiêu:** Chuyển đổi toàn diện giao diện sang tông tươi sáng bắt mắt, sử dụng phông chữ bo tròn thân thiện với trẻ em.
+- **Các task chính:**
+  - [ ] Tích hợp phông chữ mới (Fredoka & Quicksand) và cấu hình CSS Bright Theme.
+  - [ ] Cập nhật hàm vẽ helper UI Card để đồng bộ màu sắc/phông chữ sáng.
+  - [ ] Chuyển đổi màu sắc canvas của cả 8 game dạy học tương tác sang tông pastel sáng sủa.
+- **Expected Output:** Giao diện toàn hệ thống mang màu sắc tươi sáng sinh động, phông chữ dễ thương dễ đọc, tất cả canvas vẽ game đẹp mắt, không lỗi JavaScript.

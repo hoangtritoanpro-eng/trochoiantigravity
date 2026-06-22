@@ -83,12 +83,15 @@ const TugOfWarGame = {
     const h = this.canvas.height;
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Draw Field / Background
-    ctx.fillStyle = '#0f172a';
+    // 1. Draw Field / Background (Lush Green Grass Field)
+    const fieldGrad = ctx.createLinearGradient(0, 0, 0, h);
+    fieldGrad.addColorStop(0, '#f0fdf4');
+    fieldGrad.addColorStop(1, '#bbf7d0');
+    ctx.fillStyle = fieldGrad;
     ctx.fillRect(0, 0, w, h);
 
     // Center divider
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.strokeStyle = 'rgba(15, 23, 42, 0.08)';
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.moveTo(w / 2, 0);
@@ -96,7 +99,7 @@ const TugOfWarGame = {
     ctx.stroke();
 
     // Target boundary zones
-    ctx.strokeStyle = 'rgba(239, 68, 68, 0.2)';
+    ctx.strokeStyle = 'rgba(239, 68, 68, 0.3)';
     ctx.setLineDash([10, 10]);
     ctx.beginPath();
     ctx.moveTo(w / 2 - 150, 0); ctx.lineTo(w / 2 - 150, h);
@@ -120,17 +123,17 @@ const TugOfWarGame = {
     const ropeY = h * 0.45;
     const centerOffset = this.ropePosition;
     
-    // Draw rope shadow/glow
-    ctx.strokeStyle = 'rgba(234, 179, 8, 0.2)';
-    ctx.lineWidth = 16;
+    // Draw rope shadow
+    ctx.strokeStyle = 'rgba(120, 53, 4, 0.12)';
+    ctx.lineWidth = 14;
     ctx.beginPath();
     ctx.moveTo(50, ropeY);
     ctx.lineTo(w - 50, ropeY);
     ctx.stroke();
 
-    // Neon Rope itself
-    ctx.strokeStyle = '#eab308';
-    ctx.lineWidth = 8;
+    // Natural brown fiber rope
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 6;
     ctx.beginPath();
     ctx.moveTo(50, ropeY);
     ctx.lineTo(w - 50, ropeY);
@@ -153,8 +156,9 @@ const TugOfWarGame = {
     ctx.beginPath();
     ctx.arc(px, py + 20, 20, 0, Math.PI * 2); // Body
     ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 12px sans-serif';
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 13px 'Fredoka', sans-serif";
+    ctx.textAlign = 'center';
     ctx.fillText('Toàn A.I', px, py - 10);
 
     // DRAW OPPONENTS (Right Team - Robot AI)
@@ -165,7 +169,8 @@ const TugOfWarGame = {
     ctx.beginPath();
     ctx.arc(ox, oy + 20, 20, 0, Math.PI * 2); // Body
     ctx.fill();
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = '#0f172a';
+    ctx.textAlign = 'center';
     ctx.fillText('AI Bot', ox, oy - 10);
   },
 
@@ -174,13 +179,13 @@ const TugOfWarGame = {
     const currentQ = this.questions[this.currentQIdx];
     if (!currentQ) return;
 
-    // Timer Bar
+    // Timer Bar Background
     const timerW = w * 0.6;
     const timerH = 8;
     const timerX = w / 2 - timerW / 2;
     const timerY = 30;
     
-    ctx.fillStyle = '#1e293b';
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.08)';
     ctx.fillRect(timerX, timerY, timerW, timerH);
     
     const pct = this.timeLeft / this.timeLimit;
@@ -206,23 +211,23 @@ const TugOfWarGame = {
       const bx = qX + col * (btnW + 30);
       const by = optY + row * (btnH + 15);
       
-      let bg = 'rgba(30, 41, 59, 0.7)';
+      let bg = 'rgba(255, 255, 255, 0.85)';
       let border = 'var(--border-glass)';
-      let textCol = 'var(--text-primary)';
+      let textCol = '#0f172a';
 
       if (this.gameState === 'ANSWERED') {
         if (i === currentQ.ans) {
-          bg = 'rgba(16, 185, 129, 0.9)'; // Green
+          bg = '#10b981'; // Solid green for contrast
           border = '#10b981';
           textCol = '#fff';
         } else if (i === this.selectedOption) {
-          bg = 'rgba(239, 68, 68, 0.9)'; // Red
+          bg = '#ef4444'; // Solid red for contrast
           border = '#ef4444';
           textCol = '#fff';
         }
       } else {
         if (i === this.selectedOption) {
-          bg = 'rgba(16, 185, 129, 0.2)';
+          bg = 'rgba(16, 185, 129, 0.15)';
           border = 'var(--primary)';
         }
       }
@@ -239,12 +244,12 @@ const TugOfWarGame = {
 
     drawGlassCard(
       ctx,
-      text + `\nĐiểm số: ${this.score}/5\nNhấp vào màn hình để chơi lại.`,
+      text + `\n\nĐiểm số: ${this.score}/5\nNhấp vào màn hình để chơi lại.`,
       w / 2 - 250,
       h / 2 - 100,
       500,
       200,
-      'rgba(15, 23, 42, 0.9)',
+      'rgba(15, 23, 42, 0.95)',
       color,
       '#fff',
       '22px'

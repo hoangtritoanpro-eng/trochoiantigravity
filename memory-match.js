@@ -90,10 +90,10 @@ const MemoryMatchGame = {
     const h = this.canvas.height;
     ctx.clearRect(0, 0, w, h);
 
-    // Starry velvet space background
+    // Bright pastel lavender background
     const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#090514');
-    grad.addColorStop(1, '#110c24');
+    grad.addColorStop(0, '#faf5ff');
+    grad.addColorStop(1, '#f3e8ff');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
@@ -113,8 +113,8 @@ const MemoryMatchGame = {
     this.cardCoords = [];
 
     // Draw Score
-    ctx.fillStyle = '#fff';
-    ctx.font = "bold 18px 'Outfit'";
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 18px 'Fredoka', sans-serif";
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     ctx.fillText(`⭐ Điểm: ${this.score * 10}`, 30, 25);
@@ -133,9 +133,9 @@ const MemoryMatchGame = {
       if (card.solved) {
         // Solved cards are faint/invisible
         ctx.save();
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
         ctx.fillRect(cx, cy, cardW, cardH);
-        ctx.strokeStyle = 'rgba(16, 185, 129, 0.3)';
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.25)';
         ctx.lineWidth = 2;
         ctx.strokeRect(cx, cy, cardW, cardH);
         ctx.restore();
@@ -144,29 +144,29 @@ const MemoryMatchGame = {
 
       ctx.save();
       
-      let bg = 'rgba(30, 41, 59, 0.85)';
+      let bg = '#ffffff';
       let border = 'var(--border-glass)';
       let text = '';
 
       if (card.flipped) {
-        bg = 'rgba(15, 23, 42, 0.95)';
+        bg = '#ffffff';
         border = 'var(--primary)';
         text = card.text;
       } else {
         // Card Back (draw pattern)
-        bg = 'linear-gradient(135deg, #1e1b4b, #311042)';
-        border = 'rgba(255,255,255,0.05)';
+        bg = 'linear-gradient(135deg, #38bdf8, #818cf8)';
+        border = 'rgba(15, 23, 42, 0.08)';
         text = '?';
       }
 
-      ctx.shadowColor = 'rgba(0,0,0,0.3)';
-      ctx.shadowBlur = 10;
+      ctx.shadowColor = 'rgba(15, 23, 42, 0.06)';
+      ctx.shadowBlur = 8;
       
       // If we have back gradient, draw it manually
       if (!card.flipped) {
         const cardGrad = ctx.createLinearGradient(cx, cy, cx + cardW, cy + cardH);
-        cardGrad.addColorStop(0, '#1e1b4b');
-        cardGrad.addColorStop(1, '#2e1065');
+        cardGrad.addColorStop(0, '#38bdf8');
+        cardGrad.addColorStop(1, '#818cf8');
         ctx.fillStyle = cardGrad;
       } else {
         ctx.fillStyle = bg;
@@ -174,7 +174,7 @@ const MemoryMatchGame = {
 
       // Rounded rectangle card
       ctx.beginPath();
-      const r = 10;
+      const r = 14; // friendlier rounding
       ctx.moveTo(cx + r, cy);
       ctx.lineTo(cx + cardW - r, cy);
       ctx.quadraticCurveTo(cx + cardW, cy, cx + cardW, cy + r);
@@ -193,8 +193,8 @@ const MemoryMatchGame = {
       ctx.stroke();
 
       // Card Text
-      ctx.fillStyle = card.flipped ? '#fff' : 'var(--primary)';
-      ctx.font = card.flipped ? "bold 15px 'Outfit'" : "bold 32px 'Outfit'";
+      ctx.fillStyle = card.flipped ? '#0f172a' : '#ffffff';
+      ctx.font = card.flipped ? "bold 13px 'Quicksand', sans-serif" : "bold 32px 'Fredoka', sans-serif";
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(text, cx + cardW / 2, cy + cardH / 2);

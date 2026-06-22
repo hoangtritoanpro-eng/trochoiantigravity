@@ -167,7 +167,7 @@ const NinjaToanGame = {
     const h = this.canvas.height;
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Draw Camera view or dark fallback
+    // 1. Draw Camera view or bright fallback
     const video = document.getElementById('webcam');
     ctx.save();
     if (this.stream && video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -176,20 +176,23 @@ const NinjaToanGame = {
       ctx.scale(-1, 1);
       ctx.drawImage(video, 0, 0, w, h);
     } else {
-      ctx.fillStyle = '#0f172a';
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+      bgGrad.addColorStop(0, '#f0f6ff');
+      bgGrad.addColorStop(1, '#dbeafe');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(255,255,255,0.05)';
-      ctx.font = "bold 14px 'Outfit'";
+      ctx.fillStyle = '#475569';
+      ctx.font = "bold 15px 'Fredoka', sans-serif";
       ctx.textAlign = 'center';
       ctx.fillText('(Không thể kết nối camera - Chế độ mô phỏng Chuột đang hoạt động)', w/2, h/2 - 50);
     }
     ctx.restore();
 
-    // 2. Draw HUD (Header / Score)
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+    // 2. Draw HUD (Header / Score - Light glass style)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
     ctx.fillRect(0, 0, w, 70);
-    ctx.fillStyle = '#fff';
-    ctx.font = "bold 20px 'Outfit'";
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 20px 'Fredoka', sans-serif";
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillText(`⭐ ĐIỂM SỐ: ${this.score * 10} | Câu ${Math.min(this.currentQIdx + 1, this.questions.length)}/5`, 30, 35);
@@ -204,12 +207,12 @@ const NinjaToanGame = {
       const boxH = Math.min(240, h / 3);
       const boxY = h / 2 - boxH / 2 + 30;
 
-      let colorA = 'rgba(0, 50, 200, 0.7)';
-      let colorB = 'rgba(0, 50, 200, 0.7)';
+      let colorA = 'rgba(14, 165, 233, 0.85)';
+      let colorB = 'rgba(14, 165, 233, 0.85)';
 
       if (this.gameState === 'ANSWERED') {
-        if (this.selectedOption === 'A') colorA = this.isCorrect ? 'rgba(16, 185, 129, 0.95)' : 'rgba(239, 68, 68, 0.95)';
-        if (this.selectedOption === 'B') colorB = this.isCorrect ? 'rgba(16, 185, 129, 0.95)' : 'rgba(239, 68, 68, 0.95)';
+        if (this.selectedOption === 'A') colorA = this.isCorrect ? '#10b981' : '#ef4444';
+        if (this.selectedOption === 'B') colorB = this.isCorrect ? '#10b981' : '#ef4444';
       }
 
       // Draw Answer Card A (Left)
@@ -218,10 +221,10 @@ const NinjaToanGame = {
       // Draw Answer Card B (Right)
       drawGlassCard(ctx, `B\n\n${q.options[1]}`, w - boxW - 30, boxY, boxW, boxH, colorB, '#fff', '#fff', '20px');
 
-      // Draw Question Card (Center Top)
+      // Draw Question Card (Center Top - Light glass card)
       const qW = w * 0.55;
       const qH = 90;
-      drawGlassCard(ctx, q.q, w / 2 - qW / 2, 90, qW, qH, 'rgba(15, 23, 42, 0.9)', '#38bdf8', '#22d3ee', '22px');
+      drawGlassCard(ctx, q.q, w / 2 - qW / 2, 90, qW, qH, 'rgba(255, 255, 255, 0.9)', 'var(--primary)', '#0f172a', '22px');
 
       // 3. Draw Laser Cursor at Index Finger position
       if (this.handActive || (!this.stream && this.fingerX > 0)) {

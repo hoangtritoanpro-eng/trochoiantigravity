@@ -664,13 +664,31 @@ window.addEventListener('DOMContentLoaded', () => {
 // --- HELPER FUNCTION: DRAW TEXT WITH BACKGROUND (UI CARD) ---
 function drawGlassCard(ctx, text, x, y, w, h, bgStyle, borderStyle, textColor, fontSize = '20px') {
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-  ctx.shadowBlur = 15;
-  ctx.fillStyle = bgStyle;
+  
+  // Smart colors for Bright Theme
+  let finalBg = bgStyle;
+  let finalBorder = borderStyle;
+  let finalTextColor = textColor;
+  
+  // Check if background is dark
+  const bgStr = String(bgStyle).toLowerCase().trim();
+  const isDark = bgStr.includes('15, 23, 42') || bgStr.includes('11, 15, 25') || bgStr.startsWith('#0') || bgStr.startsWith('#11') || bgStr.startsWith('#1e1') || bgStr.includes('#10b981') || bgStr.includes('#ef4444') || bgStr.includes('14, 165, 233') || bgStr.includes('rgba(0, 50') || bgStr.includes('rgba(16, 185') || bgStr.includes('rgba(239, 68');
+  
+  // Adapt text color to bright theme
+  if (!isDark && (textColor === '#fff' || textColor === '#ffffff' || textColor === 'white' || textColor === 'var(--text-primary)')) {
+    finalTextColor = '#0f172a'; // slate 900
+  }
+  if (!isDark && (borderStyle === '#fff' || borderStyle === '#ffffff' || borderStyle === 'white' || borderStyle === 'var(--border-glass)')) {
+    finalBorder = 'rgba(15, 23, 42, 0.12)';
+  }
+
+  ctx.shadowColor = isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(15, 23, 42, 0.08)';
+  ctx.shadowBlur = isDark ? 15 : 8;
+  ctx.fillStyle = finalBg;
   
   // Rounded rectangular path
   ctx.beginPath();
-  const radius = 12;
+  const radius = 16; // slightly more rounded and friendly
   ctx.moveTo(x + radius, y);
   ctx.lineTo(x + w - radius, y);
   ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
@@ -684,13 +702,13 @@ function drawGlassCard(ctx, text, x, y, w, h, bgStyle, borderStyle, textColor, f
   ctx.fill();
 
   ctx.shadowBlur = 0;
-  ctx.strokeStyle = borderStyle;
+  ctx.strokeStyle = finalBorder;
   ctx.lineWidth = 2;
   ctx.stroke();
 
   // Draw Text
-  ctx.fillStyle = textColor;
-  ctx.font = `bold ${fontSize} 'Outfit', sans-serif`;
+  ctx.fillStyle = finalTextColor;
+  ctx.font = `bold ${fontSize} 'Fredoka', sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   
@@ -699,7 +717,7 @@ function drawGlassCard(ctx, text, x, y, w, h, bgStyle, borderStyle, textColor, f
   let line = '';
   let lines = [];
   const maxWidth = w - 30;
-  const lineHeight = parseInt(fontSize) * 1.3;
+  const lineHeight = parseInt(fontSize) * 1.35;
   
   for(let n = 0; n < words.length; n++) {
     let testLine = line + words[n] + ' ';

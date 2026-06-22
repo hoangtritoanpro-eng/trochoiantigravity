@@ -136,29 +136,37 @@ const GoldMinerGame = {
     const h = this.canvas.height;
     ctx.clearRect(0, 0, w, h);
 
-    // Deep underground cave background
-    const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#1e293b');
-    grad.addColorStop(1, '#0b0f19');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, w, h);
+    // Miner sky area (top 45%)
+    ctx.fillStyle = '#e0f2fe';
+    ctx.fillRect(0, 0, w, h * 0.45);
 
-    // Draw underground ground divider
-    ctx.fillStyle = '#1e1b4b';
+    // Warm sand cave ground (bottom 55%)
+    const groundGrad = ctx.createLinearGradient(0, h * 0.45, 0, h);
+    groundGrad.addColorStop(0, '#fef3c7');
+    groundGrad.addColorStop(1, '#fde68a');
+    ctx.fillStyle = groundGrad;
     ctx.fillRect(0, h * 0.45, w, h * 0.55);
+
+    // Ground divider line
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.45);
+    ctx.lineTo(w, h * 0.45);
+    ctx.stroke();
 
     // Miner head/avatar at top
     ctx.fillStyle = '#10b981';
     ctx.beginPath();
     ctx.arc(this.minerX, this.minerY - 15, 20, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.font = "bold 12px 'Outfit'";
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 13px 'Fredoka', sans-serif";
     ctx.textAlign = 'center';
     ctx.fillText('Đào Vàng AI', this.minerX, this.minerY - 42);
 
     // Draw Rope/Line and Hook
-    ctx.strokeStyle = '#94a3b8';
+    ctx.strokeStyle = '#475569';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(this.minerX, this.minerY);
@@ -169,7 +177,7 @@ const GoldMinerGame = {
     ctx.save();
     ctx.translate(this.hookX, this.hookY);
     ctx.rotate(-this.hookAngle);
-    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeStyle = '#1e293b';
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.arc(0, 0, 10, 0, Math.PI);
@@ -182,9 +190,9 @@ const GoldMinerGame = {
       const ny = nugget.grabbed ? this.hookY + 25 : nugget.y;
 
       ctx.save();
-      ctx.shadowColor = '#eab308';
+      ctx.shadowColor = 'rgba(234, 179, 8, 0.4)';
       ctx.shadowBlur = 10;
-      ctx.fillStyle = '#eab308';
+      ctx.fillStyle = '#fbbf24'; // beautiful golden yellow nugget
       ctx.beginPath();
       // Irregular rock shape using arc
       ctx.arc(nx, ny, nugget.r, 0, Math.PI * 2);
@@ -193,12 +201,10 @@ const GoldMinerGame = {
       // Draw inner answer text on gold rock
       ctx.shadowBlur = 0;
       ctx.fillStyle = '#0f172a';
-      ctx.font = "bold 14px 'Inter'";
+      ctx.font = "bold 14px 'Fredoka', sans-serif";
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
-      // Wrap text in gold nugget if needed
-      const words = nugget.text.split(' ');
       ctx.fillText(nugget.text, nx, ny);
       ctx.restore();
     });
@@ -217,8 +223,8 @@ const GoldMinerGame = {
     if (!currentQ) return;
 
     // Score
-    ctx.fillStyle = '#fff';
-    ctx.font = "bold 18px 'Outfit'";
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 18px 'Fredoka', sans-serif";
     ctx.textAlign = 'left';
     ctx.fillText(`⭐ Điểm: ${this.score * 10} | Câu ${this.currentQIdx + 1}/5`, 30, 35);
     

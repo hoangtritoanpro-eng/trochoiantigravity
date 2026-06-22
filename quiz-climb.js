@@ -77,16 +77,16 @@ const QuizClimbGame = {
     const h = this.canvas.height;
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Draw Mountain Background
+    // 1. Draw Mountain Background (Bright daylight sky)
     const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#020617'); // Pitch dark top
-    grad.addColorStop(0.5, '#0f172a');
-    grad.addColorStop(1, '#1e293b'); // Dark blue bottom
+    grad.addColorStop(0, '#bae6fd'); // bright sky blue
+    grad.addColorStop(0.6, '#e0f2fe'); // light sky blue
+    grad.addColorStop(1, '#f0f9ff'); // soft whitish blue
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
-    // Draw Mountain Silhouette
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+    // Draw Mountain Silhouette (Light green mountain)
+    ctx.fillStyle = '#a7f3d0';
     ctx.beginPath();
     ctx.moveTo(w * 0.1, h * 0.85);
     ctx.lineTo(w * 0.5, h * 0.15); // Summit
@@ -114,7 +114,7 @@ const QuizClimbGame = {
       const t = i / 5;
       const mx = w * 0.1 + (w * 0.4) * t;
       const my = h * 0.85 - (h * 0.7) * t;
-      ctx.fillStyle = this.climberProgress >= i ? 'var(--primary)' : '#475569';
+      ctx.fillStyle = this.climberProgress >= i ? 'var(--primary)' : '#64748b';
       ctx.beginPath();
       ctx.arc(mx, my, 8, 0, Math.PI * 2);
       ctx.fill();
@@ -124,13 +124,13 @@ const QuizClimbGame = {
     const ct = this.climberProgress / 5;
     const cx = w * 0.1 + (w * 0.4) * ct;
     const cy = h * 0.85 - (h * 0.7) * ct - 15;
-    ctx.fillStyle = '#fde047'; // Glowing yellow climber
+    ctx.fillStyle = '#eab308'; // Friendly yellow climber
     ctx.beginPath();
     ctx.arc(cx, cy, 12, 0, Math.PI * 2);
     ctx.fill();
     // Label
-    ctx.fillStyle = '#fff';
-    ctx.font = "bold 12px 'Outfit'";
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 12px 'Fredoka', sans-serif";
     ctx.fillText('Bạn', cx, cy - 18);
 
     // Summit Flag
@@ -163,8 +163,8 @@ const QuizClimbGame = {
     const starX = w - starW - 30;
     const starY = 90;
     
-    let starBg = 'rgba(15, 23, 42, 0.7)';
-    let starBorder = 'rgba(255,255,255,0.08)';
+    let starBg = 'rgba(255, 255, 255, 0.85)';
+    let starBorder = 'rgba(15, 23, 42, 0.12)';
     let starText = '⭐ Ngôi Sao Hy Vọng';
     
     if (this.hopeStarActive) {
@@ -176,8 +176,8 @@ const QuizClimbGame = {
     this.starBtnCoords = { x1: starX, y1: starY, x2: starX + starW, y2: starY + starH };
 
     // Score indicator
-    ctx.fillStyle = '#fff';
-    ctx.font = "bold 20px 'Outfit'";
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 20px 'Fredoka', sans-serif";
     ctx.textAlign = 'left';
     ctx.fillText(`🏆 Điểm số: ${this.score * 20}`, 30, 40);
 
@@ -200,23 +200,23 @@ const QuizClimbGame = {
       const bx = qX + col * (btnW + 30);
       const by = optY + row * (btnH + 15);
 
-      let bg = 'rgba(30, 41, 59, 0.7)';
+      let bg = 'rgba(255, 255, 255, 0.85)';
       let border = 'var(--border-glass)';
-      let textCol = 'var(--text-primary)';
+      let textCol = '#0f172a';
 
       if (this.gameState === 'ANSWERED') {
         if (i === currentQ.ans) {
-          bg = 'rgba(16, 185, 129, 0.9)'; // Green
+          bg = '#10b981';
           border = '#10b981';
           textCol = '#fff';
         } else if (i === this.selectedOption) {
-          bg = 'rgba(239, 68, 68, 0.9)'; // Red
+          bg = '#ef4444';
           border = '#ef4444';
           textCol = '#fff';
         }
       } else {
         if (i === this.selectedOption) {
-          bg = 'rgba(16, 185, 129, 0.2)';
+          bg = 'rgba(16, 185, 129, 0.15)';
           border = 'var(--primary)';
         }
       }
