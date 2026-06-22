@@ -6,6 +6,9 @@
   <title>Hệ Thống Game Trí Tuệ - Thầy Toàn A.I</title>
   <meta name="description" content="Hệ thống trò chơi trí tuệ học tập Toán học lớp 6-9 thiết kế bởi Thầy Toàn A.I. Tích hợp AI Camera tương tác bằng cử chỉ tay.">
   <meta name="keywords" content="Thầy Toàn A.I, Game Toán Học, AI Camera, Trò chơi học tập, Toán THCS, giaoviendoimoi">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0f19">
+  <link rel="apple-touch-icon" href="bg_secret.png">
   <link rel="stylesheet" href="index.css">
   
   <!-- MediaPipe Hands dependencies via CDN -->
@@ -23,6 +26,7 @@
       <button class="nav-btn active" id="btnDashboard">Dashboard</button>
       <button class="nav-btn" id="btnQuestions">Ngân Hàng Câu Hỏi</button>
       <button class="nav-btn" id="btnLeaderboard">Bảng Xếp Hạng</button>
+      <button class="nav-btn" id="btnManageQuestions">Quản Lý Câu Hỏi</button>
     </div>
   </header>
 
@@ -176,9 +180,14 @@
           <h2 style="font-family: var(--font-display); font-size: 28px;" class="pulse-text">
             Bảng Xếp Hạng Cao Thủ
           </h2>
-          <button class="btn-primary" id="btnClearLeaderboard" style="background: linear-gradient(135deg, #ef4444, #b91c1c); font-size: 14px; padding: 8px 16px;">
-            🗑️ Xóa Lịch Sử
-          </button>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-primary" id="btnExportLeaderboard" style="font-size: 14px; padding: 8px 16px;">
+              📥 Xuất Điểm (CSV)
+            </button>
+            <button class="btn-primary" id="btnClearLeaderboard" style="background: linear-gradient(135deg, #ef4444, #b91c1c); font-size: 14px; padding: 8px 16px;">
+              🗑️ Xóa Lịch Sử
+            </button>
+          </div>
         </div>
         <div class="leaderboard-table-container">
           <table class="leaderboard-table">
@@ -197,6 +206,80 @@
               <!-- Dynamically populated -->
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Manage Questions View -->
+      <div id="manageQuestionsView" style="display: none;">
+        <div style="margin-bottom: 24px;">
+          <h2 style="font-family: var(--font-display); font-size: 28px;" class="pulse-text">
+            Quản Lý Câu Hỏi Tùy Chỉnh
+          </h2>
+          <p style="color: var(--text-secondary); font-size: 14px; margin-top: 5px;">
+            Thêm câu hỏi mới của riêng bạn để hiển thị trong các game và ngân hàng đề.
+          </p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;">
+          <!-- Left Col: Form to add question -->
+          <div class="audio-toggle" style="flex-direction: column; align-items: stretch; gap: 15px;">
+            <h3 style="font-family: var(--font-display); font-size: 18px; border-left: 3px solid var(--primary); padding-left: 10px;">Thêm Câu Hỏi Mới</h3>
+            
+            <form id="formAddQuestion" style="display: flex; flex-direction: column; gap: 12px;" onsubmit="return false;">
+              <div class="control-group">
+                <label for="newGrade">Khối Lớp</label>
+                <select id="newGrade" class="select-custom" required>
+                  <option value="6">Toán Lớp 6</option>
+                  <option value="7">Toán Lớp 7</option>
+                  <option value="8" selected>Toán Lớp 8</option>
+                  <option value="9">Toán Lớp 9</option>
+                </select>
+              </div>
+
+              <div class="control-group">
+                <label for="newTopic">Chủ Đề</label>
+                <select id="newTopic" class="select-custom" required>
+                  <option value="algebra">Đại số & Số học</option>
+                  <option value="geometry">Hình học</option>
+                </select>
+              </div>
+
+              <div class="control-group">
+                <label for="newQuestionText">Nội dung câu hỏi</label>
+                <textarea id="newQuestionText" class="select-custom" rows="2" placeholder="Nhập câu hỏi toán..." required style="resize: vertical; font-family: var(--font-body);"></textarea>
+              </div>
+
+              <div class="control-group">
+                <label>Các lựa chọn đáp án</label>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <input type="text" id="newOpt0" class="select-custom" placeholder="Đáp án A" required>
+                  <input type="text" id="newOpt1" class="select-custom" placeholder="Đáp án B" required>
+                  <input type="text" id="newOpt2" class="select-custom" placeholder="Đáp án C" required>
+                  <input type="text" id="newOpt3" class="select-custom" placeholder="Đáp án D" required>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label for="newCorrectAns">Đáp án đúng</label>
+                <select id="newCorrectAns" class="select-custom" required>
+                  <option value="0">Đáp án A</option>
+                  <option value="1">Đáp án B</option>
+                  <option value="2">Đáp án C</option>
+                  <option value="3">Đáp án D</option>
+                </select>
+              </div>
+
+              <button type="submit" class="btn-primary" style="margin-top: 10px;">💾 Lưu Câu Hỏi</button>
+            </form>
+          </div>
+
+          <!-- Right Col: List of custom questions -->
+          <div class="audio-toggle" style="flex-direction: column; align-items: stretch; gap: 15px;">
+            <h3 style="font-family: var(--font-display); font-size: 18px; border-left: 3px solid var(--secondary); padding-left: 10px;">Danh Sách Câu Hỏi Tự Tạo</h3>
+            <div id="customQuestionsContainer" style="display: flex; flex-direction: column; gap: 15px; max-height: 520px; overflow-y: auto; padding-right: 5px;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
         </div>
       </div>
 

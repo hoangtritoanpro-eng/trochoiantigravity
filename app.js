@@ -169,6 +169,11 @@ const QuestionBank = {
       pool = gradeDB[topic] || [];
     }
 
+    // Load custom questions from localStorage and merge them
+    const customList = JSON.parse(localStorage.getItem('toan_ai_custom_questions') || '[]');
+    const matchingCustom = customList.filter(q => q.grade === grade && (topic === 'all' || q.topic === topic));
+    pool = [...pool, ...matchingCustom];
+
     // Shuffle pool
     const shuffled = pool.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
@@ -234,6 +239,15 @@ const AppRouter = {
       });
     }
 
+    // Export leaderboard to CSV
+    const exportBtn = document.getElementById('btnExportLeaderboard');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        this.exportLeaderboardToCSV();
+        AudioEngine.play('click');
+      });
+    }
+
     // Clear leaderboard history
     const clearBtn = document.getElementById('btnClearLeaderboard');
     if (clearBtn) {
@@ -243,6 +257,24 @@ const AppRouter = {
           this.renderLeaderboardTab();
           AudioEngine.play('wrong');
         }
+      });
+    }
+
+    // Manage questions tab button
+    const manageBtn = document.getElementById('btnManageQuestions');
+    if (manageBtn) {
+      manageBtn.addEventListener('click', () => {
+        this.switchTab('manage-questions');
+        AudioEngine.play('click');
+      });
+    }
+
+    // Custom question form submit listener
+    const addQForm = document.getElementById('formAddQuestion');
+    if (addQForm) {
+      addQForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleAddQuestionSubmit();
       });
     }
 
@@ -260,19 +292,24 @@ const AppRouter = {
     const dashBtn = document.getElementById('btnDashboard');
     const questBtn = document.getElementById('btnQuestions');
     const leadBtn = document.getElementById('btnLeaderboard');
+    const manageBtn = document.getElementById('btnManageQuestions');
+    
     const dashView = document.getElementById('dashboardView');
     const questView = document.getElementById('questionsView');
     const leadView = document.getElementById('leaderboardView');
+    const manageView = document.getElementById('manageQuestionsView');
 
     // Remove active class from all buttons
     dashBtn.classList.remove('active');
     questBtn.classList.remove('active');
     if (leadBtn) leadBtn.classList.remove('active');
+    if (manageBtn) manageBtn.classList.remove('active');
 
     // Hide all views
     dashView.style.display = 'none';
     questView.style.display = 'none';
     if (leadView) leadView.style.display = 'none';
+    if (manageView) manageView.style.display = 'none';
 
     if (tab === 'dashboard') {
       dashBtn.classList.add('active');
@@ -280,10 +317,15 @@ const AppRouter = {
     } else if (tab === 'questions') {
       questBtn.classList.add('active');
       questView.style.display = 'block';
+      this.renderQuestionBankTab(); // Refresh question bank
     } else if (tab === 'leaderboard') {
       if (leadBtn) leadBtn.classList.add('active');
       if (leadView) leadView.style.display = 'block';
       this.renderLeaderboardTab();
+    } else if (tab === 'manage-questions') {
+      if (manageBtn) manageBtn.classList.add('active');
+      if (manageView) manageView.style.display = 'block';
+      this.renderManageQuestionsTab();
     }
   },
 
@@ -360,6 +402,140 @@ const AppRouter = {
       `;
       tbody.appendChild(tr);
     });
+  },
+
+  renderManageQuestionsTab() {
+    const container = document.getElementById('customQuestionsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const list = JSON.parse(localStorage.getItem('toan_ai_custom_questions') || '[]');
+    if (list.length === 0) {
+      container.innerHTML = `<div style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Chưa có câu hỏi tự tạo nào. Hãy thêm ở ô bên cạnh!</div>`;
+      return;
+    }
+
+    list.forEach((item, idx) => {
+      const qDiv = document.createElement('div');
+      qDiv.className = 'audio-toggle';
+      qDiv.style.flexDirection = 'row';
+      qDiv.style.alignItems = 'center';
+      qDiv.style.justifyContent = 'space-between';
+      qDiv.style.gap = '15px';
+
+      const details = `Lớp ${item.grade} • ${item.topic === 'algebra' ? 'Đại số' : 'Hình học'}`;
+
+      qDiv.innerHTML = `
+        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 5px; overflow: hidden; text-align: left;">
+          <div style="font-size: 11px; color: var(--text-muted); font-weight: bold;">${details}</div>
+          <div style="font-weight: 800; color: var(--text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${item.q}</div>
+        </div>
+        <button class="back-btn delete-q-btn" data-index="${idx}" style="padding: 5px 10px; border-color: rgba(239, 68, 68, 0.4); color: #ef4444; font-size: 12px; margin-left: 10px;">Xóa</button>
+      `;
+
+      qDiv.querySelector('.delete-q-btn').addEventListener('click', (e) => {
+        const index = parseInt(e.target.getAttribute('data-index'));
+        this.deleteCustomQuestion(index);
+      });
+
+      container.appendChild(qDiv);
+    });
+  },
+
+  handleAddQuestionSubmit() {
+    const newGrade = document.getElementById('newGrade').value;
+    const newTopic = document.getElementById('newTopic').value;
+    const newQText = document.getElementById('newQuestionText').value.trim();
+    const opt0 = document.getElementById('newOpt0').value.trim();
+    const opt1 = document.getElementById('newOpt1').value.trim();
+    const opt2 = document.getElementById('newOpt2').value.trim();
+    const opt3 = document.getElementById('newOpt3').value.trim();
+    const correctIdx = parseInt(document.getElementById('newCorrectAns').value);
+
+    if (!newQText || !opt0 || !opt1 || !opt2 || !opt3) {
+      alert('Vui lòng điền đầy đủ thông tin câu hỏi và các đáp án!');
+      return;
+    }
+
+    const newItem = {
+      grade: newGrade,
+      topic: newTopic,
+      q: newQText,
+      options: [opt0, opt1, opt2, opt3],
+      ans: correctIdx,
+      isCustom: true
+    };
+
+    let list = JSON.parse(localStorage.getItem('toan_ai_custom_questions') || '[]');
+    list.push(newItem);
+    localStorage.setItem('toan_ai_custom_questions', JSON.stringify(list));
+
+    // Reset Form
+    document.getElementById('newQuestionText').value = '';
+    document.getElementById('newOpt0').value = '';
+    document.getElementById('newOpt1').value = '';
+    document.getElementById('newOpt2').value = '';
+    document.getElementById('newOpt3').value = '';
+    
+    AudioEngine.play('correct');
+    
+    // Refresh view
+    this.renderManageQuestionsTab();
+  },
+
+  deleteCustomQuestion(index) {
+    if (!confirm('Bạn có chắc muốn xóa câu hỏi này không?')) return;
+    
+    let list = JSON.parse(localStorage.getItem('toan_ai_custom_questions') || '[]');
+    list.splice(index, 1);
+    localStorage.setItem('toan_ai_custom_questions', JSON.stringify(list));
+    
+    AudioEngine.play('wrong');
+    this.renderManageQuestionsTab();
+  },
+
+  exportLeaderboardToCSV() {
+    const leaderboard = JSON.parse(localStorage.getItem('toan_ai_leaderboard') || '[]');
+    if (leaderboard.length === 0) {
+      alert('Chưa có thành tích nào để xuất bảng điểm!');
+      return;
+    }
+
+    // Build CSV content rows
+    const headers = ["Hạng", "Người Chơi", "Trò Chơi", "Khối Lớp", "Độ Khó", "Điểm Số", "Thời Gian"];
+    const rows = [headers];
+
+    leaderboard.forEach((e, idx) => {
+      const date = new Date(e.timestamp);
+      const timeStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')} ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+      const diffs = { 'easy': 'Dễ', 'medium': 'Vừa', 'hard': 'Khó' };
+      const diffStr = diffs[e.difficulty] || e.difficulty;
+
+      rows.push([
+        idx + 1,
+        `"${e.playerName.replace(/"/g, '""')}"`,
+        `"${e.gameName.replace(/"/g, '""')}"`,
+        `"Lớp ${e.grade}"`,
+        `"${diffStr}"`,
+        e.score,
+        `"${timeStr}"`
+      ]);
+    });
+
+    const csvContent = rows.map(r => r.join(",")).join("\n");
+    
+    // Create Blob with UTF-8 BOM to display Vietnamese accents in Excel correctly
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `bang_diem_toan_ai_${Date.now()}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   },
 
   saveScore(gameId, rawScore, maxScore) {
@@ -474,9 +650,15 @@ const AppRouter = {
   }
 };
 
-// Start router when DOM is loaded
+// Start router and register service worker when DOM is loaded
 window.addEventListener('DOMContentLoaded', () => {
   AppRouter.init();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => console.log('Service Worker registered successfully:', reg.scope))
+      .catch((err) => console.warn('Service Worker registration failed:', err));
+  }
 });
 
 // --- HELPER FUNCTION: DRAW TEXT WITH BACKGROUND (UI CARD) ---

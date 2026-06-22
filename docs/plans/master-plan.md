@@ -11,7 +11,7 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
 | :--- | :--- | :--- | :--- |
 | **Phase 1** | Khởi Tạo & Core Logic | `[x]` | Xây dựng khung nền móng và các logic cốt lõi. |
 | **Phase 2** | UI/UX & Tính năng chính | `[x]` | Phát triển các giao diện người dùng chính và kết nối dữ liệu. |
-| **Phase 3** | Tính năng Nâng cao & Tối ưu | `[ ]` | Hoàn thiện các tính năng phụ trợ, tối ưu hóa trải nghiệm & hiệu năng. |
+| **Phase 3** | Tính năng Nâng cao & Tối ưu | `[x]` | Hoàn thiện các tính năng phụ trợ, tối ưu hóa trải nghiệm & hiệu năng. |
 | **Phase 4** | Deploy & Bàn giao | `[ ]` | Đóng gói sản phẩm, deploy môi trường production và viết tài liệu HDSD. |
 
 ---
@@ -37,8 +37,8 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
 ### Phase 3: Tính năng Nâng cao & Tối ưu
 - **Mục tiêu:** Bổ sung các tính năng phụ trợ và tối ưu hóa ứng dụng.
 - **Các task chính:**
-  - [ ] Bổ sung các chức năng nâng cao (như Export data, Offline Mode, PWA, Cài đặt tùy chỉnh).
-  - [ ] Refactor mã nguồn, tối ưu hóa kích thước bundle và tốc độ tải trang.
+  - [x] Bổ sung các chức năng nâng cao (như Export data, Offline Mode, PWA, Cài đặt tùy chỉnh).
+  - [x] Refactor mã nguồn, tối ưu hóa kích thước bundle và tốc độ tải trang.
 - **Expected Output:** Ứng dụng chạy mượt mà, đầy đủ tính năng, sẵn sàng để bàn giao.
 
 ### Phase 4: Deploy & Bàn giao

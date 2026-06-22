@@ -10,6 +10,15 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.3.0] - 2026-06-22
+
+### Added
+- Tính năng **Quản Lý Câu Hỏi Tùy Chỉnh** (Custom Question Creator) cho phép giáo viên tự soạn câu hỏi, lưu trữ qua `localStorage` và trộn ngẫu nhiên vào 8 game tương tác.
+- Tích hợp tính năng **Xuất Bảng Điểm ra CSV** chuẩn Excel tiếng Việt (UTF-8 BOM).
+- Cấu hình **PWA (Progressive Web App)** với `manifest.json` cho phép cài đặt trực tiếp lên PC/Mobile.
+- Viết Service Worker (`sw.js`) để **Cache Assets tĩnh & CDN động**, hỗ trợ chạy ngoại tuyến (Offline) toàn diện.
+- Tối ưu hóa hiệu năng vẽ canvas và dọn dẹp bộ nhớ router.
+
 ---
 
 ## [1.2.0] - 2026-06-22
