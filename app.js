@@ -269,6 +269,15 @@ const AppRouter = {
       });
     }
 
+    // Pomodoro tab button
+    const pomoBtn = document.getElementById('btnPomodoro');
+    if (pomoBtn) {
+      pomoBtn.addEventListener('click', () => {
+        this.switchTab('pomodoro');
+        AudioEngine.play('click');
+      });
+    }
+
     // Custom question form submit listener
     const addQForm = document.getElementById('formAddQuestion');
     if (addQForm) {
@@ -304,12 +313,16 @@ const AppRouter = {
     questBtn.classList.remove('active');
     if (leadBtn) leadBtn.classList.remove('active');
     if (manageBtn) manageBtn.classList.remove('active');
+    const pomoBtn = document.getElementById('btnPomodoro');
+    if (pomoBtn) pomoBtn.classList.remove('active');
 
     // Hide all views
     dashView.style.display = 'none';
     questView.style.display = 'none';
     if (leadView) leadView.style.display = 'none';
     if (manageView) manageView.style.display = 'none';
+    const pomoView = document.getElementById('pomodoroView');
+    if (pomoView) pomoView.style.display = 'none';
 
     if (tab === 'dashboard') {
       dashBtn.classList.add('active');
@@ -326,6 +339,9 @@ const AppRouter = {
       if (manageBtn) manageBtn.classList.add('active');
       if (manageView) manageView.style.display = 'block';
       this.renderManageQuestionsTab();
+    } else if (tab === 'pomodoro') {
+      if (pomoBtn) pomoBtn.classList.add('active');
+      if (pomoView) pomoView.style.display = 'block';
     }
   },
 
@@ -577,13 +593,22 @@ const AppRouter = {
       'gold-miner': 'Đào Vàng Tri Thức',
       'archery-math': 'Bắn Cung Toán Học',
       'memory-match': 'Ghép Đôi Thằng Đẳng Thức',
-      'flappy-math': 'Rùa Bay Toán Học'
+      'flappy-math': 'Rùa Bay Toán Học',
+      'space-math': 'Bảo Vệ Trái Đất',
+      'math-racing': 'Đua Xe Toán Học'
     };
     return names[gameId] || gameId;
   },
 
   launchGame(gameId) {
     AudioEngine.play('click');
+
+    if (gameId === 'millionaire') {
+      document.getElementById('dashboardView').style.display = 'none';
+      document.getElementById('millionaireView').style.display = 'grid';
+      if(typeof MillionaireGame !== 'undefined') MillionaireGame.onEnter();
+      return;
+    }
     const playScreen = document.getElementById('playScreen');
     const activeGameTitle = document.getElementById('activeGameTitle');
     
@@ -646,6 +671,10 @@ const AppRouter = {
       MemoryMatchGame.start(canvas);
     } else if (gameId === 'flappy-math') {
       FlappyMathGame.start(canvas);
+    } else if (gameId === 'space-math') {
+      SpaceMathGame.start(canvas);
+    } else if (gameId === 'math-racing') {
+      MathRacingGame.start(canvas);
     }
   }
 };
@@ -708,7 +737,7 @@ function drawGlassCard(ctx, text, x, y, w, h, bgStyle, borderStyle, textColor, f
 
   // Draw Text
   ctx.fillStyle = finalTextColor;
-  ctx.font = `bold ${fontSize} 'Fredoka', sans-serif`;
+  ctx.font = `bold ${fontSize} 'Lexend', sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   

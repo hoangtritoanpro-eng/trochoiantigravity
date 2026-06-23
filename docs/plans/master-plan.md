@@ -53,7 +53,24 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
 ### Phase 5: Giao Diện Tươi Sáng & Phông Chữ Trẻ Em (Bright Theme)
 - **Mục tiêu:** Chuyển đổi toàn diện giao diện sang tông tươi sáng bắt mắt, sử dụng phông chữ bo tròn thân thiện với trẻ em.
 - **Các task chính:**
-  - [ ] Tích hợp phông chữ mới (Fredoka & Quicksand) và cấu hình CSS Bright Theme.
-  - [ ] Cập nhật hàm vẽ helper UI Card để đồng bộ màu sắc/phông chữ sáng.
+  - [x] Tích hợp phông chữ mới (Lexend & Nunito) và cấu hình CSS Bright Theme.
+  - [x] Cập nhật hàm vẽ helper UI Card để đồng bộ màu sắc/phông chữ sáng.
   - [ ] Chuyển đổi màu sắc canvas của cả 8 game dạy học tương tác sang tông pastel sáng sủa.
 - **Expected Output:** Giao diện toàn hệ thống mang màu sắc tươi sáng sinh động, phông chữ dễ thương dễ đọc, tất cả canvas vẽ game đẹp mắt, không lỗi JavaScript.
+
+### Phase 6: Thêm Game Mới và Phòng Pomodoro
+- **Mục tiêu:** Mở rộng kho game và thêm khu vực học tập tập trung Pomodoro.
+- **Các task chính:**
+  - [ ] Bổ sung thẻ điều hướng và giao diện cho "Phòng Pomodoro".
+  - [ ] Khởi tạo và lập trình logic game "Bảo Vệ Trái Đất" (Space Math).
+  - [ ] Khởi tạo và lập trình logic game "Đua Xe Toán Học" (Math Racing).
+  - [ ] Cập nhật kết nối các game mới với kho câu hỏi và hệ thống điểm.
+- **Expected Output:** Hai game mới và phòng Pomodoro có thể truy cập được từ giao diện và hoạt động trơn tru.
+
+### Phase 7: Game Ai Là Triệu Phú Toán Học
+- **Mục tiêu:** Xây dựng trò chơi mới dựa trên thiết kế giao diện DOM chi tiết.
+- **Các task chính:**
+  - [ ] Thiết kế layout 3 cột: Điều khiển, Câu hỏi, Tiến độ.
+  - [ ] Viết CSS cho màu nền Dark Blue và vàng Gold sang trọng.
+  - [ ] Lập trình logic game xử lý lưới 22 câu hỏi.
+- **Expected Output:** Trò chơi hoạt động độc lập với giao diện y hệt ảnh mẫu, chạy mượt mà trên trình duyệt.

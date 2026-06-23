@@ -27,6 +27,7 @@
       <button class="nav-btn" id="btnQuestions">📚 Ngân Hàng Câu Hỏi</button>
       <button class="nav-btn" id="btnLeaderboard">🏆 Bảng Xếp Hạng</button>
       <button class="nav-btn" id="btnManageQuestions">✏️ Quản Lý Câu Hỏi</button>
+      <button class="nav-btn" id="btnPomodoro">🍅 Phòng Pomodoro</button>
     </nav>
   </header>
 
@@ -162,6 +163,30 @@
             <div class="game-tag">Phản Xạ / Vui Nhộn</div>
           </div>
 
+          <!-- Card 9: Bảo Vệ Trái Đất -->
+          <div class="game-card" data-game="space-math">
+            <div class="game-icon">🚀</div>
+            <div class="game-title">Bảo Vệ Trái Đất</div>
+            <div class="game-desc">Phi thuyền không gian tiêu diệt các thiên thạch mang đáp án sai. Cứu nguy cho Trái Đất!</div>
+            <div class="game-tag">Không Gian / Bắn Súng</div>
+          </div>
+
+          <!-- Card 10: Đua Xe Toán Học -->
+          <div class="game-card" data-game="math-racing">
+            <div class="game-icon">🏎️</div>
+            <div class="game-title">Đua Xe Toán Học</div>
+            <div class="game-desc">Trả lời nhanh để tăng tốc, đánh bại các đối thủ trên đường đua toán học rực lửa.</div>
+            <div class="game-tag">Tốc Độ / Cạnh Tranh</div>
+          </div>
+
+          <!-- Card 11: Ai Là Triệu Phú Toán Học -->
+          <div class="game-card millionaire-card" data-game="millionaire">
+            <div class="game-icon">💵</div>
+            <div class="game-title">Triệu Phú Toán Học</div>
+            <div class="game-desc">Trả lời chính xác 22 câu hỏi để chinh phục đỉnh cao trí tuệ toán học.</div>
+            <div class="game-tag">Logic / Tư Duy</div>
+          </div>
+
         </div>
       </div>
 
@@ -276,6 +301,46 @@
         </div>
       </div>
 
+      <!-- Pomodoro Room View -->
+      <div id="pomodoroView" style="display: none;">
+        <h2 class="page-title pulse-text">
+          🍅 PHÒNG HỌC POMODORO 🎧
+        </h2>
+        <div class="pomodoro-container">
+          <div class="pomodoro-timer-box">
+            <div class="pomodoro-status" id="pomoStatus">TẬP TRUNG (FOCUS)</div>
+            <div class="pomodoro-time" id="pomoTime">25:00</div>
+            <div class="pomodoro-controls">
+              <button class="btn-primary" id="btnPomoStart">▶️ Bắt Đầu</button>
+              <button class="btn-primary" id="btnPomoPause" style="background: linear-gradient(135deg, #f59e0b, #d97706); display: none;">⏸ Tạm Dừng</button>
+              <button class="btn-primary" id="btnPomoReset" style="background: linear-gradient(135deg, #64748b, #475569);">🔄 Đặt Lại</button>
+            </div>
+          </div>
+          
+          <div class="pomodoro-settings">
+            <h3 style="margin-bottom: 15px; color: var(--text-primary); font-family: var(--font-display);">Cài đặt Phòng</h3>
+            <div class="control-group">
+              <label>🎵 Nhạc Nền (Lofi Chill)</label>
+              <div class="audio-toggle" style="margin-top: 5px;">
+                <span style="font-size: 13px; color: var(--text-secondary);">Phát Nhạc Lofi</span>
+                <label class="switch">
+                  <input type="checkbox" id="lofiSwitch">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="control-group" style="margin-top: 15px;">
+              <label>⏱ Thời gian tập trung (phút)</label>
+              <input type="number" id="inputFocusTime" class="select-custom" value="25" min="1" max="60">
+            </div>
+            <div class="control-group" style="margin-top: 15px;">
+              <label>☕ Thời gian nghỉ (phút)</label>
+              <input type="number" id="inputBreakTime" class="select-custom" value="5" min="1" max="30">
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Play Screen Overlay -->
       <div class="play-screen" id="playScreen">
         <div class="play-header">
@@ -286,6 +351,70 @@
         <div class="game-viewport" id="gameViewport">
           <canvas id="gameCanvas"></canvas>
           <video id="webcam" autoplay playsinline style="display: none;"></video>
+        </div>
+      </div>
+
+      <!-- Ai Là Triệu Phú Toán Học View (DOM-based fullscreen game) -->
+      <div class="millionaire-fullscreen" id="millionaireView" style="display: none;">
+        <div class="mil-left-panel">
+          <h3 class="mil-panel-title">BẢNG ĐIỀU KHIỂN</h3>
+          <div class="mil-rules">
+            <strong>LUẬT CHƠI:</strong><br>
+            - Bấm đáp án trắc nghiệm là kiểm tra ngay.<br>
+            - Trả lời đúng/sai sẽ chuyển sang câu tiếp theo.<br>
+            - Chỉ đúng mới có nhạc thắng.
+          </div>
+          <div class="mil-buttons">
+            <button class="btn-mil start" id="btnMilStart">BẮT ĐẦU</button>
+            <button class="btn-mil check" id="btnMilCheck">KIỂM TRA</button>
+            <button class="btn-mil answer" id="btnMilAnswer">HIỆN ĐÁP ÁN</button>
+            <button class="btn-mil restart" id="btnMilRestart">LÀM LẠI</button>
+          </div>
+          <div class="mil-q-grid" id="milQuestionGrid">
+            <!-- Grid buttons injected by JS -->
+          </div>
+          <button class="back-btn" style="margin-top: 15px; width: 100%;" id="btnMilExit">Thoát Game</button>
+        </div>
+
+        <div class="mil-center-panel">
+          <div class="mil-header">
+            <h2 class="mil-game-title">AI LÀ TRIỆU PHÚ TOÁN HỌC</h2>
+            <div class="mil-subtitle" id="milSubtitle">Đề ôn luyện tổng hợp</div>
+          </div>
+          
+          <div class="mil-question-box">
+            <div class="mil-badges">
+              <span class="mil-badge qnum" id="milBadgeQNum">Câu 1</span>
+              <span class="mil-badge part">Phần I</span>
+              <span class="mil-badge topic" id="milBadgeTopic">Toán Học</span>
+            </div>
+            <div class="mil-question-content" id="milQuestionText">Nhấn "BẮT ĐẦU" để chơi game.</div>
+          </div>
+
+          <div class="mil-options-grid">
+            <button class="mil-option" data-opt="0"><span class="opt-letter">A</span><span class="opt-text" id="milOpt0">...</span></button>
+            <button class="mil-option" data-opt="1"><span class="opt-letter">B</span><span class="opt-text" id="milOpt1">...</span></button>
+            <button class="mil-option" data-opt="2"><span class="opt-letter">C</span><span class="opt-text" id="milOpt2">...</span></button>
+            <button class="mil-option" data-opt="3"><span class="opt-letter">D</span><span class="opt-text" id="milOpt3">...</span></button>
+          </div>
+
+          <div class="mil-nav-buttons">
+            <button class="btn-mil-nav" id="btnMilPrev">CÂU TRƯỚC</button>
+            <button class="btn-mil-nav" id="btnMilNext">CÂU TIẾP</button>
+          </div>
+        </div>
+
+        <div class="mil-right-panel">
+          <h3 class="mil-panel-title">TIẾN ĐỘ</h3>
+          <div class="mil-progress">
+            Đã đúng: <span id="milScore">0</span>/22
+          </div>
+          <div class="mil-progress-note">
+            Không hiện đáp án trước. "Hiện đáp án" chỉ để giáo viên kiểm tra, không tính hoàn thành câu.
+          </div>
+          <div class="mil-author">
+            Phát triển bởi: Thầy Toàn AI
+          </div>
         </div>
       </div>
 
@@ -302,6 +431,10 @@
   <script src="archery-math.js"></script>
   <script src="memory-match.js"></script>
   <script src="flappy-math.js"></script>
+  <script src="space-math.js"></script>
+  <script src="math-racing.js"></script>
+  <script src="pomodoro-room.js"></script>
+  <script src="millionaire.js"></script>
 
 </body>
 </html>

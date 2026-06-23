@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --font-display: 'Fredoka', sans-serif;
-  --font-body: 'Quicksand', sans-serif;
+  --font-display: 'Lexend', sans-serif;
+  --font-body: 'Nunito', sans-serif;
 
   /* Grid-white theme */
   --bg-page: #ffffff;
@@ -617,6 +617,61 @@ canvas {
 }
 
 /* ═══════════════════════════════
+   POMODORO ROOM
+═══════════════════════════════ */
+.pomodoro-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.pomodoro-timer-box {
+  background: #ffffff;
+  border: 2px solid var(--border-active);
+  border-radius: 24px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15);
+  min-width: 340px;
+}
+
+.pomodoro-status {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-orange);
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.pomodoro-time {
+  font-family: var(--font-display);
+  font-size: 80px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 30px;
+  text-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.pomodoro-controls {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.pomodoro-settings {
+  background: #ffffff;
+  border: 1.5px solid var(--border-input);
+  border-radius: 18px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ═══════════════════════════════
    PULSE ANIMATION (kept for titles)
 ═══════════════════════════════ */
 @keyframes titleShimmer {
@@ -690,4 +745,283 @@ canvas {
   }
 
   .play-screen { padding: 10px; }
+}
+
+/* ═══════════════════════════════
+   AI LÀ TRIỆU PHÚ TOÁN HỌC (DOM GAME)
+═══════════════════════════════ */
+.millionaire-fullscreen {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: #060e22; /* Dark blue */
+  z-index: 50;
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  color: #fff;
+  font-family: var(--font-body);
+}
+
+.mil-left-panel, .mil-right-panel {
+  background: #0a1331;
+  border: 1.5px solid #1e3a8a;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.mil-left-panel { border-right: 2px solid #eab308; }
+.mil-right-panel { border-left: 2px solid #eab308; }
+
+.mil-panel-title {
+  color: #fde047;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(234, 179, 8, 0.3);
+  padding-bottom: 10px;
+}
+
+.mil-rules, .mil-progress-note, .mil-author {
+  font-size: 13px;
+  color: #bfdbfe;
+  line-height: 1.6;
+}
+
+.mil-buttons {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.btn-mil {
+  padding: 12px;
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  color: #fff;
+  transition: all 0.2s;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.btn-mil.start { background: linear-gradient(180deg, #4ade80, #16a34a); box-shadow: 0 4px 0 #15803d; }
+.btn-mil.start:active { transform: translateY(4px); box-shadow: none; }
+
+.btn-mil.check { background: linear-gradient(180deg, #fcd34d, #f59e0b); color: #78350f; box-shadow: 0 4px 0 #b45309; text-shadow: none; }
+.btn-mil.check:active { transform: translateY(4px); box-shadow: none; }
+
+.btn-mil.answer { background: linear-gradient(180deg, #94a3b8, #64748b); box-shadow: 0 4px 0 #475569; }
+.btn-mil.answer:active { transform: translateY(4px); box-shadow: none; }
+
+.btn-mil.restart { background: linear-gradient(180deg, #f87171, #dc2626); box-shadow: 0 4px 0 #b91c1c; }
+.btn-mil.restart:active { transform: translateY(4px); box-shadow: none; }
+
+.mil-q-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.mil-q-btn {
+  background: #1e293b;
+  color: #fff;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 6px 0;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+}
+.mil-q-btn.active { background: #eab308; color: #000; border-color: #fef08a; }
+.mil-q-btn.correct { background: #22c55e; border-color: #4ade80; }
+.mil-q-btn.wrong { background: #ef4444; border-color: #f87171; }
+
+.mil-center-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 40px;
+  position: relative;
+  background: radial-gradient(circle at center, #0f1c42 0%, #060e22 100%);
+}
+
+.mil-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.mil-game-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: #fde047;
+  text-shadow: 0 2px 10px rgba(253, 224, 71, 0.4);
+  margin-bottom: 5px;
+}
+
+.mil-subtitle {
+  font-size: 14px;
+  color: #93c5fd;
+}
+
+.mil-question-box {
+  background: #ffffff;
+  color: #1e293b;
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 180px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #eab308;
+}
+
+.mil-badges {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.mil-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+.mil-badge.qnum { border-color: #eab308; color: #b45309; background: #fef9c3; }
+
+.mil-question-content {
+  font-size: 18px;
+  line-height: 1.5;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+}
+.mil-question-content img {
+  max-width: 100%;
+  max-height: 250px;
+  margin-top: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.mil-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.mil-option {
+  background: linear-gradient(90deg, #0f172a, #1e293b);
+  border: 2px solid #eab308;
+  border-radius: 25px;
+  padding: 15px 20px;
+  color: #fff;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.mil-option:hover {
+  background: linear-gradient(90deg, #1e293b, #334155);
+  transform: scale(1.02);
+}
+
+.mil-option.selected {
+  background: linear-gradient(90deg, #b45309, #d97706);
+  border-color: #fde047;
+}
+
+.mil-option.correct {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  border-color: #4ade80;
+  animation: milFlashCorrect 0.5s infinite alternate;
+}
+
+.mil-option.wrong {
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+  border-color: #fca5a5;
+}
+
+@keyframes milFlashCorrect {
+  0% { box-shadow: 0 0 10px #4ade80; }
+  100% { box-shadow: 0 0 25px #4ade80; }
+}
+
+.opt-letter {
+  color: #fde047;
+  font-weight: bold;
+  font-size: 18px;
+  margin-right: 15px;
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  background: #000;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 25px;
+}
+.mil-option.selected .opt-letter { background: #fff; color: #b45309; }
+
+.opt-text {
+  flex-grow: 1;
+}
+
+.mil-nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.btn-mil-nav {
+  background: linear-gradient(180deg, #94a3b8, #64748b);
+  border: 1px solid #cbd5e1;
+  color: #fff;
+  padding: 10px 30px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-mil-nav:hover { background: #cbd5e1; color: #000; }
+
+.mil-progress {
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 20px;
+}
+.mil-progress span {
+  color: #fde047;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+@media (max-width: 992px) {
+  .millionaire-fullscreen {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    overflow-y: auto;
+    height: auto;
+    min-height: 100vh;
+  }
+  .mil-left-panel { border-right: none; border-bottom: 2px solid #eab308; }
+  .mil-right-panel { border-left: none; border-top: 2px solid #eab308; }
+  .mil-options-grid { grid-template-columns: 1fr; }
 }

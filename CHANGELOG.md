@@ -10,6 +10,15 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.6.0] - 2026-06-23
+
+### Added
+- **Game Ai Là Triệu Phú:** Tích hợp giao diện DOM game Ai Là Triệu Phú (không dùng Canvas) với hiệu ứng animation nổi bật.
+- **Âm thanh MP3 cục bộ:** Sử dụng file mp3 tĩnh (nhạc nền, nhạc đúng/sai, nhạc mở đầu) thay vì Web Audio API cho game Ai Là Triệu Phú.
+- Tối ưu UI game Ai Là Triệu Phú: Xóa text thừa và điều chỉnh lại CSS.
+
+---
+
 ## [1.5.1] - 2026-06-22
 
 ### Fixed
