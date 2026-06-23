@@ -13,6 +13,7 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 ## [1.6.0] - 2026-06-23
 
 ### Added
+- **Phòng Pomodoro:** Bổ sung 6 thể loại nhạc Lofi (Hip Hop, Jazz, Ambient, House, Vaporwave, Acoustic) kèm gợi ý mục đích sử dụng.
 - **Game Ai Là Triệu Phú:** Tích hợp giao diện DOM game Ai Là Triệu Phú (không dùng Canvas) với hiệu ứng animation nổi bật.
 - **Âm thanh MP3 cục bộ:** Sử dụng file mp3 tĩnh (nhạc nền, nhạc đúng/sai, nhạc mở đầu) thay vì Web Audio API cho game Ai Là Triệu Phú.
 - Tối ưu UI game Ai Là Triệu Phú: Xóa text thừa và điều chỉnh lại CSS.

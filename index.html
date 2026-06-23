@@ -320,14 +320,23 @@
           <div class="pomodoro-settings">
             <h3 style="margin-bottom: 15px; color: var(--text-primary); font-family: var(--font-display);">Cài đặt Phòng</h3>
             <div class="control-group">
-              <label>🎵 Nhạc Nền (Lofi Chill)</label>
-              <div class="audio-toggle" style="margin-top: 5px;">
-                <span style="font-size: 13px; color: var(--text-secondary);">Phát Nhạc Lofi</span>
+              <label>🎵 Phát Nhạc Nền</label>
+              <div class="audio-toggle" style="margin-top: 5px; margin-bottom: 10px;">
+                <span style="font-size: 13px; color: var(--text-secondary);">Bật/Tắt Nhạc</span>
                 <label class="switch">
                   <input type="checkbox" id="lofiSwitch">
                   <span class="slider"></span>
                 </label>
               </div>
+              <label style="margin-top: 10px; display: block;">🎧 Thể Loại Nhạc</label>
+              <select id="selectLofiType" class="select-custom" style="margin-top: 5px;">
+                <option value="hiphop">Lofi Hip Hop - Học tập chung, làm bài</option>
+                <option value="jazz">Lofi Jazz - Đọc sách, sáng tạo</option>
+                <option value="ambient">Ambient Lofi - Tập trung cao độ, giải toán khó</option>
+                <option value="house">Lofi House - Tăng tốc độ, chạy deadline</option>
+                <option value="vaporwave">Vaporwave Lofi - Học đêm khuya, chống buồn ngủ</option>
+                <option value="indie">Acoustic Lofi - Thư giãn nhẹ nhàng, giảm stress</option>
+              </select>
             </div>
             <div class="control-group" style="margin-top: 15px;">
               <label>⏱ Thời gian tập trung (phút)</label>
