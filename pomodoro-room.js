@@ -6,12 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let timeLeft = 25 * 60;
   
   const lofiUrls = {
-    hiphop: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
-    jazz: 'https://cdn.pixabay.com/download/audio/2022/05/16/audio_9df37cb25e.mp3',
-    ambient: 'https://cdn.pixabay.com/download/audio/2022/01/26/audio_d0c6ff1bc8.mp3',
-    house: 'https://cdn.pixabay.com/download/audio/2022/10/18/audio_27d9225881.mp3',
-    vaporwave: 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_1c37b01362.mp3',
-    indie: 'https://cdn.pixabay.com/download/audio/2022/11/08/audio_138e653066.mp3'
+    hiphop: 'https://streams.ilovemusic.de/iloveradio17.mp3',
+    jazz: 'https://stream.zeno.fm/0r0xa792kwzuv',
+    ambient: 'https://play.streamafrica.net/lofi',
+    house: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
+    vaporwave: 'https://lofi.stream.laut.fm/lofi',
+    indie: 'https://streams.ilovemusic.de/iloveradio10.mp3'
   };
   const audioLofi = new Audio(lofiUrls.hiphop); 
   audioLofi.loop = true;
