@@ -278,14 +278,8 @@ const AppRouter = {
       });
     }
 
-    // Custom question form submit listener
-    const addQForm = document.getElementById('formAddQuestion');
-    if (addQForm) {
-      addQForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.handleAddQuestionSubmit();
-      });
-    }
+    // Init Bulk Questions UI
+    this.initBulkQuestionsUI();
 
     // Launching game cards
     const cards = document.querySelectorAll('.game-card');
@@ -338,7 +332,6 @@ const AppRouter = {
     } else if (tab === 'manage-questions') {
       if (manageBtn) manageBtn.classList.add('active');
       if (manageView) manageView.style.display = 'block';
-      this.renderManageQuestionsTab();
     } else if (tab === 'pomodoro') {
       if (pomoBtn) pomoBtn.classList.add('active');
       if (pomoView) pomoView.style.display = 'block';
@@ -420,94 +413,141 @@ const AppRouter = {
     });
   },
 
-  renderManageQuestionsTab() {
-    const container = document.getElementById('customQuestionsContainer');
-    if (!container) return;
-    container.innerHTML = '';
+  initBulkQuestionsUI() {
+    const bulkInput = document.getElementById('bulkQuestionInput');
+    const docxInput = document.getElementById('docxFileInput');
+    const docxName = document.getElementById('docxFileName');
+    const btnSave = document.getElementById('btnSaveBulkQuestions');
+    const btnClear = document.getElementById('btnClearBulkQuestions');
+    const validCountTxt = document.getElementById('validQuestionCount');
+    const statusTxt = document.getElementById('saveStatusText');
 
-    const list = JSON.parse(localStorage.getItem('toan_ai_custom_questions') || '[]');
-    if (list.length === 0) {
-      container.innerHTML = `<div style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Chưa có câu hỏi tự tạo nào. Hãy thêm ở ô bên cạnh!</div>`;
-      return;
-    }
+    if (!bulkInput) return;
 
-    list.forEach((item, idx) => {
-      const qDiv = document.createElement('div');
-      qDiv.className = 'audio-toggle';
-      qDiv.style.flexDirection = 'row';
-      qDiv.style.alignItems = 'center';
-      qDiv.style.justifyContent = 'space-between';
-      qDiv.style.gap = '15px';
+    let parsedQuestions = [];
 
-      const details = `Lớp ${item.grade} • ${item.topic === 'algebra' ? 'Đại số' : 'Hình học'}`;
-
-      qDiv.innerHTML = `
-        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 5px; overflow: hidden; text-align: left;">
-          <div style="font-size: 11px; color: var(--text-muted); font-weight: bold;">${details}</div>
-          <div style="font-weight: 800; color: var(--text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${item.q}</div>
-        </div>
-        <button class="back-btn delete-q-btn" data-index="${idx}" style="padding: 5px 10px; border-color: rgba(239, 68, 68, 0.4); color: #ef4444; font-size: 12px; margin-left: 10px;">Xóa</button>
-      `;
-
-      qDiv.querySelector('.delete-q-btn').addEventListener('click', (e) => {
-        const index = parseInt(e.target.getAttribute('data-index'));
-        this.deleteCustomQuestion(index);
-      });
-
-      container.appendChild(qDiv);
-    });
-  },
-
-  handleAddQuestionSubmit() {
-    const newGrade = document.getElementById('newGrade').value;
-    const newTopic = document.getElementById('newTopic').value;
-    const newQText = document.getElementById('newQuestionText').value.trim();
-    const opt0 = document.getElementById('newOpt0').value.trim();
-    const opt1 = document.getElementById('newOpt1').value.trim();
-    const opt2 = document.getElementById('newOpt2').value.trim();
-    const opt3 = document.getElementById('newOpt3').value.trim();
-    const correctIdx = parseInt(document.getElementById('newCorrectAns').value);
-
-    if (!newQText || !opt0 || !opt1 || !opt2 || !opt3) {
-      alert('Vui lòng điền đầy đủ thông tin câu hỏi và các đáp án!');
-      return;
-    }
-
-    const newItem = {
-      grade: newGrade,
-      topic: newTopic,
-      q: newQText,
-      options: [opt0, opt1, opt2, opt3],
-      ans: correctIdx,
-      isCustom: true
+    const updateParsed = () => {
+      parsedQuestions = this.parseBulkText(bulkInput.value);
+      validCountTxt.textContent = `${parsedQuestions.length} câu hợp lệ`;
     };
 
-    let list = JSON.parse(localStorage.getItem('toan_ai_custom_questions') || '[]');
-    list.push(newItem);
-    localStorage.setItem('toan_ai_custom_questions', JSON.stringify(list));
+    bulkInput.addEventListener('input', updateParsed);
 
-    // Reset Form
-    document.getElementById('newQuestionText').value = '';
-    document.getElementById('newOpt0').value = '';
-    document.getElementById('newOpt1').value = '';
-    document.getElementById('newOpt2').value = '';
-    document.getElementById('newOpt3').value = '';
-    
-    AudioEngine.play('correct');
-    
-    // Refresh view
-    this.renderManageQuestionsTab();
+    btnClear.addEventListener('click', () => {
+      bulkInput.value = '';
+      if (docxInput) docxInput.value = '';
+      if (docxName) docxName.textContent = 'Không có tệp nào được chọn';
+      if (statusTxt) statusTxt.textContent = '';
+      updateParsed();
+    });
+
+    btnSave.addEventListener('click', () => {
+      if (parsedQuestions.length === 0) {
+        alert('Không có câu hỏi hợp lệ nào để lưu! Hãy kiểm tra lại định dạng.');
+        return;
+      }
+      
+      // Save to localStorage
+      let list = JSON.parse(localStorage.getItem('toan_ai_custom_questions') || '[]');
+      const newItems = parsedQuestions.map(q => ({
+        grade: '8', // default fallback
+        topic: 'algebra', // default fallback
+        q: q.q,
+        options: q.options,
+        ans: q.ans,
+        isCustom: true
+      }));
+      list = list.concat(newItems);
+      localStorage.setItem('toan_ai_custom_questions', JSON.stringify(list));
+      
+      AudioEngine.play('correct');
+      statusTxt.textContent = `Đã lưu ${parsedQuestions.length} câu hỏi vào ngân hàng!`;
+      
+      bulkInput.value = '';
+      updateParsed();
+    });
+
+    if (docxInput) {
+      docxInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+          docxName.textContent = 'Không có tệp nào được chọn';
+          return;
+        }
+        docxName.textContent = file.name;
+        
+        if (typeof mammoth === 'undefined') {
+          alert('Thư viện đọc Word chưa tải xong. Vui lòng chờ 1 lát và thử lại.');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const arrayBuffer = event.target.result;
+          mammoth.extractRawText({arrayBuffer: arrayBuffer})
+            .then(function(result) {
+              bulkInput.value = result.value;
+              updateParsed();
+            })
+            .catch(function(err) {
+              console.error(err);
+              alert('Lỗi khi đọc file Word!');
+            });
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
   },
 
-  deleteCustomQuestion(index) {
-    if (!confirm('Bạn có chắc muốn xóa câu hỏi này không?')) return;
+  parseBulkText(text) {
+    if (!text) return [];
     
-    let list = JSON.parse(localStorage.getItem('toan_ai_custom_questions') || '[]');
-    list.splice(index, 1);
-    localStorage.setItem('toan_ai_custom_questions', JSON.stringify(list));
+    // Split by "Câu 1.", "Câu 1:", "Câu 1 "
+    const blocks = text.split(/(?=Câu\s+\d+[\.:\s])/gi);
+    const results = [];
     
-    AudioEngine.play('wrong');
-    this.renderManageQuestionsTab();
+    blocks.forEach(block => {
+      const b = block.trim();
+      if (!b) return;
+      
+      // Extract question text before the first A. or #A.
+      const match = b.match(/Câu\s+\d+[\.:\s]+([\s\S]*?)(?=(#?[A-D][\.:]|$))/i);
+      if (!match) return;
+      
+      let qText = match[1].trim();
+      
+      // Extract options
+      const optA = b.match(/#?A[\.:]([\s\S]*?)(?=(#?B[\.:]|$))/i);
+      const optB = b.match(/#?B[\.:]([\s\S]*?)(?=(#?C[\.:]|$))/i);
+      const optC = b.match(/#?C[\.:]([\s\S]*?)(?=(#?D[\.:]|$))/i);
+      const optD = b.match(/#?D[\.:]([\s\S]*?)$/i);
+      
+      if (!optA || !optB || !optC || !optD) return; 
+      
+      const optionsText = [
+        optA[1].trim(),
+        optB[1].trim(),
+        optC[1].trim(),
+        optD[1].trim()
+      ];
+      
+      // Find correct answer index
+      let correctIdx = -1;
+      if (/#A[\.:]/i.test(b)) correctIdx = 0;
+      else if (/#B[\.:]/i.test(b)) correctIdx = 1;
+      else if (/#C[\.:]/i.test(b)) correctIdx = 2;
+      else if (/#D[\.:]/i.test(b)) correctIdx = 3;
+      
+      if (correctIdx === -1) return;
+      
+      results.push({
+        q: qText,
+        options: optionsText,
+        ans: correctIdx
+      });
+    });
+    
+    return results;
   },
 
   exportLeaderboardToCSV() {

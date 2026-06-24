@@ -10,6 +10,15 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.8.0] - 2026-06-24
+
+### Added
+- **Quản lý Nguồn Câu Hỏi (Bulk Upload):** Thay thế giao diện nhập tay từng câu bằng giao diện tải lên hàng loạt qua `.docx` hoặc nhập Text lớn.
+- **Tích hợp `mammoth.js`:** Hỗ trợ đọc trực tiếp nội dung từ file Word để tự động parse câu hỏi trắc nghiệm ngay trên trình duyệt mà không cần Backend.
+- **Realtime Parsing Regex:** Thuật toán nhận diện câu hỏi theo định dạng chuẩn `Câu 1... A... #B...` và đếm số lượng câu hợp lệ trực tiếp khi người dùng thao tác.
+
+---
+
 ## [1.7.0] - 2026-06-24
 
 ### Changed

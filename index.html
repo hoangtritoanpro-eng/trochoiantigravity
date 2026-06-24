@@ -231,72 +231,59 @@
         </div>
       </div>
 
-      <!-- Manage Questions View -->
-      <div id="manageQuestionsView" style="display: none;">
-        <h2 class="page-title">
-          ✏️ QUẢN LÝ CÂU HỎI TÙY CHỈNH
-        </h2>
-        <p style="color: var(--text-secondary); font-size: 14px; margin-top: -18px; margin-bottom: 24px;">
-          Thêm câu hỏi mới của riêng bạn để hiển thị trong các game và ngân hàng đề.
-        </p>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px;">
-          <!-- Left Col: Form to add question -->
-          <div style="background: #ffffff; border: 1.5px solid var(--border-input); border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
-            <h3 style="font-family: var(--font-display); font-size: 17px; font-weight: 700; border-left: 3px solid var(--accent-orange); padding-left: 10px; color: var(--text-primary);">➕ Thêm Câu Hỏi Mới</h3>
-
-            <form id="formAddQuestion" style="display: flex; flex-direction: column; gap: 12px;" onsubmit="return false;">
-              <div class="control-group">
-                <label for="newGrade">📖 Khối Lớp</label>
-                <select id="newGrade" class="select-custom" required>
-                  <option value="6">Toán Lớp 6</option>
-                  <option value="7">Toán Lớp 7</option>
-                  <option value="8" selected>Toán Lớp 8</option>
-                  <option value="9">Toán Lớp 9</option>
-                </select>
-              </div>
-
-              <div class="control-group">
-                <label for="newTopic">🔢 Chủ Đề</label>
-                <select id="newTopic" class="select-custom" required>
-                  <option value="algebra">Đại số &amp; Số học</option>
-                  <option value="geometry">Hình học</option>
-                </select>
-              </div>
-
-              <div class="control-group">
-                <label for="newQuestionText">❓ Nội dung câu hỏi</label>
-                <textarea id="newQuestionText" class="select-custom" rows="2" placeholder="Nhập câu hỏi toán..." required style="resize: vertical; font-family: var(--font-body);"></textarea>
-              </div>
-
-              <div class="control-group">
-                <label>📝 Các lựa chọn đáp án</label>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                  <input type="text" id="newOpt0" class="select-custom" placeholder="Đáp án A" required>
-                  <input type="text" id="newOpt1" class="select-custom" placeholder="Đáp án B" required>
-                  <input type="text" id="newOpt2" class="select-custom" placeholder="Đáp án C" required>
-                  <input type="text" id="newOpt3" class="select-custom" placeholder="Đáp án D" required>
-                </div>
-              </div>
-
-              <div class="control-group">
-                <label for="newCorrectAns">✅ Đáp án đúng</label>
-                <select id="newCorrectAns" class="select-custom" required>
-                  <option value="0">Đáp án A</option>
-                  <option value="1">Đáp án B</option>
-                  <option value="2">Đáp án C</option>
-                  <option value="3">Đáp án D</option>
-                </select>
-              </div>
-
-              <button type="submit" class="btn-primary" style="margin-top: 6px;">💾 Lưu Câu Hỏi</button>
-            </form>
+      <!-- Manage Questions View (Bulk Upload) -->
+      <div id="manageQuestionsView" style="display: none; max-width: 900px; margin: 0 auto;">
+        <div style="background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+          <!-- Header -->
+          <div style="background: #2dd4bf; color: white; padding: 16px 24px; display: flex; align-items: center; font-family: var(--font-display); font-size: 18px; font-weight: 600;">
+            <span style="margin-right: 8px;">📤</span> Nguồn câu hỏi
           </div>
+          
+          <div style="padding: 24px;">
+            <!-- File Input -->
+            <div style="margin-bottom: 20px;">
+              <div style="font-weight: 600; font-family: var(--font-display); color: #334155; margin-bottom: 8px;">Tải file Word (.docx)</div>
+              <div style="color: #64748b; font-size: 13px; margin-bottom: 12px;">Tự nhận diện trắc nghiệm nhiều lựa chọn. Câu hỏi: "Câu 1." - Đáp án đúng: "#A."</div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <label for="docxFileInput" style="background: #f0fdfa; color: #0d9488; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; border: 1px solid #ccfbf1;">
+                  Chọn tệp
+                </label>
+                <input type="file" id="docxFileInput" accept=".docx" style="display: none;">
+                <span id="docxFileName" style="color: #94a3b8; font-size: 14px;">Không có tệp nào được chọn</span>
+              </div>
+            </div>
 
-          <!-- Right Col: List of custom questions -->
-          <div style="background: #ffffff; border: 1.5px solid var(--border-input); border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 14px;">
-            <h3 style="font-family: var(--font-display); font-size: 17px; font-weight: 700; border-left: 3px solid var(--secondary); padding-left: 10px; color: var(--text-primary);">📋 Câu Hỏi Tự Tạo</h3>
-            <div id="customQuestionsContainer" style="display: flex; flex-direction: column; gap: 14px; max-height: 520px; overflow-y: auto; padding-right: 4px;"></div>
+            <!-- Divider -->
+            <div style="display: flex; align-items: center; text-align: center; color: #cbd5e1; margin: 24px 0;">
+              <div style="flex: 1; border-bottom: 1px solid #e2e8f0;"></div>
+              <span style="padding: 0 12px; font-size: 13px;">hoặc gõ tay</span>
+              <div style="flex: 1; border-bottom: 1px solid #e2e8f0;"></div>
+            </div>
+
+            <!-- Text Area -->
+            <textarea id="bulkQuestionInput" rows="12" style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; font-family: monospace; font-size: 14px; resize: vertical; outline: none; margin-bottom: 16px; line-height: 1.5; color: #334155;" placeholder="Câu 1. Trong các số có bao nhiêu số hữu tỉ dương?&#10;#A. &#10;B. &#10;C. &#10;D. "></textarea>
+
+            <!-- Hint Box -->
+            <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 16px; color: #0f766e; font-size: 13px; line-height: 1.5; margin-bottom: 24px;">
+              Câu hỏi: Câu 1. - Phương án: A. B. C. D. - Đáp án đúng thêm dấu # (vd #B. -9, 32). Khi gõ tay, ô này được ưu tiên hơn file Word đã tải.
+            </div>
+
+            <!-- Actions and Status -->
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; gap: 12px;">
+                <button id="btnSaveBulkQuestions" style="background: #2dd4bf; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-family: var(--font-display); font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s;">
+                  <span>▷</span> Lưu câu hỏi
+                </button>
+                <button id="btnClearBulkQuestions" style="background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-family: var(--font-display); font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s;">
+                  <span>🗑️</span> Xóa
+                </button>
+              </div>
+              
+              <div style="text-align: right;">
+                <div id="validQuestionCount" style="color: #0d9488; font-weight: 700; font-size: 15px; margin-bottom: 4px;">0 câu hợp lệ</div>
+                <div id="saveStatusText" style="color: #64748b; font-size: 13px;"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -431,6 +418,7 @@
   </div>
 
   <!-- Loading scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
   <script src="app.js"></script>
   <script src="tug-of-war.js"></script>
   <script src="flip-puzzle.js"></script>
