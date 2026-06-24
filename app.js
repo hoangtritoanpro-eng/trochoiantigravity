@@ -737,7 +737,7 @@ function drawGlassCard(ctx, text, x, y, w, h, bgStyle, borderStyle, textColor, f
 
   // Draw Text
   ctx.fillStyle = finalTextColor;
-  ctx.font = `bold ${fontSize} 'Lexend', sans-serif`;
+  ctx.font = `bold ${fontSize} 'Fredoka', sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   

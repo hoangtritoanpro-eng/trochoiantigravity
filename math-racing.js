@@ -165,8 +165,8 @@ const MathRacingGame = {
     ctx.fillStyle = '#22c55e';
     ctx.fillRect(0, 0, w, h);
 
-    // Road
-    ctx.fillStyle = '#334155';
+    // Road (Lighter asphalt for Bright Theme)
+    ctx.fillStyle = '#94a3b8';
     ctx.fillRect(w*0.1, 0, w*0.8, h);
     
     // Lane dividers
@@ -191,8 +191,8 @@ const MathRacingGame = {
         ctx.fillRect(obs.x - obs.w/2, obs.y - obs.h/2, obs.w, obs.h);
         ctx.shadowBlur = 0;
         
-        ctx.fillStyle = '#ffffff';
-        ctx.font = "bold 18px 'Lexend', sans-serif";
+        ctx.fillStyle = '#0f172a';
+        ctx.font = "bold 18px 'Fredoka', sans-serif";
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(obs.text, obs.x, obs.y);
@@ -227,14 +227,14 @@ const MathRacingGame = {
     const currentQ = this.questions[this.currentQIdx];
     if (!currentQ) return;
 
-    ctx.fillStyle = '#ffffff';
-    ctx.font = "bold 18px 'Lexend', sans-serif";
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 18px 'Fredoka', sans-serif";
     ctx.textAlign = 'left';
     ctx.fillText(`⭐ Điểm: ${this.score * 10} | Câu ${this.currentQIdx + 1}/5`, 30, 35);
     ctx.fillText(`Tốc độ: ${Math.floor(this.speed * 20)} km/h`, 30, 60);
     
     const qW = Math.min(w * 0.7, 750);
-    drawGlassCard(ctx, currentQ.q, w / 2 - qW / 2, 20, qW, 80, 'rgba(15, 23, 42, 0.85)', 'rgba(59, 130, 246, 0.6)', '#fff', '18px');
+    drawGlassCard(ctx, currentQ.q, w / 2 - qW / 2, 20, qW, 80, 'rgba(255, 255, 255, 0.9)', 'rgba(59, 130, 246, 0.6)', '#0f172a', '18px');
   },
 
   drawEndScreen(w, h) {

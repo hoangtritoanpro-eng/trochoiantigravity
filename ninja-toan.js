@@ -29,10 +29,10 @@ const NinjaToanGame = {
     this.handActive = false;
 
     // Show loading text overlay on canvas
-    this.ctx.fillStyle = '#0f172a';
+    this.ctx.fillStyle = '#f0f6ff';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.fillStyle = '#fff';
-    this.ctx.font = "bold 20px 'Outfit', sans-serif";
+    this.ctx.fillStyle = '#0f172a';
+    this.ctx.font = "bold 20px 'Fredoka', sans-serif";
     this.ctx.textAlign = 'center';
     this.ctx.fillText('Đang kết nối camera và khởi chạy mô hình AI...', this.canvas.width/2, this.canvas.height/2);
 

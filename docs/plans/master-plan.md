@@ -13,7 +13,7 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
 | **Phase 2** | UI/UX & Tính năng chính | `[x]` | Phát triển các giao diện người dùng chính và kết nối dữ liệu. |
 | **Phase 3** | Tính năng Nâng cao & Tối ưu | `[x]` | Hoàn thiện các tính năng phụ trợ, tối ưu hóa trải nghiệm & hiệu năng. |
 | **Phase 4** | Deploy & Bàn giao | `[x]` | Đóng gói sản phẩm, deploy môi trường production và viết tài liệu HDSD. |
-| **Phase 5** | Giao Diện Tươi Sáng & Bright Theme | `[ ]` | Chuyển đổi giao diện sang tông tươi sáng và phông chữ Fredoka & Quicksand cho trẻ em. |
+| **Phase 5** | Giao Diện Tươi Sáng & Bright Theme | `[x]` | Chuyển đổi giao diện sang tông tươi sáng và phông chữ Fredoka & Quicksand cho trẻ em. |
 
 ---
 
@@ -53,18 +53,18 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
 ### Phase 5: Giao Diện Tươi Sáng & Phông Chữ Trẻ Em (Bright Theme)
 - **Mục tiêu:** Chuyển đổi toàn diện giao diện sang tông tươi sáng bắt mắt, sử dụng phông chữ bo tròn thân thiện với trẻ em.
 - **Các task chính:**
-  - [x] Tích hợp phông chữ mới (Lexend & Nunito) và cấu hình CSS Bright Theme.
+  - [x] Tích hợp phông chữ mới (Fredoka & Quicksand) và cấu hình CSS Bright Theme.
   - [x] Cập nhật hàm vẽ helper UI Card để đồng bộ màu sắc/phông chữ sáng.
-  - [ ] Chuyển đổi màu sắc canvas của cả 8 game dạy học tương tác sang tông pastel sáng sủa.
+  - [x] Chuyển đổi màu sắc canvas của cả 8 game dạy học tương tác sang tông pastel sáng sủa.
 - **Expected Output:** Giao diện toàn hệ thống mang màu sắc tươi sáng sinh động, phông chữ dễ thương dễ đọc, tất cả canvas vẽ game đẹp mắt, không lỗi JavaScript.
 
 ### Phase 6: Thêm Game Mới và Phòng Pomodoro
 - **Mục tiêu:** Mở rộng kho game và thêm khu vực học tập tập trung Pomodoro.
 - **Các task chính:**
-  - [ ] Bổ sung thẻ điều hướng và giao diện cho "Phòng Pomodoro".
-  - [ ] Khởi tạo và lập trình logic game "Bảo Vệ Trái Đất" (Space Math).
-  - [ ] Khởi tạo và lập trình logic game "Đua Xe Toán Học" (Math Racing).
-  - [ ] Cập nhật kết nối các game mới với kho câu hỏi và hệ thống điểm.
+  - [x] Bổ sung thẻ điều hướng và giao diện cho "Phòng Pomodoro".
+  - [x] Khởi tạo và lập trình logic game "Bảo Vệ Trái Đất" (Space Math).
+  - [x] Khởi tạo và lập trình logic game "Đua Xe Toán Học" (Math Racing).
+  - [x] Cập nhật kết nối các game mới với kho câu hỏi và hệ thống điểm.
 - **Expected Output:** Hai game mới và phòng Pomodoro có thể truy cập được từ giao diện và hoạt động trơn tru.
 
 ### Phase 7: Game Ai Là Triệu Phú Toán Học

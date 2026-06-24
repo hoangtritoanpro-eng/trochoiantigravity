@@ -10,6 +10,16 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.7.0] - 2026-06-24
+
+### Changed
+- **Giao Diện Tươi Sáng Toàn Diện (Phase 5 & 6):** Cập nhật hệ thống phông chữ (Fredoka và Quicksand) thân thiện với trẻ em. Chuyển đổi toàn diện giao diện sang tông màu Bright Theme. 
+- **Refactor Canvas Games:** Chỉnh sửa màu sắc của tất cả các game (Kéo co, Đào vàng, Lật mảnh ghép, Ninja Toán học, v.v.) sang tông màu sáng pastel.
+- **Game Mới:** Hoàn thiện và cập nhật giao diện Bright Theme cho 2 game mới: Bảo Vệ Trái Đất (Space Math) và Đua Xe Toán Học (Math Racing).
+- **Phòng Pomodoro:** Đảm bảo phòng học Pomodoro hoạt động trơn tru trong cấu trúc hệ thống.
+
+---
+
 ## [1.6.0] - 2026-06-23
 
 ### Added

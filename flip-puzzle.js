@@ -69,7 +69,7 @@ const FlipPuzzleGame = {
     this.guessOverlay.style.gap = '10px';
     this.guessOverlay.style.zIndex = '60';
     this.guessOverlay.innerHTML = `
-      <input type="text" id="guessInput" placeholder="Đoán từ khóa ẩn..." style="padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border-glass); background: #0f172a; color: white; width: 220px; outline: none; font-size: 14px;">
+      <input type="text" id="guessInput" placeholder="Đoán từ khóa ẩn..." style="padding: 10px 15px; border-radius: 8px; border: 1.5px solid var(--border-input); background: rgba(255, 255, 255, 0.9); color: var(--text-primary); width: 220px; outline: none; font-size: 14px; font-family: var(--font-body);">
       <button id="btnSubmitGuess" class="btn-primary" style="padding: 8px 16px;">Đoán</button>
     `;
     viewport.appendChild(this.guessOverlay);

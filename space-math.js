@@ -151,8 +151,11 @@ const SpaceMathGame = {
     const h = this.canvas.height;
     ctx.clearRect(0, 0, w, h);
     
-    // Space Background
-    ctx.fillStyle = '#0f172a';
+    // Space Background (Bright sky)
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+    bgGrad.addColorStop(0, '#e0f2fe');
+    bgGrad.addColorStop(1, '#bae6fd');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
     
     // Stars
@@ -199,8 +202,8 @@ const SpaceMathGame = {
         ctx.arc(ast.x, ast.y, ast.r, 0, Math.PI * 2);
         ctx.fill();
         
-        ctx.fillStyle = '#ffffff';
-        ctx.font = "bold 15px 'Lexend', sans-serif";
+        ctx.fillStyle = '#0f172a';
+        ctx.font = "bold 15px 'Fredoka', sans-serif";
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(ast.text, ast.x, ast.y);
@@ -219,13 +222,13 @@ const SpaceMathGame = {
     const currentQ = this.questions[this.currentQIdx];
     if (!currentQ) return;
 
-    ctx.fillStyle = '#ffffff';
-    ctx.font = "bold 18px 'Lexend', sans-serif";
+    ctx.fillStyle = '#0f172a';
+    ctx.font = "bold 18px 'Fredoka', sans-serif";
     ctx.textAlign = 'left';
     ctx.fillText(`⭐ Điểm: ${this.score * 10} | Câu ${this.currentQIdx + 1}/5`, 30, 35);
     
     const qW = Math.min(w * 0.7, 750);
-    drawGlassCard(ctx, currentQ.q, w / 2 - qW / 2, h - 100, qW, 80, 'rgba(15, 23, 42, 0.8)', 'rgba(59, 130, 246, 0.5)', '#fff', '18px');
+    drawGlassCard(ctx, currentQ.q, w / 2 - qW / 2, h - 100, qW, 80, 'rgba(255, 255, 255, 0.9)', 'rgba(59, 130, 246, 0.5)', '#0f172a', '18px');
   },
 
   drawEndScreen(w, h) {
