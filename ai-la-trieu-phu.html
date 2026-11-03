@@ -796,6 +796,96 @@
       justify-content: space-between;
     }
 
+    /* Khối cấu hình Gemini AI Chuẩn Hóa */
+    .gemini-config-box {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(168, 85, 247, 0.45);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.12);
+      transition: all 0.25s;
+    }
+    .gemini-config-box.active {
+      border-color: #c084fc;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+    }
+    .gemini-toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .gemini-badge {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      color: #fff;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-right: 6px;
+    }
+    .gemini-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      border-top: 1px dashed rgba(168, 85, 247, 0.3);
+      padding-top: 10px;
+    }
+    .gemini-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .gemini-input-group label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+    .gemini-text-input {
+      background: #020617;
+      border: 1px solid #475569;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+      width: 100%;
+    }
+    .gemini-text-input:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+    }
+    .btn-gemini-action {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-gemini-action:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    .btn-gemini-action:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .modal-tab-header {
       display: flex;
       gap: 6px;
@@ -1196,6 +1286,52 @@
             📁 TẢI LÊN FILE PDF
           </button>
           <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;">
+        </div>
+
+        <!-- Khối tích hợp Gemini AI Chuẩn Hóa -->
+        <div class="gemini-config-box" id="geminiConfigBox">
+          <div class="gemini-toggle-row">
+            <div style="display: flex; align-items: center;">
+              <span class="gemini-badge">✨ GEMINI FLASH AI</span>
+              <span style="font-weight: 600; font-size: 13px; color: #f1f5f9;">Chuẩn Hóa &amp; Tự Giải Đề Bằng AI</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 11px; color: #94a3b8;" id="geminiStatusLabel">Chưa bật</span>
+              <label class="switch">
+                <input type="checkbox" id="chkUseGemini">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="gemini-inputs" id="geminiInputsPanel" style="display: none;">
+            <div class="gemini-input-group">
+              <label>🔑 Google Gemini API Key:</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="password" id="geminiApiKey" class="gemini-text-input" placeholder="Dán API Key (AIzaSy...)">
+                <button type="button" id="btnToggleApiKey" class="btn-sm-tool" style="background:#1e293b; border:1px solid #475569; color:#cbd5e1; border-radius:6px; padding:0 8px; cursor:pointer;" title="Hiện/Ẩn Key">👁</button>
+                <button type="button" id="btnTestGeminiKey" class="btn-sm-tool" style="background:#3b82f6; border:none; color:#fff; border-radius:6px; padding:0 10px; font-weight:600; cursor:pointer; font-size:11.5px; white-space:nowrap;">Test Key</button>
+              </div>
+              <small style="color: #94a3b8; font-size: 10.5px;">Key lưu cục bộ trên máy. Chưa có key? <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--gold-light); text-decoration: underline;">Lấy miễn phí tại Google AI Studio ↗</a></small>
+            </div>
+
+            <div class="gemini-input-group">
+              <label>⚡ Model Gemini Flash:</label>
+              <select id="geminiModelSelect" class="gemini-text-input">
+                <option value="gemini-1.5-flash" selected>Gemini 1.5 Flash (Khuyên dùng - Nhanh &amp; Ổn định)</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Thế hệ mới nhất)</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Giải bài toán nâng cao khó)</option>
+                <option value="custom">Model tùy chỉnh (VD: gemini-3.8-flash)...</option>
+              </select>
+              <input type="text" id="geminiCustomModelInput" class="gemini-text-input" placeholder="Nhập tên model, VD: gemini-3.8-flash" style="display: none; margin-top: 4px;">
+            </div>
+
+            <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
+              <button type="button" id="btnRunGeminiAI" class="btn-gemini-action">
+                ✨ Chuẩn Hóa Văn Bản Bằng Gemini AI
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Banner thông báo kết quả đọc file -->
@@ -1911,13 +2047,196 @@ D. x = -4"></textarea>
     };
 
     /* ═══════════════════════════════════════════════
-       5. QUẢN LÝ GIAO DIỆN NẠP ĐỀ (MODAL CONTROLLER)
+       5. DỊCH VỤ GOOGLE GEMINI AI (CHUẨN HÓA & TỰ GIẢI ĐỀ)
+    ═══════════════════════════════════════════════════ */
+    const GeminiQuizService = {
+      defaultModel: 'gemini-1.5-flash',
+
+      async standardizeQuestions(rawText, apiKey, modelName = 'gemini-1.5-flash') {
+        if (!apiKey || !apiKey.trim()) {
+          throw new Error("Vui lòng nhập Google Gemini API Key để kích hoạt chuẩn hóa AI!");
+        }
+
+        if (!rawText || !rawText.trim()) {
+          throw new Error("Không có nội dung văn bản đề thi để xử lý!");
+        }
+
+        const chosenModel = (modelName === 'custom') 
+          ? (document.getElementById('geminiCustomModelInput')?.value.trim() || 'gemini-1.5-flash') 
+          : modelName;
+
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(chosenModel)}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
+
+        const systemInstruction = `Bạn là chuyên gia sư phạm Toán học và cố vấn nội dung cho gameshow giáo dục Ai Là Triệu Phú.
+Nhiệm vụ: Hãy phân tích kỹ đoạn văn bản sau đây (trích xuất từ file PDF hoặc tài liệu đề thi), nhận diện toàn bộ các câu hỏi trắc nghiệm, làm sạch văn bản, chuẩn hóa công thức toán học và xác định đáp án đúng cho từng câu.
+
+Quy tắc bắt buộc:
+1. Mỗi câu hỏi phải có nội dung câu hỏi rõ ràng (q), đúng 4 phương án lựa chọn (options) có tiền tố "A. ", "B. ", "C. ", "D. ".
+2. Xác định chính xác chỉ số đáp án đúng (ans): 0 cho A, 1 cho B, 2 cho C, 3 cho D.
+3. Nếu đề bài chưa ghi đáp án, bạn hãy tự giải bài toán đó để chọn ra đáp án chính xác nhất.
+4. Chuẩn hóa các ký tự công thức toán học bị lỗi font khi scan/OCR (ví dụ: x^2 thành x², căn bậc hai, phân số...).
+5. Trả về DUY NHẤT định dạng JSON tuân thủ schema sau (không thêm văn bản dẫn dắt, không bọc markdown):
+[
+  {
+    "q": "Nội dung câu hỏi",
+    "options": ["A. Lựa chọn 1", "B. Lựa chọn 2", "C. Lựa chọn 3", "D. Lựa chọn 4"],
+    "ans": 0
+  }
+]`;
+
+        const requestPayload = {
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: `${systemInstruction}\n\nĐÂY LÀ VĂN BẢN ĐỀ THI CẦN XỬ LÝ:\n${rawText.slice(0, 30000)}`
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 8192,
+            responseMimeType: "application/json"
+          }
+        };
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(requestPayload)
+        });
+
+        if (!response.ok) {
+          let errDetail = "";
+          try {
+            const errJson = await response.json();
+            errDetail = errJson.error?.message || response.statusText;
+          } catch(e) {
+            errDetail = response.statusText;
+          }
+          throw new Error(`Gemini API Error (${response.status}): ${errDetail}`);
+        }
+
+        const data = await response.json();
+        const candidate = data.candidates?.[0];
+        if (!candidate || !candidate.content?.parts?.[0]?.text) {
+          throw new Error("Không nhận được phản hồi hợp lệ từ Gemini API.");
+        }
+
+        let jsonText = candidate.content.parts[0].text.trim();
+        if (jsonText.startsWith("```")) {
+          jsonText = jsonText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+        }
+
+        const parsed = JSON.parse(jsonText);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          throw new Error("Dữ liệu trả về từ Gemini không phải là danh sách câu hỏi hợp lệ!");
+        }
+
+        return parsed.map((item, idx) => {
+          let ans = typeof item.ans === 'number' ? item.ans : 0;
+          if (typeof item.ans === 'string') {
+            const m = item.ans.trim().toUpperCase();
+            if (m === 'A') ans = 0;
+            else if (m === 'B') ans = 1;
+            else if (m === 'C') ans = 2;
+            else if (m === 'D') ans = 3;
+          }
+
+          let opts = Array.isArray(item.options) ? item.options : [];
+          opts = opts.map((opt, oIdx) => {
+            const letter = String.fromCharCode(65 + oIdx);
+            let clean = opt.replace(/^[A-D][.:)\/]\s*/i, '').trim();
+            return `${letter}. ${clean}`;
+          });
+
+          while (opts.length < 4) {
+            const letter = String.fromCharCode(65 + opts.length);
+            opts.push(`${letter}. (Không có)`);
+          }
+
+          return {
+            q: item.q || `Câu hỏi ${idx + 1}`,
+            options: opts.slice(0, 4),
+            ans: Math.max(0, Math.min(3, ans))
+          };
+        });
+      },
+
+      async testConnection(apiKey, modelName = 'gemini-1.5-flash') {
+        if (!apiKey) throw new Error("Chưa nhập API Key!");
+        const chosenModel = (modelName === 'custom') 
+          ? (document.getElementById('geminiCustomModelInput')?.value.trim() || 'gemini-1.5-flash') 
+          : modelName;
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(chosenModel)}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: "Hãy trả lời đúng một từ: OK" }] }]
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error?.message || `HTTP ${res.status}`);
+        }
+        return true;
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       6. QUẢN LÝ GIAO DIỆN NẠP ĐỀ (MODAL CONTROLLER)
     ═══════════════════════════════════════════════════ */
     const CustomQuestionManager = {
       parsedQuestions: [],
 
       init() {
         this.bindModalEvents();
+        this.loadGeminiSettings();
+      },
+
+      loadGeminiSettings() {
+        const savedKey = localStorage.getItem('toan_ai_gemini_api_key') || '';
+        const savedModel = localStorage.getItem('toan_ai_gemini_model') || 'gemini-1.5-flash';
+        const useGemini = localStorage.getItem('toan_ai_use_gemini') === 'true';
+
+        const keyInput = document.getElementById('geminiApiKey');
+        const modelSelect = document.getElementById('geminiModelSelect');
+        const chkGemini = document.getElementById('chkUseGemini');
+        const customModelInput = document.getElementById('geminiCustomModelInput');
+
+        if (keyInput) keyInput.value = savedKey;
+        if (modelSelect) {
+          if (['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'].includes(savedModel)) {
+            modelSelect.value = savedModel;
+          } else if (savedModel) {
+            modelSelect.value = 'custom';
+            if (customModelInput) {
+              customModelInput.style.display = 'block';
+              customModelInput.value = savedModel;
+            }
+          }
+        }
+        if (chkGemini) {
+          chkGemini.checked = useGemini;
+          this.toggleGeminiPanel(useGemini);
+        }
+      },
+
+      toggleGeminiPanel(isOpen) {
+        const panel = document.getElementById('geminiInputsPanel');
+        const box = document.getElementById('geminiConfigBox');
+        const label = document.getElementById('geminiStatusLabel');
+        if (panel) panel.style.display = isOpen ? 'grid' : 'none';
+        if (box) box.classList.toggle('active', isOpen);
+        if (label) {
+          label.innerText = isOpen ? 'Đang bật AI' : 'Chưa bật';
+          label.style.color = isOpen ? '#c084fc' : '#94a3b8';
+        }
       },
 
       bindModalEvents() {
@@ -1926,6 +2245,107 @@ D. x = -4"></textarea>
         const fileInput = document.getElementById('pdfFileInput');
         const btnSelectPdf = document.getElementById('btnSelectPdf');
         const txtArea = document.getElementById('txtCustomQuestions');
+
+        // Gemini AI Controls
+        const chkGemini = document.getElementById('chkUseGemini');
+        const keyInput = document.getElementById('geminiApiKey');
+        const modelSelect = document.getElementById('geminiModelSelect');
+        const customModelInput = document.getElementById('geminiCustomModelInput');
+        const btnToggleKey = document.getElementById('btnToggleApiKey');
+        const btnTestKey = document.getElementById('btnTestGeminiKey');
+        const btnRunAI = document.getElementById('btnRunGeminiAI');
+
+        chkGemini.addEventListener('change', (e) => {
+          const isOpen = e.target.checked;
+          localStorage.setItem('toan_ai_use_gemini', isOpen ? 'true' : 'false');
+          this.toggleGeminiPanel(isOpen);
+        });
+
+        keyInput.addEventListener('change', () => {
+          localStorage.setItem('toan_ai_gemini_api_key', keyInput.value.trim());
+        });
+
+        modelSelect.addEventListener('change', () => {
+          if (modelSelect.value === 'custom') {
+            customModelInput.style.display = 'block';
+            customModelInput.focus();
+          } else {
+            customModelInput.style.display = 'none';
+            localStorage.setItem('toan_ai_gemini_model', modelSelect.value);
+          }
+        });
+
+        customModelInput.addEventListener('change', () => {
+          localStorage.setItem('toan_ai_gemini_model', customModelInput.value.trim());
+        });
+
+        btnToggleKey.addEventListener('click', () => {
+          keyInput.type = (keyInput.type === 'password') ? 'text' : 'password';
+          btnToggleKey.innerText = (keyInput.type === 'password') ? '👁' : '🔒';
+        });
+
+        btnTestKey.addEventListener('click', async () => {
+          const key = keyInput.value.trim();
+          if (!key) {
+            alert("Vui lòng nhập API Key để kiểm tra!");
+            return;
+          }
+          btnTestKey.innerText = 'Đang test...';
+          btnTestKey.disabled = true;
+          try {
+            await GeminiQuizService.testConnection(key, modelSelect.value);
+            alert("✓ Kết nối Google Gemini API thành công! API Key của bạn hoàn toàn hợp lệ.");
+          } catch(err) {
+            alert(`✕ Lỗi kết nối Gemini API: ${err.message}`);
+          } finally {
+            btnTestKey.innerText = 'Test Key';
+            btnTestKey.disabled = false;
+          }
+        });
+
+        btnRunAI.addEventListener('click', async () => {
+          const rawText = txtArea.value.trim();
+          if (!rawText) {
+            alert("Vui lòng dán văn bản đề thi vào ô văn bản hoặc tải file PDF trước khi bấm chuẩn hóa!");
+            return;
+          }
+          const key = keyInput.value.trim();
+          if (!key) {
+            alert("Vui lòng nhập Gemini API Key để thực hiện chuẩn hóa AI!");
+            keyInput.focus();
+            return;
+          }
+
+          btnRunAI.innerText = '⏳ AI đang xử lý...';
+          btnRunAI.disabled = true;
+          const banner = document.getElementById('pdfStatusBanner');
+          const statusText = document.getElementById('pdfStatusText');
+          banner.style.display = 'flex';
+          banner.style.borderColor = '#a855f7';
+          banner.style.color = '#e9d5ff';
+          statusText.innerText = '✨ Gemini AI đang phân tích ngữ nghĩa, làm sạch công thức và giải tìm đáp án...';
+
+          try {
+            const aiQuestions = await GeminiQuizService.standardizeQuestions(rawText, key, modelSelect.value);
+            this.parsedQuestions = aiQuestions;
+            txtArea.value = SmartQuizParser.toStandardText(aiQuestions);
+            this.renderPreview();
+            document.getElementById('tabBtnPreview').click();
+
+            banner.style.borderColor = '#10b981';
+            banner.style.color = '#6ee7b7';
+            statusText.innerText = `✓ Gemini AI đã chuẩn hóa thành công ${aiQuestions.length} câu hỏi trắc nghiệm!`;
+            SoundEngine.playReveal();
+          } catch(err) {
+            alert(`Lỗi chuẩn hóa Gemini AI: ${err.message}`);
+            banner.style.borderColor = '#ef4444';
+            banner.style.color = '#fca5a5';
+            statusText.innerText = `Lỗi AI: ${err.message}`;
+          } finally {
+            btnRunAI.innerText = '✨ Chuẩn Hóa Văn Bản Bằng Gemini AI';
+            btnRunAI.disabled = false;
+          }
+        });
 
         // Mở modal
         document.getElementById('btnCustomQuestions').addEventListener('click', () => {
@@ -2040,6 +2460,9 @@ D. x = -4"></textarea>
         const banner = document.getElementById('pdfStatusBanner');
         const statusText = document.getElementById('pdfStatusText');
         const pageInfo = document.getElementById('pdfPageInfo');
+        const chkGemini = document.getElementById('chkUseGemini');
+        const keyInput = document.getElementById('geminiApiKey');
+        const modelSelect = document.getElementById('geminiModelSelect');
 
         banner.style.display = 'flex';
         statusText.innerText = `Đang đọc file PDF: ${file.name}...`;
@@ -2050,7 +2473,25 @@ D. x = -4"></textarea>
             statusText.innerText = `Đang giải mã trang ${cur}/${total} của file PDF...`;
           });
 
-          const questions = SmartQuizParser.parseTextToQuestions(res.fullText);
+          // Nếu bật Gemini AI và có API Key: Dùng AI chuẩn hóa và tự giải đề
+          const useAI = chkGemini && chkGemini.checked && keyInput.value.trim();
+          let questions = [];
+
+          if (useAI) {
+            statusText.innerText = `✨ Đang kết nối Gemini Flash AI (${modelSelect.value}) để phân tích ngữ nghĩa & chuẩn hóa...`;
+            banner.style.borderColor = '#a855f7';
+            banner.style.color = '#e9d5ff';
+            try {
+              questions = await GeminiQuizService.standardizeQuestions(res.fullText, keyInput.value.trim(), modelSelect.value);
+            } catch(aiErr) {
+              console.warn("Gemini AI failed, fallback to local parser:", aiErr);
+              alert(`Cảnh báo Gemini AI: ${aiErr.message}\nHệ thống sẽ tự động chuyển sang chế độ bóc tách Offline.`);
+              questions = SmartQuizParser.parseTextToQuestions(res.fullText);
+            }
+          } else {
+            // Chế độ Offline bóc tách bằng Regex
+            questions = SmartQuizParser.parseTextToQuestions(res.fullText);
+          }
 
           if (questions.length === 0) {
             statusText.innerText = `Không tìm thấy câu hỏi trắc nghiệm nào trong file "${file.name}"!`;
@@ -2065,7 +2506,8 @@ D. x = -4"></textarea>
 
           banner.style.borderColor = '#10b981';
           banner.style.color = '#6ee7b7';
-          statusText.innerText = `✓ Đã trích xuất thành công ${questions.length} câu hỏi từ file "${file.name}"!`;
+          const prefix = useAI ? "✨ Gemini AI đã" : "✓ Đã";
+          statusText.innerText = `${prefix} trích xuất thành công ${questions.length} câu hỏi từ file "${file.name}"!`;
           pageInfo.innerText = `Số trang: ${res.numPages} | Dung lượng: ${(file.size / 1024).toFixed(1)} KB`;
 
           this.renderPreview();

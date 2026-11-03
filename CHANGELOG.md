@@ -10,6 +10,18 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.9.5] - 2026-11-03
+
+### Added
+- **Tích Hợp Google Gemini Flash AI Chuẩn Hóa & Tự Giải Đề Thi (AI Quiz Standardization):**
+  - **Kết nối trực tiếp Gemini API:** Hỗ trợ model `gemini-1.5-flash`, `gemini-2.0-flash` và model tùy chỉnh (`gemini-3.8-flash`...).
+  - **Chế độ ép kiểu JSON chuẩn (`responseMimeType: "application/json"`):** Đảm bảo phản hồi từ AI luôn tuân thủ 100% cấu trúc dữ liệu câu hỏi của app.
+  - **Khả năng tự giải toán & phân tích sâu:** Tự động sửa lỗi OCR/ký tự lạ toán học khi scan PDF, nhận diện câu hỏi và 4 phương án A, B, C, D, đồng thời tự động giải bài toán để xác định đáp án đúng tuyệt đối kể cả khi đề thi gốc không có sẵn đáp án.
+  - **Bảo mật & Tiện ích:** Hỗ trợ lưu API Key an toàn trong LocalStorage trình duyệt, nút ẩn/hiện key và nút `Test Key` kiểm tra kết nối API tức thì.
+  - **Cơ chế hoạt động kép linh hoạt (Dual Engine):** Cho phép bật/tắt Gemini AI bằng công tắc chuyển đổi; khi tắt AI hoặc không có mạng, hệ thống tự động chạy bộ bóc tách Regex Offline siêu tốc.
+
+---
+
 ## [1.9.4] - 2026-11-03
 
 ### Added

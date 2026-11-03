@@ -78,4 +78,5 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
   - [x] Đóng gói thành 1 tệp HTML độc lập (`ai-la-trieu-phu.html`) tích hợp đầy đủ CSS, JS, âm thanh kép và ngân hàng câu hỏi THCS.
   - [x] Thiết kế nền studio 3D theo mẫu PowerPoint & tích hợp đoạn nhạc kết thúc chương trình kinh điển.
   - [x] Phát triển giao diện & bộ bóc tách đề trắc nghiệm tự động từ file PDF chuyển về đúng mã cấu trúc của app.
+  - [x] Tích hợp kết nối Google Gemini Flash AI tự động phân tích ngữ nghĩa, giải toán và chuẩn hóa đề nạp về JSON.
 - **Expected Output:** Trò chơi hoạt động độc lập với giao diện y hệt ảnh mẫu, chạy mượt mà trên trình duyệt.
