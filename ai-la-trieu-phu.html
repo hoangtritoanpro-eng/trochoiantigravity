@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ai Là Triệu Phú Toán Học - Thầy Sơn SKL</title>
+  <title>AI LÀ TRIỆU PHÚ - Thầy Sơn SKL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
@@ -1166,8 +1166,8 @@
     <main class="mil-center-panel">
       <header class="mil-header">
         <img src="assets/millionaire/logo_trieu_phu.jpg" alt="Ai Là Triệu Phú" style="width: 76px; height: 76px; border-radius: 50%; border: 2.5px solid var(--gold-primary); box-shadow: 0 0 20px rgba(234, 179, 8, 0.65); object-fit: cover; margin-bottom: 6px;">
-        <h1 class="mil-game-title">AI LÀ TRIỆU PHÚ TOÁN HỌC</h1>
-        <div class="mil-subtitle" id="milSubtitle">Chinh phục 22 câu hỏi trí tuệ toán học cùng Thầy Sơn SKL</div>
+        <h1 class="mil-game-title">AI LÀ TRIỆU PHÚ</h1>
+        <div class="mil-subtitle" id="milSubtitle">Chinh phục 22 câu hỏi trí tuệ cùng Thầy Sơn SKL</div>
       </header>
 
       <!-- Khung hiển thị câu hỏi màu trắng bo tròn viền vàng -->
@@ -1179,7 +1179,7 @@
           <span class="mil-badge shortcut">Phím tắt: A, B, C, D | Enter</span>
         </div>
         <div class="mil-question-content" id="milQuestionText">
-          Chào mừng bạn đến với <strong>Ai Là Triệu Phú Toán Học</strong>!<br>
+          Chào mừng bạn đến với trò chơi <strong>AI LÀ TRIỆU PHÚ</strong>!<br>
           <span style="font-size: 15px; color: #475569; margin-top: 6px; font-weight: 500;">Nhấn nút <strong>"▶ BẮT ĐẦU CHƠI"</strong> ở góc trái để bắt đầu thử thách 22 câu hỏi!</span>
         </div>
       </div>
@@ -1272,7 +1272,7 @@
   <div class="mil-modal-backdrop" id="modalCustomQ">
     <div class="mil-modal-dialog">
       <div class="mil-modal-header">
-        <h3 class="mil-modal-title">📄 NẠP ĐỀ TỰ ĐỘNG CHO GAME (HỖ TRỢ FILE PDF)</h3>
+        <h3 class="mil-modal-title">📄 NẠP ĐỀ TỰ ĐỘNG - TRÒ CHƠI: AI LÀ TRIỆU PHÚ</h3>
         <button class="mil-modal-close" id="btnCloseModalQ">✕</button>
       </div>
       
@@ -1292,7 +1292,7 @@
         <div class="gemini-config-box" id="geminiConfigBox">
           <div class="gemini-toggle-row">
             <div style="display: flex; align-items: center;">
-              <span class="gemini-badge">✨ GEMINI FLASH AI</span>
+              <span class="gemini-badge">✨ GEMINI 3.8 FLASH</span>
               <span style="font-weight: 600; font-size: 13px; color: #f1f5f9;">Chuẩn Hóa &amp; Tự Giải Đề Bằng AI</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -1316,19 +1316,21 @@
             </div>
 
             <div class="gemini-input-group">
-              <label>⚡ Model Gemini Flash:</label>
+              <label>⚡ Model Gemini Flash (Mới Nhất):</label>
               <select id="geminiModelSelect" class="gemini-text-input">
-                <option value="gemini-1.5-flash" selected>Gemini 1.5 Flash (Khuyên dùng - Nhanh &amp; Ổn định)</option>
-                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Thế hệ mới nhất)</option>
-                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Giải bài toán nâng cao khó)</option>
-                <option value="custom">Model tùy chỉnh (VD: gemini-3.8-flash)...</option>
+                <option value="gemini-3.8-flash" selected>Gemini 3.8 Flash (Mới nhất - Siêu nhanh &amp; Thông minh)</option>
+                <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (Tối ưu tốc độ cao)</option>
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Legacy)</option>
+                <option value="custom">Model tùy chỉnh...</option>
               </select>
-              <input type="text" id="geminiCustomModelInput" class="gemini-text-input" placeholder="Nhập tên model, VD: gemini-3.8-flash" style="display: none; margin-top: 4px;">
+              <input type="text" id="geminiCustomModelInput" class="gemini-text-input" placeholder="Nhập tên model tùy chỉnh" style="display: none; margin-top: 4px;">
             </div>
 
             <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
               <button type="button" id="btnRunGeminiAI" class="btn-gemini-action">
-                ✨ Chuẩn Hóa Văn Bản Bằng Gemini AI
+                ✨ Chuẩn Hóa Bằng Gemini 3.8 Flash AI
               </button>
             </div>
           </div>
@@ -1384,7 +1386,7 @@ D. x = -4"></textarea>
           </button>
         </div>
         <button type="button" class="btn-mil start" id="btnSaveCustom" style="padding: 9px 20px; font-size: 13.5px; font-weight: 700;">
-          ▷ ÁP DỤNG VÀO GAME NGAY
+          ▷ ÁP DỤNG VÀO TRÒ CHƠI: AI LÀ TRIỆU PHÚ
         </button>
       </div>
     </div>
@@ -2050,9 +2052,9 @@ D. x = -4"></textarea>
        5. DỊCH VỤ GOOGLE GEMINI AI (CHUẨN HÓA & TỰ GIẢI ĐỀ)
     ═══════════════════════════════════════════════════ */
     const GeminiQuizService = {
-      defaultModel: 'gemini-1.5-flash',
+      defaultModel: 'gemini-3.8-flash',
 
-      async standardizeQuestions(rawText, apiKey, modelName = 'gemini-1.5-flash') {
+      async standardizeQuestions(rawText, apiKey, modelName = 'gemini-3.8-flash') {
         if (!apiKey || !apiKey.trim()) {
           throw new Error("Vui lòng nhập Google Gemini API Key để kích hoạt chuẩn hóa AI!");
         }
@@ -2062,7 +2064,7 @@ D. x = -4"></textarea>
         }
 
         const chosenModel = (modelName === 'custom') 
-          ? (document.getElementById('geminiCustomModelInput')?.value.trim() || 'gemini-1.5-flash') 
+          ? (document.getElementById('geminiCustomModelInput')?.value.trim() || 'gemini-3.8-flash') 
           : modelName;
 
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(chosenModel)}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
@@ -2167,10 +2169,10 @@ Quy tắc bắt buộc:
         });
       },
 
-      async testConnection(apiKey, modelName = 'gemini-1.5-flash') {
+      async testConnection(apiKey, modelName = 'gemini-3.8-flash') {
         if (!apiKey) throw new Error("Chưa nhập API Key!");
         const chosenModel = (modelName === 'custom') 
-          ? (document.getElementById('geminiCustomModelInput')?.value.trim() || 'gemini-1.5-flash') 
+          ? (document.getElementById('geminiCustomModelInput')?.value.trim() || 'gemini-3.8-flash') 
           : modelName;
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(chosenModel)}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
         const res = await fetch(endpoint, {
@@ -2201,7 +2203,7 @@ Quy tắc bắt buộc:
 
       loadGeminiSettings() {
         const savedKey = localStorage.getItem('toan_ai_gemini_api_key') || '';
-        const savedModel = localStorage.getItem('toan_ai_gemini_model') || 'gemini-1.5-flash';
+        const savedModel = localStorage.getItem('toan_ai_gemini_model') || 'gemini-3.8-flash';
         const useGemini = localStorage.getItem('toan_ai_use_gemini') === 'true';
 
         const keyInput = document.getElementById('geminiApiKey');
@@ -2211,7 +2213,7 @@ Quy tắc bắt buộc:
 
         if (keyInput) keyInput.value = savedKey;
         if (modelSelect) {
-          if (['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'].includes(savedModel)) {
+          if (['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'].includes(savedModel)) {
             modelSelect.value = savedModel;
           } else if (savedModel) {
             modelSelect.value = 'custom';

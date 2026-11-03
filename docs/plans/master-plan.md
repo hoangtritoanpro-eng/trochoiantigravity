@@ -79,4 +79,5 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
   - [x] Thiết kế nền studio 3D theo mẫu PowerPoint & tích hợp đoạn nhạc kết thúc chương trình kinh điển.
   - [x] Phát triển giao diện & bộ bóc tách đề trắc nghiệm tự động từ file PDF chuyển về đúng mã cấu trúc của app.
   - [x] Tích hợp kết nối Google Gemini Flash AI tự động phân tích ngữ nghĩa, giải toán và chuẩn hóa đề nạp về JSON.
+  - [x] Nâng cấp model Google Gemini mới nhất (Gemini 3.8 Flash) làm mặc định và chuẩn hóa tên trò chơi thành "AI LÀ TRIỆU PHÚ".
 - **Expected Output:** Trò chơi hoạt động độc lập với giao diện y hệt ảnh mẫu, chạy mượt mà trên trình duyệt.

@@ -10,6 +10,24 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.9.6] - 2026-11-03
+
+### Changed
+- **Chuẩn Hóa & Cập Nhật Model Google Gemini Mới Nhất:**
+  - Thiết lập model `gemini-3.8-flash` (Thế hệ mới nhất - Siêu nhanh & Thông minh) làm model mặc định đứng đầu danh sách lựa chọn trong hộp Nạp đề AI.
+  - Cập nhật danh sách model ưu tiên: `Gemini 3.8 Flash`, `Gemini 3.5 Flash Lite`, `Gemini 2.5 Flash`, `Gemini 2.0 Flash`, `Gemini 1.5 Flash` cùng tùy chọn Custom Model.
+  - Đồng bộ logic JavaScript `GeminiQuizService` và `CustomQuestionManager.loadGeminiSettings()` ưu tiên model `gemini-3.8-flash`.
+
+### Added & Changed
+- **Đồng Bộ Thương Hiệu Tên Trò Chơi "AI LÀ TRIỆU PHÚ":**
+  - Cập nhật tiêu đề trang web chính thức: `AI LÀ TRIỆU PHÚ - Thầy Sơn SKL`.
+  - Cập nhật Header chính của trò chơi thành phong cách vàng kim 3D: `AI LÀ TRIỆU PHÚ`.
+  - Cập nhật tiêu đề Modal nạp đề: `📄 NẠP ĐỀ TỰ ĐỘNG - TRÒ CHƠI: AI LÀ TRIỆU PHÚ`.
+  - Chuẩn hóa nút kích hoạt nạp đề thành: `▷ ÁP DỤNG VÀO TRÒ CHƠI: AI LÀ TRIỆU PHÚ`.
+  - Đồng bộ toàn diện trên cả file độc lập `ai-la-trieu-phu.html` và tài liệu dự án.
+
+---
+
 ## [1.9.5] - 2026-11-03
 
 ### Added
