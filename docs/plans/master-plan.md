@@ -14,6 +14,8 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
 | **Phase 3** | Tính năng Nâng cao & Tối ưu | `[x]` | Hoàn thiện các tính năng phụ trợ, tối ưu hóa trải nghiệm & hiệu năng. |
 | **Phase 4** | Deploy & Bàn giao | `[x]` | Đóng gói sản phẩm, deploy môi trường production và viết tài liệu HDSD. |
 | **Phase 5** | Giao Diện Tươi Sáng & Bright Theme | `[x]` | Chuyển đổi giao diện sang tông tươi sáng và phông chữ Fredoka & Quicksand cho trẻ em. |
+| **Phase 6** | Thêm Game Mới và Phòng Pomodoro | `[x]` | Bổ sung Space Math, Math Racing và phòng học Pomodoro Lofi. |
+| **Phase 7** | Game Ai Là Triệu Phú & Đóng Gói Tệp Riêng | `[x]` | Trò chơi Ai Là Triệu Phú 22 câu, layout Dark Blue & Gold, đóng gói tệp riêng biệt standalone. |
 
 ---
 
@@ -67,10 +69,11 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
   - [x] Cập nhật kết nối các game mới với kho câu hỏi và hệ thống điểm.
 - **Expected Output:** Hai game mới và phòng Pomodoro có thể truy cập được từ giao diện và hoạt động trơn tru.
 
-### Phase 7: Game Ai Là Triệu Phú Toán Học
-- **Mục tiêu:** Xây dựng trò chơi mới dựa trên thiết kế giao diện DOM chi tiết.
+### Phase 7: Game Ai Là Triệu Phú Toán Học & Đóng Gói Tệp Riêng
+- **Mục tiêu:** Xây dựng trò chơi mới dựa trên thiết kế giao diện DOM chi tiết và đóng gói thành 1 tệp HTML độc lập.
 - **Các task chính:**
-  - [ ] Thiết kế layout 3 cột: Điều khiển, Câu hỏi, Tiến độ.
-  - [ ] Viết CSS cho màu nền Dark Blue và vàng Gold sang trọng.
-  - [ ] Lập trình logic game xử lý lưới 22 câu hỏi.
+  - [x] Thiết kế layout 3 cột: Điều khiển, Câu hỏi, Tiến độ.
+  - [x] Viết CSS cho màu nền Dark Blue và vàng Gold sang trọng.
+  - [x] Lập trình logic game xử lý lưới 22 câu hỏi.
+  - [x] Đóng gói thành 1 tệp HTML độc lập (`ai-la-trieu-phu.html`) tích hợp đầy đủ CSS, JS, âm thanh kép và ngân hàng câu hỏi THCS.
 - **Expected Output:** Trò chơi hoạt động độc lập với giao diện y hệt ảnh mẫu, chạy mượt mà trên trình duyệt.

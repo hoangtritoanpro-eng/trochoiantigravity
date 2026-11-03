@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ai Là Triệu Phú Toán Học - Thầy Toàn AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #060e22;
+      --bg-panel: #0a1331;
+      --bg-center: radial-gradient(circle at center, #0f1c42 0%, #060e22 100%);
+      --gold-primary: #eab308;
+      --gold-light: #fde047;
+      --gold-lighter: #fef08a;
+      --gold-dark: #b45309;
+      --border-blue: #1e3a8a;
+      --text-blue-light: #bfdbfe;
+      --font-display: 'Fredoka', 'Segoe UI', Roboto, sans-serif;
+      --font-body: 'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif;
+      --correct-color: #22c55e;
+      --wrong-color: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-body);
+      background-color: var(--bg-dark);
+      color: #fff;
+    }
+
+    /* ═══════════════════════════════
+       CHÍNH: LAYOUT 3 CỘT ĐỘC LẬP
+    ═══════════════════════════════ */
+    .millionaire-app {
+      display: grid;
+      grid-template-columns: 290px 1fr 290px;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg-dark);
+    }
+
+    /* CỘT TRÁI & PHẢI */
+    .mil-left-panel, .mil-right-panel {
+      background: var(--bg-panel);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .mil-left-panel {
+      border-right: 2px solid var(--gold-primary);
+      box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4);
+    }
+
+    .mil-right-panel {
+      border-left: 2px solid var(--gold-primary);
+      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.4);
+    }
+
+    /* TIÊU ĐỀ BẢNG */
+    .mil-panel-title {
+      color: var(--gold-light);
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 17px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1.5px solid rgba(234, 179, 8, 0.35);
+      padding-bottom: 8px;
+      margin-bottom: 2px;
+      text-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+    }
+
+    /* KHUNG LUẬT CHƠI & BỘ LỌC */
+    .mil-card-box {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text-blue-light);
+      line-height: 1.5;
+    }
+
+    .mil-rules strong {
+      color: var(--gold-light);
+    }
+
+    /* BỘ LỌC LỚP & CHỦ ĐỀ */
+    .mil-filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mil-filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: #93c5fd;
+    }
+
+    .mil-select {
+      background: #0f172a;
+      color: #fde047;
+      border: 1px solid var(--gold-dark);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* CÁC NÚT ĐIỀU KHIỂN */
+    .mil-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-mil {
+      padding: 10px 8px;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      color: #fff;
+      transition: all 0.15s ease;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .btn-mil:active {
+      transform: translateY(2px);
+      box-shadow: none !important;
+    }
+
+    .btn-mil.start {
+      background: linear-gradient(180deg, #4ade80, #16a34a);
+      box-shadow: 0 3px 0 #15803d;
+      grid-column: span 2;
+      font-size: 15px;
+      padding: 12px;
+    }
+
+    .btn-mil.check {
+      background: linear-gradient(180deg, #fcd34d, #f59e0b);
+      color: #78350f;
+      box-shadow: 0 3px 0 #b45309;
+      text-shadow: none;
+    }
+
+    .btn-mil.answer {
+      background: linear-gradient(180deg, #94a3b8, #64748b);
+      box-shadow: 0 3px 0 #475569;
+    }
+
+    .btn-mil.restart {
+      background: linear-gradient(180deg, #f87171, #dc2626);
+      box-shadow: 0 3px 0 #b91c1c;
+      grid-column: span 2;
+    }
+
+    /* LƯỚI 22 CÂU HỎI */
+    .mil-q-grid-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mil-grid-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #93c5fd;
+      font-weight: 600;
+    }
+
+    .mil-q-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .mil-q-btn {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 6px 0;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mil-q-btn:hover {
+      background: #334155;
+      border-color: #64748b;
+      transform: scale(1.05);
+    }
+
+    .mil-q-btn.active {
+      background: var(--gold-primary);
+      color: #000;
+      border-color: var(--gold-lighter);
+      box-shadow: 0 0 10px rgba(234, 179, 8, 0.6);
+      transform: scale(1.08);
+      z-index: 2;
+    }
+
+    .mil-q-btn.correct {
+      background: var(--correct-color);
+      color: #fff;
+      border-color: #86efac;
+    }
+
+    .mil-q-btn.wrong {
+      background: var(--wrong-color);
+      color: #fff;
+      border-color: #fca5a5;
+    }
+
+    /* TIỆN ÍCH DƯỚI CÙNG BẢNG ĐIỀU KHIỂN */
+    .mil-tools-row {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-tool {
+      flex: 1;
+      padding: 8px 4px;
+      border-radius: 6px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: background 0.2s;
+    }
+
+    .btn-tool:hover {
+      background: #334155;
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+    }
+
+    /* ═══════════════════════════════
+       CỘT GIỮA: MÀN HÌNH CHÍNH
+    ═══════════════════════════════ */
+    .mil-center-panel {
+      display: flex;
+      flex-direction: column;
+      padding: 20px 40px;
+      position: relative;
+      background: var(--bg-center);
+      overflow-y: auto;
+      justify-content: space-between;
+    }
+
+    .mil-header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .mil-game-title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      color: var(--gold-light);
+      text-shadow: 0 0 20px rgba(253, 224, 71, 0.4), 0 2px 4px rgba(0,0,0,0.8);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .mil-subtitle {
+      font-size: 14px;
+      color: #93c5fd;
+      font-weight: 600;
+    }
+
+    /* KHUNG CÂU HỎI TRẮNG BO TRÒN */
+    .mil-question-box {
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 16px;
+      padding: 24px 28px;
+      min-height: 190px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(234, 179, 8, 0.25);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border: 3px solid var(--gold-primary);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .mil-badges {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .mil-badge {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mil-badge.qnum {
+      border-color: var(--gold-primary);
+      color: var(--gold-dark);
+      background: #fef9c3;
+      box-shadow: 0 1px 3px rgba(180, 83, 9, 0.15);
+    }
+
+    .mil-badge.part {
+      border-color: #38bdf8;
+      color: #0369a1;
+      background: #e0f2fe;
+    }
+
+    .mil-badge.topic {
+      border-color: #a855f7;
+      color: #7e22ce;
+      background: #f3e8ff;
+    }
+
+    .mil-badge.shortcut {
+      margin-left: auto;
+      border-color: #cbd5e1;
+      color: #64748b;
+      background: #f8fafc;
+      font-weight: 500;
+      text-transform: none;
+    }
+
+    .mil-question-content {
+      font-size: 21px;
+      font-weight: 600;
+      line-height: 1.6;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex-direction: column;
+      color: #1e293b;
+    }
+
+    .mil-question-content img {
+      max-width: 100%;
+      max-height: 220px;
+      margin-top: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* LƯỚI ĐÁP ÁN 4 LỰA CHỌN A, B, C, D */
+    .mil-options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .mil-option {
+      background: linear-gradient(90deg, #09132c, #162447);
+      border: 2px solid var(--gold-primary);
+      border-radius: 30px;
+      padding: 14px 22px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: left;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      outline: none;
+    }
+
+    .mil-option:hover {
+      background: linear-gradient(90deg, #162447, #1f3567);
+      border-color: var(--gold-light);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 18px rgba(234, 179, 8, 0.3);
+    }
+
+    .mil-option.selected {
+      background: linear-gradient(90deg, #b45309, #d97706);
+      border-color: #fde047;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.7);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    .mil-option.correct {
+      background: linear-gradient(90deg, #15803d, #22c55e);
+      border-color: #86efac;
+      animation: milFlashCorrect 0.6s infinite alternate;
+    }
+
+    .mil-option.wrong {
+      background: linear-gradient(90deg, #b91c1c, #ef4444);
+      border-color: #fca5a5;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+    }
+
+    @keyframes milFlashCorrect {
+      0% { box-shadow: 0 0 10px #22c55e; }
+      100% { box-shadow: 0 0 25px #86efac, 0 0 40px #22c55e; }
+    }
+
+    .opt-letter {
+      color: var(--gold-light);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
+      margin-right: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: #000;
+      border: 1.5px solid var(--gold-primary);
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .mil-option.selected .opt-letter {
+      background: #fff;
+      color: var(--gold-dark);
+      border-color: #fff;
+    }
+
+    .mil-option.correct .opt-letter {
+      background: #fff;
+      color: #15803d;
+      border-color: #fff;
+    }
+
+    .mil-option.wrong .opt-letter {
+      background: #fff;
+      color: #b91c1c;
+      border-color: #fff;
+    }
+
+    .opt-text {
+      flex-grow: 1;
+      word-break: break-word;
+    }
+
+    /* ĐIỀU HƯỚNG CÂU TRƯỚC / TIẾP */
+    .mil-nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .btn-mil-nav {
+      background: linear-gradient(180deg, #475569, #334155);
+      border: 1.5px solid #64748b;
+      color: #fff;
+      padding: 12px 34px;
+      border-radius: 25px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-mil-nav:hover {
+      background: #64748b;
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+      transform: translateY(-2px);
+    }
+
+    .btn-mil-nav:active {
+      transform: translateY(1px);
+    }
+
+    /* ═══════════════════════════════
+       CỘT PHẢI: TIẾN ĐỘ & MỐC THƯỞNG
+    ═══════════════════════════════ */
+    .mil-progress-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1.5px solid var(--gold-primary);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .mil-progress-label {
+      font-size: 12px;
+      color: #93c5fd;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .mil-progress-value {
+      font-family: var(--font-display);
+      font-size: 26px;
+      color: var(--gold-light);
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(253, 224, 71, 0.5);
+    }
+
+    .mil-bar-track {
+      width: 100%;
+      height: 8px;
+      background: #1e293b;
+      border-radius: 4px;
+      margin-top: 10px;
+      overflow: hidden;
+      border: 1px solid #334155;
+    }
+
+    .mil-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f59e0b, #22c55e);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    /* THÁP DANH HIỆU 22 BẬC (MÔ PHỎNG GAMESHOW) */
+    .mil-ladder-box {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+    }
+
+    .mil-ladder-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .mil-ladder-step {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(30, 41, 59, 0.5);
+      color: #94a3b8;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .mil-ladder-step.milestone {
+      color: #fff;
+      font-weight: 700;
+      border-color: rgba(234, 179, 8, 0.4);
+      background: rgba(234, 179, 8, 0.1);
+    }
+
+    .mil-ladder-step.milestone .step-tag {
+      color: var(--gold-light);
+    }
+
+    .mil-ladder-step.current {
+      background: var(--gold-primary);
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+      border-color: var(--gold-lighter);
+    }
+
+    .mil-ladder-step.current .step-tag {
+      color: #000;
+    }
+
+    .mil-author {
+      font-size: 12px;
+      color: #93c5fd;
+      text-align: center;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* ═══════════════════════════════
+       MODAL NHẬP CÂU HỎI TÙY CHỈNH
+    ═══════════════════════════════ */
+    .mil-modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mil-modal-dialog {
+      background: #0f172a;
+      border: 2px solid var(--gold-primary);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 650px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(234, 179, 8, 0.3);
+      overflow: hidden;
+      animation: zoomIn 0.25s ease;
+    }
+
+    .mil-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mil-modal-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      color: var(--gold-light);
+    }
+
+    .mil-modal-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .mil-modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .mil-textarea {
+      width: 100%;
+      height: 220px;
+      background: #020617;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px;
+      color: #fff;
+      font-family: monospace;
+      font-size: 13px;
+      resize: vertical;
+      outline: none;
+    }
+
+    .mil-textarea:focus {
+      border-color: var(--gold-primary);
+    }
+
+    .mil-modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid #334155;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* DIALOG THÔNG BÁO HOÀN THÀNH GAME */
+    .mil-win-dialog {
+      background: radial-gradient(circle at center, #1e293b, #0f172a);
+      border: 3px solid var(--gold-light);
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 0 40px rgba(234, 179, 8, 0.5);
+      animation: bounceIn 0.4s ease;
+    }
+
+    .mil-win-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--gold-light);
+      margin-bottom: 12px;
+      text-shadow: 0 0 15px rgba(253, 224, 71, 0.6);
+    }
+
+    .mil-win-score {
+      font-size: 20px;
+      color: #fff;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .mil-win-score span {
+      color: var(--gold-light);
+      font-weight: 700;
+      font-size: 24px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.7); opacity: 0; }
+      70% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    /* ═══════════════════════════════
+       RESPONSIVE KHI THU NHỎ MÀN HÌNH
+    ═══════════════════════════════ */
+    @media (max-width: 1024px) {
+      .millionaire-app {
+        grid-template-columns: 240px 1fr 240px;
+      }
+      .mil-center-panel {
+        padding: 15px 20px;
+      }
+      .mil-game-title {
+        font-size: 26px;
+      }
+      .mil-question-content {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 860px) {
+      body, html {
+        overflow: auto;
+      }
+      .millionaire-app {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+      }
+      .mil-left-panel {
+        border-right: none;
+        border-bottom: 2px solid var(--gold-primary);
+      }
+      .mil-right-panel {
+        border-left: none;
+        border-top: 2px solid var(--gold-primary);
+      }
+      .mil-options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="millionaire-app" id="milApp">
+    <!-- ═══════════════════════════════
+         CỘT TRÁI: BẢNG ĐIỀU KHIỂN
+    ═══════════════════════════════ -->
+    <aside class="mil-left-panel">
+      <h3 class="mil-panel-title">BẢNG ĐIỀU KHIỂN</h3>
+
+      <div class="mil-card-box mil-rules">
+        <strong>LUẬT CHƠI:</strong><br>
+        • Nhấn chọn đáp án (A, B, C, D) hoặc phím tắt <strong>1, 2, 3, 4</strong>.<br>
+        • Bấm <strong>KIỂM TRA</strong> (hoặc phím <strong>Space/Enter</strong>) để chấm điểm.<br>
+        • Trả lời đúng sẽ tự động chuyển câu tiếp theo.
+      </div>
+
+      <!-- Bộ chọn lớp và chủ đề -->
+      <div class="mil-card-box mil-filter-group">
+        <div class="mil-filter-row">
+          <label for="selectGrade">Khối Lớp:</label>
+          <select id="selectGrade" class="mil-select">
+            <option value="all">Tổng Hợp (6-9)</option>
+            <option value="6">Toán Lớp 6</option>
+            <option value="7">Toán Lớp 7</option>
+            <option value="8" selected>Toán Lớp 8</option>
+            <option value="9">Toán Lớp 9</option>
+          </select>
+        </div>
+        <div class="mil-filter-row">
+          <label for="selectTopic">Chủ Đề:</label>
+          <select id="selectTopic" class="mil-select">
+            <option value="all" selected>Tất cả</option>
+            <option value="algebra">Đại số</option>
+            <option value="geometry">Hình học</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 4 nút chức năng chính -->
+      <div class="mil-buttons">
+        <button class="btn-mil start" id="btnMilStart">▶ BẮT ĐẦU CHƠI</button>
+        <button class="btn-mil check" id="btnMilCheck">✓ KIỂM TRA</button>
+        <button class="btn-mil answer" id="btnMilAnswer">👁 ĐÁP ÁN</button>
+        <button class="btn-mil restart" id="btnMilRestart">↺ LÀM LẠI TỪ ĐẦU</button>
+      </div>
+
+      <!-- Lưới 22 câu hỏi trực quan -->
+      <div class="mil-q-grid-wrap">
+        <div class="mil-grid-header">
+          <span>DANH SÁCH 22 CÂU HỎI:</span>
+          <span id="milGridCount">0/22</span>
+        </div>
+        <div class="mil-q-grid" id="milQuestionGrid">
+          <!-- 22 Nút câu hỏi tạo tự động qua JavaScript -->
+        </div>
+      </div>
+
+      <!-- Tiện ích bên dưới -->
+      <div class="mil-tools-row">
+        <button class="btn-tool" id="btnSoundToggle" title="Bật/Tắt âm thanh">🔊 Âm thanh</button>
+        <button class="btn-tool" id="btnFullscreenToggle" title="Bật toàn màn hình">⛶ Toàn màn</button>
+        <button class="btn-tool" id="btnCustomQuestions" title="Nạp đề riêng">✎ Nạp đề</button>
+      </div>
+    </aside>
+
+    <!-- ═══════════════════════════════
+         CỘT GIỮA: MÀN HÌNH CHÍNH
+    ═══════════════════════════════ -->
+    <main class="mil-center-panel">
+      <header class="mil-header">
+        <h1 class="mil-game-title">AI LÀ TRIỆU PHÚ TOÁN HỌC</h1>
+        <div class="mil-subtitle" id="milSubtitle">Chinh phục 22 câu hỏi trí tuệ toán học cùng Thầy Toàn AI</div>
+      </header>
+
+      <!-- Khung hiển thị câu hỏi màu trắng bo tròn viền vàng -->
+      <div class="mil-question-box">
+        <div class="mil-badges">
+          <span class="mil-badge qnum" id="milBadgeQNum">Câu 1/22</span>
+          <span class="mil-badge part">Phần I</span>
+          <span class="mil-badge topic" id="milBadgeTopic">Toán Học</span>
+          <span class="mil-badge shortcut">Phím tắt: A, B, C, D | Enter</span>
+        </div>
+        <div class="mil-question-content" id="milQuestionText">
+          Chào mừng bạn đến với game <strong>Ai Là Triệu Phú Toán Học</strong>!<br>
+          Nhấn nút <strong>"BẮT ĐẦU CHƠI"</strong> ở góc trái để bắt đầu thử thách 22 câu hỏi!
+        </div>
+      </div>
+
+      <!-- Lưới 4 đáp án A, B, C, D -->
+      <div class="mil-options-grid">
+        <button class="mil-option" data-opt="0">
+          <span class="opt-letter">A</span>
+          <span class="opt-text" id="milOpt0">Lựa chọn A</span>
+        </button>
+        <button class="mil-option" data-opt="1">
+          <span class="opt-letter">B</span>
+          <span class="opt-text" id="milOpt1">Lựa chọn B</span>
+        </button>
+        <button class="mil-option" data-opt="2">
+          <span class="opt-letter">C</span>
+          <span class="opt-text" id="milOpt2">Lựa chọn C</span>
+        </button>
+        <button class="mil-option" data-opt="3">
+          <span class="opt-letter">D</span>
+          <span class="opt-text" id="milOpt3">Lựa chọn D</span>
+        </button>
+      </div>
+
+      <!-- 2 Nút điều hướng CÂU TRƯỚC / CÂU TIẾP -->
+      <footer class="mil-nav-buttons">
+        <button class="btn-mil-nav" id="btnMilPrev">◀ CÂU TRƯỚC</button>
+        <button class="btn-mil-nav" id="btnMilNext">CÂU TIẾP ▶</button>
+      </footer>
+    </main>
+
+    <!-- ═══════════════════════════════
+         CỘT PHẢI: TIẾN ĐỘ & MỐC THƯỞNG
+    ═══════════════════════════════ -->
+    <aside class="mil-right-panel">
+      <h3 class="mil-panel-title">TIẾN ĐỘ & MỐC THƯỞNG</h3>
+
+      <div class="mil-progress-card">
+        <div class="mil-progress-label">SỐ CÂU ĐÃ ĐÚNG</div>
+        <div class="mil-progress-value"><span id="milScore">0</span> / 22</div>
+        <div class="mil-bar-track">
+          <div class="mil-bar-fill" id="milBarFill"></div>
+        </div>
+      </div>
+
+      <!-- Tháp mốc danh hiệu 22 câu mô phỏng gameshow -->
+      <div class="mil-ladder-box">
+        <div class="mil-ladder-title">
+          <span>THÁP DANH HIỆU:</span>
+          <span>MỐC QUAN TRỌNG</span>
+        </div>
+        <div class="mil-ladder-step milestone" data-step="22">
+          <span>Câu 22:</span>
+          <span class="step-tag">👑 TRIỆU PHÚ TOÁN HỌC</span>
+        </div>
+        <div class="mil-ladder-step" data-step="20"><span>Câu 20:</span><span>Nhà Bác Học Trẻ</span></div>
+        <div class="mil-ladder-step" data-step="18"><span>Câu 18:</span><span>Kỷ Lục Gia</span></div>
+        <div class="mil-ladder-step milestone" data-step="15">
+          <span>Câu 15:</span>
+          <span class="step-tag">⭐ BẬC THẦY ĐẠI SỐ</span>
+        </div>
+        <div class="mil-ladder-step" data-step="13"><span>Câu 13:</span><span>Chiến Binh Logic</span></div>
+        <div class="mil-ladder-step milestone" data-step="10">
+          <span>Câu 10:</span>
+          <span class="step-tag">🎯 THÔNG THÁI TOÁN HỌC</span>
+        </div>
+        <div class="mil-ladder-step" data-step="8"><span>Câu 8:</span><span>Vượt Chướng Ngại</span></div>
+        <div class="mil-ladder-step milestone" data-step="5">
+          <span>Câu 5:</span>
+          <span class="step-tag">🚀 KHỞI ĐỘNG VỮNG VÀNG</span>
+        </div>
+        <div class="mil-ladder-step" data-step="3"><span>Câu 3:</span><span>Tự Tin Tỏa Sáng</span></div>
+        <div class="mil-ladder-step current" data-step="1"><span>Câu 1:</span><span>Bắt Đầu Hành Trình</span></div>
+      </div>
+
+      <div class="mil-card-box mil-rules" style="font-size: 11.5px;">
+        💡 <strong>Ghi chú giáo viên:</strong><br>
+        Nút <em>"Hiện đáp án"</em> dùng để hướng dẫn học sinh hoặc kiểm tra nhanh mà không cộng điểm.
+      </div>
+
+      <div class="mil-author">
+        Phát triển bởi: <strong>Thầy Toàn AI</strong>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ═══════════════════════════════
+       MODAL NẠP ĐỀ RIÊNG CHO GIÁO VIÊN
+  ═══════════════════════════════ -->
+  <div class="mil-modal-backdrop" id="modalCustomQ">
+    <div class="mil-modal-dialog">
+      <div class="mil-modal-header">
+        <h3 class="mil-modal-title">✎ NẠP ĐỀ TÙY CHỈNH CHO GAME</h3>
+        <button class="mil-modal-close" id="btnCloseModalQ">✕</button>
+      </div>
+      <div class="mil-modal-body">
+        <p>Thầy cô có thể dán danh sách câu hỏi theo mẫu dưới đây (hoặc định dạng trắc nghiệm thông thường):</p>
+        <textarea id="txtCustomQuestions" class="mil-textarea" placeholder="Câu 1: Tính 2 + 3?
+A. 4
+B. 5
+C. 6
+D. 7
+Đáp án: B
+
+Câu 2: Diện tích hình vuông cạnh 4cm?
+A. 16cm²
+B. 8cm²
+C. 12cm²
+D. 20cm²
+Đáp án: A"></textarea>
+      </div>
+      <div class="mil-modal-footer">
+        <button class="btn-mil restart" id="btnClearCustom" style="padding: 8px 16px;">Xóa đề đã lưu</button>
+        <button class="btn-mil start" id="btnSaveCustom" style="padding: 8px 16px;">Lưu & Áp Dụng Đề Này</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       MODAL HOÀN THÀNH GAME (KẾT QUẢ)
+  ═══════════════════════════════ -->
+  <div class="mil-modal-backdrop" id="modalEndGame">
+    <div class="mil-win-dialog">
+      <h2 class="mil-win-title" id="winTitle">🏆 CHÚC MỪNG CHIẾN THẮNG!</h2>
+      <div class="mil-win-score">
+        Bạn đã hoàn thành 22 câu hỏi thử thách!<br>
+        Số câu trả lời chính xác: <span id="winFinalScore">22</span> / 22<br>
+        Danh hiệu: <span id="winRankName" style="color: #4ade80;">TRIỆU PHÚ TOÁN HỌC</span>
+      </div>
+      <button class="btn-mil start" id="btnWinPlayAgain" style="width: 100%; font-size: 16px;">↺ CHƠI LƯỢT MỚI</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       JAVASCRIPT: HỆ THỐNG TOÀN DIỆN
+  ═══════════════════════════════ -->
+  <script>
+    /* ═══════════════════════════════════════════════
+       1. HỆ THỐNG ÂM THANH KÉP (MP3 + SYNTHESIZER FALLBACK)
+    ═══════════════════════════════════════════════════ */
+    const SoundEngine = {
+      enabled: true,
+      audioCtx: null,
+
+      // Các file MP3 tĩnh trong cùng thư mục
+      mp3Intro: new Audio('ai-la-trieu-phu mo dau.mp3'),
+      mp3Bg: new Audio('nhacnenlientuc.mp3'),
+      mp3Correct: new Audio('amthanhdung.mp3'),
+      mp3Wrong: new Audio('amthanhsai.mp3'),
+
+      init() {
+        this.mp3Bg.loop = true;
+        this.mp3Bg.volume = 0.45;
+        this.mp3Intro.volume = 0.7;
+        this.mp3Correct.volume = 0.8;
+        this.mp3Wrong.volume = 0.8;
+      },
+
+      getAudioContext() {
+        if (!this.audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) this.audioCtx = new AudioContextClass();
+        }
+        if (this.audioCtx && this.audioCtx.state === 'suspended') {
+          this.audioCtx.resume();
+        }
+        return this.audioCtx;
+      },
+
+      toggle() {
+        this.enabled = !this.enabled;
+        if (!this.enabled) {
+          this.stopAll();
+        } else {
+          this.playBg();
+        }
+        return this.enabled;
+      },
+
+      stopAll() {
+        [this.mp3Intro, this.mp3Bg, this.mp3Correct, this.mp3Wrong].forEach(a => {
+          try { a.pause(); } catch(e){}
+        });
+      },
+
+      playIntro() {
+        if (!this.enabled) return;
+        this.stopAll();
+        this.mp3Intro.currentTime = 0;
+        this.mp3Intro.play().catch(() => this.synthFanfare());
+      },
+
+      playBg() {
+        if (!this.enabled) return;
+        this.mp3Intro.pause();
+        this.mp3Bg.play().catch(() => {
+          // Trình duyệt có thể chặn autoplay nhạc nền
+        });
+      },
+
+      playCorrect() {
+        if (!this.enabled) return;
+        this.mp3Correct.currentTime = 0;
+        this.mp3Correct.play().catch(() => this.synthCorrect());
+      },
+
+      playWrong() {
+        if (!this.enabled) return;
+        this.mp3Wrong.currentTime = 0;
+        this.mp3Wrong.play().catch(() => this.synthWrong());
+      },
+
+      playClick() {
+        if (!this.enabled) return;
+        this.synthClick();
+      },
+
+      /* FALLBACK TỔNG HỢP QUA WEB AUDIO API KHI KHÔNG CÓ FILE MP3 HOẶC CHẶN */
+      synthClick() {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(600, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.05);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.05);
+        } catch(e) {}
+      },
+
+      synthCorrect() {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const notes = [523.25, 659.25, 783.99, 1046.50]; // C - E - G - C cao
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            const startTime = ctx.currentTime + idx * 0.08;
+            gain.gain.setValueAtTime(0.2, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + 0.35);
+          });
+        } catch(e) {}
+      },
+
+      synthWrong() {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(90, ctx.currentTime + 0.3);
+          gain.gain.setValueAtTime(0.25, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        } catch(e) {}
+      },
+
+      synthFanfare() {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const chords = [392, 523.25, 659.25, 783.99];
+          chords.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + i * 0.12);
+            osc.stop(ctx.currentTime + 0.8);
+          });
+        } catch(e) {}
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       2. NGÂN HÀNG CÂU HỎI TOÁN HỌC PHONG PHÚ (55+ CÂU)
+    ═══════════════════════════════════════════════════ */
+    const MathQuestionDB = {
+      '6': {
+        'algebra': [
+          { q: "Tính giá trị của biểu thức: 5² - 3 x 4", options: ["A. 8", "B. 13", "C. 88", "D. 12"], ans: 1 },
+          { q: "Tìm số nguyên x thỏa mãn: x + 7 = -3", options: ["A. x = 10", "B. x = 4", "C. x = -10", "D. x = -4"], ans: 2 },
+          { q: "Ước chung lớn nhất của 12 và 18 là gì?", options: ["A. 2", "B. 3", "C. 6", "D. 36"], ans: 2 },
+          { q: "Số đối của số nguyên -15 là:", options: ["A. -15", "B. 15", "C. 0", "D. 1/15"], ans: 1 },
+          { q: "Tính chất phân phối của phép nhân đối với phép cộng: a(b + c) = ?", options: ["A. ab + ac", "B. ab + c", "C. abc", "D. a + b + c"], ans: 0 },
+          { q: "Bội chung nhỏ nhất của 6 và 8 là:", options: ["A. 12", "B. 48", "C. 24", "D. 14"], ans: 2 },
+          { q: "Số nguyên tố nhỏ nhất là số nào?", options: ["A. 0", "B. 1", "C. 2", "D. 3"], ans: 2 }
+        ],
+        'geometry': [
+          { q: "Chu vi của một hình vuông có cạnh 5cm là:", options: ["A. 10cm", "B. 20cm", "C. 25cm", "D. 15cm"], ans: 1 },
+          { q: "Hình nào dưới đây có tâm đối xứng?", options: ["A. Tam giác đều", "B. Hình vuông", "C. Hình thang cân", "D. Hình tam giác vuông"], ans: 1 },
+          { q: "Diện tích hình chữ nhật có chiều dài 6cm và chiều rộng 4cm là:", options: ["A. 10 cm²", "B. 20 cm²", "C. 24 cm²", "D. 12 cm²"], ans: 2 },
+          { q: "Tam giác đều có mấy trục đối xứng?", options: ["A. 1 trục", "B. 2 trục", "C. 3 trục", "D. Không có"], ans: 2 },
+          { q: "Hình thoi có hai đường chéo dài 6cm và 8cm. Diện tích là:", options: ["A. 48 cm²", "B. 24 cm²", "C. 14 cm²", "D. 28 cm²"], ans: 1 }
+        ]
+      },
+      '7': {
+        'algebra': [
+          { q: "Tính giá trị của đa thức: P(x) = x² - 3 khi x = -2", options: ["A. 1", "B. -7", "C. -1", "D. 7"], ans: 0 },
+          { q: "Tỉ lệ thức: x/4 = 3/2. Giá trị của x là:", options: ["A. 6", "B. 8", "C. 2", "D. 12"], ans: 0 },
+          { q: "Bậc của đa thức x³y² - 5x⁴ + 1 là:", options: ["A. 3", "B. 4", "C. 5", "D. 6"], ans: 2 },
+          { q: "Tích của hai đơn thức (2x²y) và (-3xy³) là:", options: ["A. -6x²y³", "B. -6x³y⁴", "C. 5x³y⁴", "D. -6x³y³"], ans: 1 },
+          { q: "Nghiệm của đa thức 2x - 6 là:", options: ["A. x = -3", "B. x = 3", "C. x = 0", "D. x = 6"], ans: 1 },
+          { q: "Căn bậc hai số học của 49 là:", options: ["A. 7", "B. -7", "C. ±7", "D. 2401"], ans: 0 }
+        ],
+        'geometry': [
+          { q: "Tam giác có độ dài ba cạnh nào sau đây là tam giác vuông?", options: ["A. 3cm, 4cm, 5cm", "B. 2cm, 3cm, 4cm", "C. 5cm, 5cm, 8cm", "D. 4cm, 5cm, 6cm"], ans: 0 },
+          { q: "Giao điểm của ba đường trung trực của một tam giác cách đều:", options: ["A. Ba cạnh", "B. Ba đỉnh", "C. Hai đỉnh", "D. Trọng tâm"], ans: 1 },
+          { q: "Tổng ba góc trong của một tam giác bất kỳ bằng:", options: ["A. 90 độ", "B. 180 độ", "C. 360 độ", "D. 270 độ"], ans: 1 },
+          { q: "Giao điểm của ba đường cao trong một tam giác gọi là gì?", options: ["A. Trọng tâm", "B. Trực tâm", "C. Tâm ngoại tiếp", "D. Tâm nội tiếp"], ans: 1 },
+          { q: "Trọng tâm của tam giác là giao điểm của ba đường nào?", options: ["A. Ba đường trung tuyến", "B. Ba đường cao", "C. Ba đường phân giác", "D. Ba đường trung trực"], ans: 0 }
+        ]
+      },
+      '8': {
+        'algebra': [
+          { q: "Khai triển hằng đẳng thức đáng nhớ: (x - y)² = ?", options: ["A. x² - y²", "B. x² - 2xy + y²", "C. x² + 2xy + y²", "D. (x-y)(x+y)"], ans: 1 },
+          { q: "Phân tích đa thức thành nhân tử: x² - 4 = ?", options: ["A. (x - 2)²", "B. (x - 2)(x + 2)", "C. (x + 2)²", "D. x(x - 4)"], ans: 1 },
+          { q: "Mẫu thức chung nhỏ nhất của hai phân thức 1/(x-1) và 1/(x+1) là:", options: ["A. x - 1", "B. x + 1", "C. x² - 1", "D. x² + 1"], ans: 2 },
+          { q: "Phân tích đa thức thành nhân tử: x² - 2x + 1 = ?", options: ["A. (x + 1)²", "B. (x - 1)²", "C. (x - 1)(x + 1)", "D. x(x - 2) + 1"], ans: 1 },
+          { q: "Phân tích đa thức thành nhân tử: 3x² + 6x = ?", options: ["A. 3x(x + 2)", "B. 3(x² + 2x)", "C. 3x(x + 3)", "D. 3(x + 2)"], ans: 0 },
+          { q: "Khai triển hằng đẳng thức hiệu hai lập phương: x³ - 8 = ?", options: ["A. (x - 2)(x² + 2x + 4)", "B. (x - 2)(x² - 2x + 4)", "C. (x - 2)³", "D. (x + 2)(x² - 2x + 4)"], ans: 0 },
+          { q: "Phương trình 2x + 4 = 0 có tập nghiệm là:", options: ["A. S = {2}", "B. S = {-2}", "C. S = {4}", "D. S = {-4}"], ans: 1 }
+        ],
+        'geometry': [
+          { q: "Hình bình hành có một góc vuông là hình gì?", options: ["A. Hình thoi", "B. Hình chữ nhật", "C. Hình vuông", "D. Hình thang cân"], ans: 1 },
+          { q: "Đường trung bình của tam giác có tính chất gì?", options: ["A. Song song với cạnh đáy và bằng nửa cạnh ấy", "B. Vuông góc với cạnh đáy", "C. Bằng 2/3 cạnh đáy", "D. Song song và bằng cạnh đáy"], ans: 0 },
+          { q: "Tứ giác có bốn cạnh bằng nhau là hình gì?", options: ["A. Hình vuông", "B. Hình chữ nhật", "C. Hình thoi", "D. Hình bình hành"], ans: 2 },
+          { q: "Hình thoi có hai đường chéo bằng nhau là hình gì?", options: ["A. Hình bình hành", "B. Hình vuông", "C. Hình chữ nhật", "D. Hình thang"], ans: 1 },
+          { q: "Tổng các góc trong của một tứ giác lồi bằng:", options: ["A. 180 độ", "B. 270 độ", "C. 360 độ", "D. 540 độ"], ans: 2 }
+        ]
+      },
+      '9': {
+        'algebra': [
+          { q: "Căn bậc hai số học của số 16 là:", options: ["A. 4", "B. -4", "C. ±4", "D. 256"], ans: 0 },
+          { q: "Hệ phương trình { x + y = 3, x - y = 1 } có nghiệm (x; y) là:", options: ["A. (2; 1)", "B. (1; 2)", "C. (2; -1)", "D. (3; 0)"], ans: 0 },
+          { q: "Biệt thức Δ của phương trình bậc hai ax² + bx + c = 0 (a ≠ 0) là:", options: ["A. b² - ac", "B. b² - 4ac", "C. b - 4ac", "D. b² + 4ac"], ans: 1 },
+          { q: "Phương trình x² - 5x + 6 = 0 có hai nghiệm là:", options: ["A. 1 và 6", "B. 2 và 3", "C. -2 và -3", "D. 1 và 5"], ans: 1 },
+          { q: "Theo định lý Vi-ét, tổng hai nghiệm x₁ + x₂ của phương trình ax² + bx + c = 0 là:", options: ["A. -b/a", "B. b/a", "C. c/a", "D. -c/a"], ans: 0 },
+          { q: "Điều kiện xác định của biểu thức √(2x - 4) là:", options: ["A. x ≥ 2", "B. x > 2", "C. x ≤ 2", "D. x < 2"], ans: 0 }
+        ],
+        'geometry': [
+          { q: "Cho tam giác ABC vuông tại A, đường cao AH. Hệ thức lượng nào đúng?", options: ["A. AH² = HB x HC", "B. AB² = AH x BC", "C. AC² = HB x BC", "D. AH = HB x HC"], ans: 0 },
+          { q: "Trong một đường tròn, góc nội tiếp có số đo bằng:", options: ["A. Góc ở tâm cùng chắn cung đó", "B. Một nửa số đo góc ở tâm cùng chắn cung đó", "C. Số đo cung bị chắn", "D. Gấp đôi số đo góc ở tâm"], ans: 1 },
+          { q: "Độ dài đường tròn bán kính R được tính theo công thức:", options: ["A. C = πR²", "B. C = 2πR", "C. C = πR", "D. C = 2πR²"], ans: 1 },
+          { q: "Tứ giác nội tiếp đường tròn có tổng hai góc đối diện bằng:", options: ["A. 90 độ", "B. 180 độ", "C. 360 độ", "D. 270 độ"], ans: 1 },
+          { q: "Góc tạo bởi tia tiếp tuyến và dây cung có số đo bằng:", options: ["A. Nửa số đo cung bị chắn", "B. Số đo cung bị chắn", "C. Nửa góc bẹt", "D. Số đo góc ở tâm"], ans: 0 }
+        ]
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       3. LOGIC GAME AI LÀ TRIỆU PHÚ TOÁN HỌC (22 CÂU)
+    ═══════════════════════════════════════════════════ */
+    const MillionaireGame = {
+      questions: [],
+      currentIdx: 0,
+      score: 0,
+      isGameOver: false,
+      totalQuestions: 22,
+
+      init() {
+        SoundEngine.init();
+        this.bindEvents();
+        this.renderInitialGrid();
+      },
+
+      bindEvents() {
+        // Nút điều khiển
+        document.getElementById('btnMilStart').addEventListener('click', () => this.startGame());
+        document.getElementById('btnMilCheck').addEventListener('click', () => this.checkAnswer());
+        document.getElementById('btnMilAnswer').addEventListener('click', () => this.revealCurrentAnswer());
+        document.getElementById('btnMilRestart').addEventListener('click', () => this.startGame());
+        document.getElementById('btnMilPrev').addEventListener('click', () => this.navigate(-1));
+        document.getElementById('btnMilNext').addEventListener('click', () => this.navigate(1));
+
+        // 4 đáp án A, B, C, D
+        document.querySelectorAll('.mil-option').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const opt = parseInt(e.currentTarget.getAttribute('data-opt'));
+            this.selectOption(opt);
+          });
+        });
+
+        // Tiện ích
+        document.getElementById('btnSoundToggle').addEventListener('click', () => {
+          const isOn = SoundEngine.toggle();
+          document.getElementById('btnSoundToggle').innerText = isOn ? '🔊 Âm thanh' : '🔇 Tắt tiếng';
+        });
+
+        document.getElementById('btnFullscreenToggle').addEventListener('click', () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
+        });
+
+        // Modal Nạp đề
+        const modal = document.getElementById('modalCustomQ');
+        document.getElementById('btnCustomQuestions').addEventListener('click', () => {
+          const saved = localStorage.getItem('toan_ai_custom_questions_text') || '';
+          document.getElementById('txtCustomQuestions').value = saved;
+          modal.style.display = 'flex';
+        });
+        document.getElementById('btnCloseModalQ').addEventListener('click', () => modal.style.display = 'none');
+        document.getElementById('btnSaveCustom').addEventListener('click', () => {
+          const txt = document.getElementById('txtCustomQuestions').value.trim();
+          if (txt) {
+            localStorage.setItem('toan_ai_custom_questions_text', txt);
+            alert('Đã lưu đề tùy chỉnh thành công! Nhấn "BẮT ĐẦU CHƠI" để áp dụng.');
+          }
+          modal.style.display = 'none';
+        });
+        document.getElementById('btnClearCustom').addEventListener('click', () => {
+          localStorage.removeItem('toan_ai_custom_questions_text');
+          document.getElementById('txtCustomQuestions').value = '';
+          alert('Đã xóa câu hỏi tùy chỉnh. Hệ thống sẽ quay về ngân hàng đề chuẩn.');
+          modal.style.display = 'none';
+        });
+
+        // Modal hoàn thành game
+        document.getElementById('btnWinPlayAgain').addEventListener('click', () => {
+          document.getElementById('modalEndGame').style.display = 'none';
+          this.startGame();
+        });
+
+        // Lắng nghe phím tắt thuận tiện cho giáo viên trên lớp
+        window.addEventListener('keydown', (e) => {
+          if (document.getElementById('modalCustomQ').style.display === 'flex') return;
+          const key = e.key.toLowerCase();
+          if (key === '1' || key === 'a') this.selectOption(0);
+          else if (key === '2' || key === 'b') this.selectOption(1);
+          else if (key === '3' || key === 'c') this.selectOption(2);
+          else if (key === '4' || key === 'd') this.selectOption(3);
+          else if (key === 'enter' || key === ' ') {
+            e.preventDefault();
+            this.checkAnswer();
+          } else if (key === 'arrowleft') {
+            this.navigate(-1);
+          } else if (key === 'arrowright') {
+            this.navigate(1);
+          }
+        });
+      },
+
+      renderInitialGrid() {
+        const grid = document.getElementById('milQuestionGrid');
+        grid.innerHTML = '';
+        for (let i = 0; i < this.totalQuestions; i++) {
+          const btn = document.createElement('button');
+          btn.className = 'mil-q-btn';
+          btn.innerText = i + 1;
+          btn.disabled = true;
+          grid.appendChild(btn);
+        }
+      },
+
+      // Lấy câu hỏi từ ngân hàng hoặc đề tự nạp
+      collectQuestions() {
+        const customText = localStorage.getItem('toan_ai_custom_questions_text');
+        if (customText) {
+          const parsed = this.parseCustomText(customText);
+          if (parsed && parsed.length > 0) {
+            return this.expandToCount(parsed, this.totalQuestions);
+          }
+        }
+
+        const grade = document.getElementById('selectGrade').value;
+        const topic = document.getElementById('selectTopic').value;
+
+        let pool = [];
+        const gradesToPull = (grade === 'all') ? ['6', '7', '8', '9'] : [grade];
+
+        gradesToPull.forEach(g => {
+          const dbG = MathQuestionDB[g] || {};
+          if (topic === 'all') {
+            if (dbG['algebra']) pool = pool.concat(dbG['algebra']);
+            if (dbG['geometry']) pool = pool.concat(dbG['geometry']);
+          } else if (dbG[topic]) {
+            pool = pool.concat(dbG[topic]);
+          }
+        });
+
+        // Trộn ngẫu nhiên câu hỏi
+        pool.sort(() => 0.5 - Math.random());
+        return this.expandToCount(pool, this.totalQuestions);
+      },
+
+      expandToCount(arr, count) {
+        if (arr.length === 0) return [];
+        let res = [...arr];
+        while (res.length < count) {
+          res = res.concat(arr);
+        }
+        return res.slice(0, count);
+      },
+
+      parseCustomText(text) {
+        const questions = [];
+        const rawBlocks = text.split(/(?:Câu\s*\d+[:.]?)/i).filter(b => b.trim().length > 0);
+        rawBlocks.forEach(block => {
+          const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+          if (lines.length >= 5) {
+            const q = lines[0];
+            const opts = lines.slice(1, 5);
+            let ans = 0;
+            const ansLine = lines.find(l => /đáp án|dap an/i.test(l));
+            if (ansLine) {
+              if (/b/i.test(ansLine)) ans = 1;
+              else if (/c/i.test(ansLine)) ans = 2;
+              else if (/d/i.test(ansLine)) ans = 3;
+            }
+            questions.push({ q, options: opts, ans });
+          }
+        });
+        return questions;
+      },
+
+      startGame() {
+        this.currentIdx = 0;
+        this.score = 0;
+        this.isGameOver = false;
+
+        const rawList = this.collectQuestions();
+        if (rawList.length === 0) {
+          alert("Không có câu hỏi nào thỏa mãn lựa chọn!");
+          return;
+        }
+
+        this.questions = rawList.map(item => ({
+          ...item,
+          userAns: null,
+          isChecked: false
+        }));
+
+        this.renderGrid();
+        this.loadQuestion(0);
+        this.updateProgress();
+        this.updateLadder(1);
+
+        SoundEngine.playClick();
+        SoundEngine.playIntro();
+        setTimeout(() => SoundEngine.playBg(), 2000);
+      },
+
+      renderGrid() {
+        const grid = document.getElementById('milQuestionGrid');
+        grid.innerHTML = '';
+        for (let i = 0; i < this.questions.length; i++) {
+          const btn = document.createElement('button');
+          btn.className = 'mil-q-btn';
+          btn.innerText = i + 1;
+          btn.onclick = () => {
+            SoundEngine.playClick();
+            this.loadQuestion(i);
+          };
+          grid.appendChild(btn);
+        }
+      },
+
+      loadQuestion(idx) {
+        if (idx < 0 || idx >= this.questions.length) return;
+        this.currentIdx = idx;
+        const q = this.questions[idx];
+
+        document.getElementById('milBadgeQNum').innerText = `Câu ${idx + 1}/${this.totalQuestions}`;
+        
+        const topicVal = document.getElementById('selectTopic').value;
+        const topicText = topicVal === 'algebra' ? 'Đại Số' : (topicVal === 'geometry' ? 'Hình Học' : 'Toán Học Tổng Hợp');
+        document.getElementById('milBadgeTopic').innerText = topicText;
+
+        document.getElementById('milQuestionText').innerHTML = q.q;
+
+        // Cập nhật 4 đáp án A, B, C, D
+        document.querySelectorAll('.mil-option').forEach((btn, i) => {
+          btn.className = 'mil-option';
+          const textEl = document.getElementById(`milOpt${i}`);
+          if (textEl && q.options[i]) {
+            // Lược bỏ tiền tố "A. " nếu có sẵn trong đề
+            textEl.innerText = q.options[i].replace(/^[A-D]\.\s*/i, '');
+          }
+        });
+
+        // Nếu câu hỏi đã được chọn trước đó
+        if (q.userAns !== null) {
+          const sel = document.querySelector(`.mil-option[data-opt="${q.userAns}"]`);
+          if (sel) sel.classList.add('selected');
+        }
+
+        // Nếu câu hỏi đã được bấm kiểm tra
+        if (q.isChecked) {
+          this.revealOptionStyles(q);
+        }
+
+        this.updateGridActive();
+        this.updateLadder(idx + 1);
+      },
+
+      updateGridActive() {
+        const btns = document.querySelectorAll('.mil-q-btn');
+        btns.forEach((b, i) => {
+          b.classList.remove('active', 'correct', 'wrong');
+          if (i === this.currentIdx) b.classList.add('active');
+
+          const q = this.questions[i];
+          if (q.isChecked) {
+            if (q.userAns === q.ans) b.classList.add('correct');
+            else b.classList.add('wrong');
+          }
+        });
+      },
+
+      updateLadder(stepNum) {
+        document.querySelectorAll('.mil-ladder-step').forEach(step => {
+          step.classList.remove('current');
+          const stepVal = parseInt(step.getAttribute('data-step'));
+          if (stepVal === stepNum) {
+            step.classList.add('current');
+          }
+        });
+      },
+
+      selectOption(optIdx) {
+        const q = this.questions[this.currentIdx];
+        if (!q || q.isChecked) return;
+
+        q.userAns = optIdx;
+        document.querySelectorAll('.mil-option').forEach(b => b.classList.remove('selected'));
+        const sel = document.querySelector(`.mil-option[data-opt="${optIdx}"]`);
+        if (sel) sel.classList.add('selected');
+
+        SoundEngine.playClick();
+      },
+
+      checkAnswer() {
+        const q = this.questions[this.currentIdx];
+        if (!q || q.userAns === null || q.isChecked) return;
+
+        q.isChecked = true;
+
+        if (q.userAns === q.ans) {
+          this.score++;
+          SoundEngine.playCorrect();
+        } else {
+          SoundEngine.playWrong();
+        }
+
+        this.revealOptionStyles(q);
+        this.updateGridActive();
+        this.updateProgress();
+
+        // Nếu đúng, tự động chuyển câu tiếp sau 1.2 giây
+        if (q.userAns === q.ans && this.currentIdx < this.questions.length - 1) {
+          setTimeout(() => this.navigate(1), 1200);
+        } else if (this.currentIdx === this.questions.length - 1) {
+          setTimeout(() => this.endGame(), 1000);
+        }
+      },
+
+      revealCurrentAnswer() {
+        const q = this.questions[this.currentIdx];
+        if (!q) return;
+        q.isChecked = true;
+        this.revealOptionStyles(q);
+        this.updateGridActive();
+        SoundEngine.playClick();
+      },
+
+      revealOptionStyles(q) {
+        document.querySelectorAll('.mil-option').forEach((btn, i) => {
+          if (i === q.ans) {
+            btn.classList.add('correct');
+          } else if (i === q.userAns && q.userAns !== q.ans) {
+            btn.classList.add('wrong');
+          }
+        });
+      },
+
+      navigate(dir) {
+        const target = this.currentIdx + dir;
+        if (target >= 0 && target < this.questions.length) {
+          this.loadQuestion(target);
+          SoundEngine.playClick();
+        }
+      },
+
+      updateProgress() {
+        document.getElementById('milScore').innerText = this.score;
+        document.getElementById('milGridCount').innerText = `${this.score}/${this.totalQuestions}`;
+        const pct = Math.round((this.score / this.totalQuestions) * 100);
+        document.getElementById('milBarFill').style.width = `${pct}%`;
+      },
+
+      endGame() {
+        if (this.isGameOver) return;
+        this.isGameOver = true;
+        SoundEngine.stopAll();
+
+        let rank = "Khởi Động";
+        if (this.score >= 20) rank = "👑 TRIỆU PHÚ TOÁN HỌC";
+        else if (this.score >= 15) rank = "⭐ BẬC THẦY ĐẠI SỐ";
+        else if (this.score >= 10) rank = "🎯 THÔNG THÁI TOÁN HỌC";
+        else if (this.score >= 5) rank = "🚀 TIỀM NĂNG TOÁN HỌC";
+
+        document.getElementById('winFinalScore').innerText = this.score;
+        document.getElementById('winRankName').innerText = rank;
+        document.getElementById('modalEndGame').style.display = 'flex';
+
+        if (this.score >= 15) {
+          SoundEngine.playIntro();
+        } else {
+          SoundEngine.playCorrect();
+        }
+      }
+    };
+
+    // Tự động khởi tạo khi tài liệu sẵn sàng
+    window.addEventListener('DOMContentLoaded', () => {
+      MillionaireGame.init();
+    });
+  </script>
+</body>
+</html>

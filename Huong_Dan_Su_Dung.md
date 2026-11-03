@@ -63,6 +63,15 @@ Vì ứng dụng hỗ trợ PWA (Progressive Web App):
 - **Luật chơi:** Chú rùa bay liên tục chịu sức hút của trọng lực.
 - **Cách chơi:** Click chuột liên tục hoặc nhấn phím Space để rùa đập cánh bay lên cao, thả ra để rùa hạ xuống. Điều khiển rùa lách qua khe hẹp của cổng đáp án đúng để tiếp tục chặng bay. Tránh va chạm vào các bức tường đá.
 
+### Game 11: Ai Là Triệu Phú Toán Học (Tệp Độc Lập: `ai-la-trieu-phu.html`)
+- **Đóng gói độc lập:** Toàn bộ trò chơi được đóng gói trọn vẹn trong 1 tệp HTML riêng biệt (`ai-la-trieu-phu.html`). Giáo viên có thể chép riêng file này vào USB, gửi qua Zalo/Email hoặc nhấp đúp chuột để mở trực tiếp trong bất kỳ trình duyệt nào mà không cần cài đặt thêm phần mềm.
+- **Luật chơi:** Chinh phục tháp 22 câu hỏi toán học từ dễ đến khó để đạt danh hiệu "Triệu Phú Toán Học".
+- **Tính năng nổi bật:**
+  - Hỗ trợ phím tắt số `1, 2, 3, 4` hoặc `A, B, C, D`, phím `Space/Enter` để chấm điểm cực nhanh khi giảng dạy bằng bảng tương tác/máy chiếu.
+  - Tích hợp sẵn ngân hàng 55+ câu hỏi THCS (Lớp 6, 7, 8, 9) và bộ lọc theo khối lớp/chủ đề.
+  - Hỗ trợ nút **"Nạp đề"** để giáo viên dán bộ câu hỏi riêng của mình trực tiếp vào game.
+  - Chế độ toàn màn hình (Fullscreen) và hệ thống âm thanh kịch tính (MP3 + Web Audio synth).
+
 ---
 
 ## ⚙️ 3. Quản Lý & Tùy Biến Ứng Dụng (Dành Cho Giáo Viên)

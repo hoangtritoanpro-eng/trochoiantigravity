@@ -21,3 +21,4 @@ solo-builder-kit/
 .DS_Store
 Thumbs.db
 desktop.ini
+*.code-workspace

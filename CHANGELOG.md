@@ -10,6 +10,20 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.9.0] - 2026-11-03
+
+### Added
+- **Đóng gói game Ai Là Triệu Phú thành tệp riêng (`ai-la-trieu-phu.html`):** 
+  - Toàn bộ trò chơi được đóng gói thành một tệp HTML độc lập duy nhất (All-in-One: HTML5, CSS nhúng, Logic JS, ngân hàng đề 55+ câu Toán THCS).
+  - Hoạt động trơn tru 100% offline không cần cài đặt hoặc kết nối server; có thể copy vào USB hoặc mở trực tiếp trên mọi trình duyệt máy tính/di động.
+  - **Hệ thống âm thanh kép (Dual Audio):** Kết hợp các file MP3 tĩnh và cơ chế fallback tự động bằng Web Audio API Synthesizer (không bao giờ bị ném lỗi chặn âm thanh của trình duyệt).
+  - **Phím tắt trình chiếu cho giáo viên:** Hỗ trợ phím số `1, 2, 3, 4` hoặc chữ cái `A, B, C, D`, phím `Space/Enter` để kiểm tra kết quả ngay lập tức trên bảng tương tác.
+  - **Tiện ích mở rộng:** Hỗ trợ lọc theo Khối lớp (Lớp 6, 7, 8, 9, Tổng hợp) & Chủ đề (Đại số, Hình học); chế độ Toàn màn hình (Fullscreen); và hộp thoại nạp bộ đề riêng tùy chỉnh.
+  - **Tháp danh hiệu 22 bậc:** Tái hiện chân thực không khí kịch tính của gameshow truyền hình.
+- Bổ sung nút liên kết mở nhanh tệp riêng `ai-la-trieu-phu.html` ngay trên Dashboard và trong màn hình game của `index.html`.
+
+---
+
 ## [1.8.0] - 2026-06-24
 
 ### Added
