@@ -1,0 +1,17 @@
+{
+  "name": "trochoi-thayson-skl",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Hệ thống trò chơi trí tuệ học tập Toán học THCS - Thầy Sơn SKL",
+  "scripts": {
+    "start": "python -m http.server 8000"
+  },
+  "keywords": [
+    "ai-la-trieu-phu",
+    "math-games",
+    "thay-son-skl",
+    "mediapipe",
+    "katex"
+  ],
+  "author": "Thầy Sơn SKL"
+}

@@ -7,6 +7,10 @@
 mau-powerpoint*/
 YTSave*
 
+# Vercel deployment
+.vercel/
+.vercel
+
 # Temporary/archive folders
 archive/
 boc-tach-pdf-v1.0/
