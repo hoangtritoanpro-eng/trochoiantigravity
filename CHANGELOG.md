@@ -10,6 +10,17 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.9.2] - 2026-11-03
+
+### Added
+- **Tích Hợp Đoạn Nhạc Kết Thúc Chương Trình (Ai Là Triệu Phú Outro):**
+  - Tích hợp tệp âm thanh outro truyền hình kinh điển (`kết thúc chương trình.mp3` / `nhacketthuc.mp3`) với độ dài 31 giây, mang lại không khí chiến thắng hoành tráng và trọn vẹn nhất của gameshow VTV3.
+  - Tự động phát hiện khi người chơi bước vào câu hỏi cuối cùng (Câu 22/22) với nhãn nổi bật `CÂU CUỐI CÙNG 👑`.
+  - Dừng nhạc nền hồi hộp căng thẳng (`nhacnenlientuc.mp3`), lập tức phát giai điệu kết thúc chương trình hào hùng khi người chơi chốt câu trả lời cuối cùng hoặc kết thúc trận đấu.
+  - Đồng bộ và kiểm thử hoàn hảo trên cả ứng dụng chính (`millionaire.js`) và tệp độc lập (`ai-la-trieu-phu.html`).
+
+---
+
 ## [1.9.1] - 2026-11-03
 
 ### Changed

@@ -1,8 +1,14 @@
 const MilAudio = {
-  audioIntro: new Audio('ai-la-trieu-phu mo dau.mp3'),
+  audioIntro: new Audio(encodeURI('mở đầu chương trình.mp3')),
   audioBg: new Audio('nhacnenlientuc.mp3'),
   audioCorrect: new Audio('amthanhdung.mp3'),
   audioWrong: new Audio('amthanhsai.mp3'),
+  audioEnding: new Audio(encodeURI('kết thúc chương trình.mp3')),
+
+  init() {
+    this.audioIntro.onerror = () => { this.audioIntro = new Audio('ai-la-trieu-phu mo dau.mp3'); };
+    this.audioEnding.onerror = () => { this.audioEnding = new Audio('nhacketthuc.mp3'); };
+  },
   
   playIntro() {
     if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
@@ -24,6 +30,7 @@ const MilAudio = {
     this.audioBg.pause();
     this.audioCorrect.pause();
     this.audioWrong.pause();
+    this.audioEnding.pause();
   },
 
   playCorrect() {
@@ -36,6 +43,14 @@ const MilAudio = {
     if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
     this.audioWrong.currentTime = 0;
     this.audioWrong.play().catch(e => console.log('Audio play failed:', e));
+  },
+
+  playEnding() {
+    if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
+    this.stopAll();
+    this.audioEnding.currentTime = 0;
+    this.audioEnding.volume = 0.85;
+    this.audioEnding.play().catch(e => console.log('Audio play failed:', e));
   }
 };
 
@@ -47,6 +62,7 @@ const MillionaireGame = {
   isGameOver: false,
   
   init() {
+    MilAudio.init();
     this.bindEvents();
   },
 
@@ -125,7 +141,19 @@ const MillionaireGame = {
     const q = this.questions[idx];
 
     const qNum = document.getElementById('milBadgeQNum');
-    if(qNum) qNum.innerText = `Câu ${idx + 1}`;
+    if(qNum) {
+      if (idx === this.questions.length - 1) {
+        qNum.innerText = `Câu ${idx + 1}/${this.questions.length} - CÂU CUỐI CÙNG 👑`;
+        qNum.style.background = '#fef08a';
+        qNum.style.color = '#854d0e';
+        qNum.style.borderColor = '#eab308';
+      } else {
+        qNum.innerText = `Câu ${idx + 1}`;
+        qNum.style.background = '';
+        qNum.style.color = '';
+        qNum.style.borderColor = '';
+      }
+    }
     
     const topicBadge = document.getElementById('milBadgeTopic');
     if(topicBadge) topicBadge.innerText = (typeof AppState !== 'undefined' && AppState.topic === 'algebra') ? 'Đại số' : 'Hình học';
@@ -183,22 +211,30 @@ const MillionaireGame = {
     if (!q || q.userAns === null || q.isChecked) return;
 
     q.isChecked = true;
+    const isLastQuestion = (this.currentIdx === this.questions.length - 1);
     
     if (q.userAns === q.ans) {
       this.score++;
-      MilAudio.playCorrect();
+      if (isLastQuestion) {
+        MilAudio.playEnding();
+      } else {
+        MilAudio.playCorrect();
+      }
     } else {
       MilAudio.playWrong();
+      if (isLastQuestion) {
+        setTimeout(() => MilAudio.playEnding(), 1500);
+      }
     }
 
     this.revealAnswer(q);
     this.updateGridActive();
     this.updateProgress();
 
-    if (q.userAns === q.ans && this.currentIdx < this.questions.length - 1) {
+    if (q.userAns === q.ans && !isLastQuestion) {
       setTimeout(() => this.navigate(1), 1500);
-    } else if (this.currentIdx === this.questions.length - 1) {
-      this.endGame();
+    } else if (isLastQuestion) {
+      setTimeout(() => this.endGame(), 1800);
     }
   },
 
@@ -232,11 +268,11 @@ const MillionaireGame = {
   endGame() {
     if (this.isGameOver) return;
     this.isGameOver = true;
-    MilAudio.stopAll();
+    MilAudio.playEnding();
     setTimeout(() => {
       alert(`Tuyệt vời! Bạn đã hoàn thành game với số điểm: ${this.score}/${this.questions.length} câu đúng.`);
       if(typeof AppRouter !== 'undefined') AppRouter.saveScore('millionaire', this.score, this.questions.length);
-    }, 800);
+    }, 600);
   },
 
   exitGame() {

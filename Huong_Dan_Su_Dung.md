@@ -70,7 +70,7 @@ Vì ứng dụng hỗ trợ PWA (Progressive Web App):
   - Hỗ trợ phím tắt số `1, 2, 3, 4` hoặc `A, B, C, D`, phím `Space/Enter` để chấm điểm cực nhanh khi giảng dạy bằng bảng tương tác/máy chiếu.
   - Tích hợp sẵn ngân hàng 55+ câu hỏi THCS (Lớp 6, 7, 8, 9) và bộ lọc theo khối lớp/chủ đề.
   - Hỗ trợ nút **"Nạp đề"** để giáo viên dán bộ câu hỏi riêng của mình trực tiếp vào game.
-  - Chế độ toàn màn hình (Fullscreen) và hệ thống âm thanh kịch tính (MP3 + Web Audio synth).
+  - Chế độ toàn màn hình (Fullscreen) và hệ thống âm thanh kịch tính trọn vẹn (Nhạc mở đầu, nhạc nền hồi hộp, âm thanh đúng/sai và đoạn nhạc kết thúc chương trình kinh điển khi trả lời câu cuối cùng).
 
 ---
 

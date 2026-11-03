@@ -76,4 +76,5 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
   - [x] Viết CSS cho màu nền Dark Blue và vàng Gold sang trọng.
   - [x] Lập trình logic game xử lý lưới 22 câu hỏi.
   - [x] Đóng gói thành 1 tệp HTML độc lập (`ai-la-trieu-phu.html`) tích hợp đầy đủ CSS, JS, âm thanh kép và ngân hàng câu hỏi THCS.
+  - [x] Thiết kế nền studio 3D theo mẫu PowerPoint & tích hợp đoạn nhạc kết thúc chương trình kinh điển.
 - **Expected Output:** Trò chơi hoạt động độc lập với giao diện y hệt ảnh mẫu, chạy mượt mà trên trình duyệt.

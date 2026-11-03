@@ -5,6 +5,7 @@
 # ZIP archives and templates
 *.zip
 mau-powerpoint*/
+YTSave*
 
 # Temporary/archive folders
 archive/

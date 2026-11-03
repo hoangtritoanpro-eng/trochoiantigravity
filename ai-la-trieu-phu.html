@@ -1063,17 +1063,21 @@ D. 20cm²
       audioCtx: null,
 
       // Các file MP3 tĩnh trong cùng thư mục
-      mp3Intro: new Audio('ai-la-trieu-phu mo dau.mp3'),
+      mp3Intro: new Audio(encodeURI('mở đầu chương trình.mp3')),
       mp3Bg: new Audio('nhacnenlientuc.mp3'),
       mp3Correct: new Audio('amthanhdung.mp3'),
       mp3Wrong: new Audio('amthanhsai.mp3'),
+      mp3Ending: new Audio(encodeURI('kết thúc chương trình.mp3')),
 
       init() {
+        this.mp3Intro.onerror = () => { this.mp3Intro = new Audio('ai-la-trieu-phu mo dau.mp3'); };
+        this.mp3Ending.onerror = () => { this.mp3Ending = new Audio('nhacketthuc.mp3'); };
         this.mp3Bg.loop = true;
         this.mp3Bg.volume = 0.45;
-        this.mp3Intro.volume = 0.7;
+        this.mp3Intro.volume = 0.75;
         this.mp3Correct.volume = 0.8;
         this.mp3Wrong.volume = 0.8;
+        this.mp3Ending.volume = 0.9;
       },
 
       getAudioContext() {
@@ -1098,7 +1102,7 @@ D. 20cm²
       },
 
       stopAll() {
-        [this.mp3Intro, this.mp3Bg, this.mp3Correct, this.mp3Wrong].forEach(a => {
+        [this.mp3Intro, this.mp3Bg, this.mp3Correct, this.mp3Wrong, this.mp3Ending].forEach(a => {
           try { a.pause(); } catch(e){}
         });
       },
@@ -1113,6 +1117,7 @@ D. 20cm²
       playBg() {
         if (!this.enabled) return;
         this.mp3Intro.pause();
+        this.mp3Ending.pause();
         this.mp3Bg.play().catch(() => {
           // Trình duyệt có thể chặn autoplay nhạc nền
         });
@@ -1128,6 +1133,13 @@ D. 20cm²
         if (!this.enabled) return;
         this.mp3Wrong.currentTime = 0;
         this.mp3Wrong.play().catch(() => this.synthWrong());
+      },
+
+      playEnding() {
+        if (!this.enabled) return;
+        this.stopAll();
+        this.mp3Ending.currentTime = 0;
+        this.mp3Ending.play().catch(() => this.synthFanfare());
       },
 
       playClick() {
@@ -1505,7 +1517,18 @@ D. 20cm²
         this.currentIdx = idx;
         const q = this.questions[idx];
 
-        document.getElementById('milBadgeQNum').innerText = `Câu ${idx + 1}/${this.totalQuestions}`;
+        const qNumEl = document.getElementById('milBadgeQNum');
+        if (idx === this.totalQuestions - 1) {
+          qNumEl.innerText = `Câu ${idx + 1}/${this.totalQuestions} - CÂU CUỐI CÙNG 👑`;
+          qNumEl.style.background = '#fef08a';
+          qNumEl.style.color = '#854d0e';
+          qNumEl.style.borderColor = '#eab308';
+        } else {
+          qNumEl.innerText = `Câu ${idx + 1}/${this.totalQuestions}`;
+          qNumEl.style.background = '#fef9c3';
+          qNumEl.style.color = 'var(--gold-dark)';
+          qNumEl.style.borderColor = 'var(--gold-primary)';
+        }
         
         const topicVal = document.getElementById('selectTopic').value;
         const topicText = topicVal === 'algebra' ? 'Đại Số' : (topicVal === 'geometry' ? 'Hình Học' : 'Toán Học Tổng Hợp');
@@ -1579,23 +1602,31 @@ D. 20cm²
         if (!q || q.userAns === null || q.isChecked) return;
 
         q.isChecked = true;
+        const isLastQuestion = (this.currentIdx === this.totalQuestions - 1);
 
         if (q.userAns === q.ans) {
           this.score++;
-          SoundEngine.playCorrect();
+          if (isLastQuestion) {
+            SoundEngine.playEnding();
+          } else {
+            SoundEngine.playCorrect();
+          }
         } else {
           SoundEngine.playWrong();
+          if (isLastQuestion) {
+            setTimeout(() => SoundEngine.playEnding(), 1500);
+          }
         }
 
         this.revealOptionStyles(q);
         this.updateGridActive();
         this.updateProgress();
 
-        // Nếu đúng, tự động chuyển câu tiếp sau 1.2 giây
-        if (q.userAns === q.ans && this.currentIdx < this.questions.length - 1) {
+        // Nếu đúng và chưa phải câu cuối, tự động chuyển câu tiếp sau 1.2 giây
+        if (q.userAns === q.ans && !isLastQuestion) {
           setTimeout(() => this.navigate(1), 1200);
-        } else if (this.currentIdx === this.questions.length - 1) {
-          setTimeout(() => this.endGame(), 1000);
+        } else if (isLastQuestion) {
+          setTimeout(() => this.endGame(), 1600);
         }
       },
 
@@ -1636,7 +1667,7 @@ D. 20cm²
       endGame() {
         if (this.isGameOver) return;
         this.isGameOver = true;
-        SoundEngine.stopAll();
+        SoundEngine.playEnding();
 
         let rank = "Khởi Động";
         if (this.score >= 20) rank = "👑 TRIỆU PHÚ TOÁN HỌC";
@@ -1647,12 +1678,6 @@ D. 20cm²
         document.getElementById('winFinalScore').innerText = this.score;
         document.getElementById('winRankName').innerText = rank;
         document.getElementById('modalEndGame').style.display = 'flex';
-
-        if (this.score >= 15) {
-          SoundEngine.playIntro();
-        } else {
-          SoundEngine.playCorrect();
-        }
       }
     };
 
