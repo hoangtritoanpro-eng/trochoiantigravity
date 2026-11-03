@@ -313,13 +313,24 @@ const MillionaireGame = {
     this.score = 0;
     this.isGameOver = false;
     
-    // Lấy 22 câu hỏi ngẫu nhiên từ QuestionBank
-    let allQ = typeof QuestionBank !== 'undefined' ? QuestionBank.getQuestions(AppState.grade, AppState.topic, 22) : [];
-    
-    // Nếu không đủ, nhân bản tạm cho đủ 22 câu để test UI giống hình
-    if (allQ.length > 0 && allQ.length < 22) {
-      while(allQ.length < 22) {
-        allQ = allQ.concat(allQ).slice(0, 22);
+    // Ưu tiên nạp câu hỏi tùy chỉnh (từ PDF hoặc mã nhập tay) nếu có
+    let allQ = [];
+    const customJson = localStorage.getItem('toan_ai_custom_questions_json');
+    if (customJson) {
+      try {
+        const list = JSON.parse(customJson);
+        if (Array.isArray(list) && list.length > 0) {
+          allQ = list; // Giữ nguyên đúng số câu người dùng nạp (VD: 6 câu thì hiển thị 6 câu)
+        }
+      } catch(e) {}
+    }
+
+    if (allQ.length === 0) {
+      allQ = typeof QuestionBank !== 'undefined' ? QuestionBank.getQuestions(AppState.grade, AppState.topic, 22) : [];
+      if (allQ.length > 0 && allQ.length < 22) {
+        while(allQ.length < 22) {
+          allQ = allQ.concat(allQ).slice(0, 22);
+        }
       }
     }
 
@@ -495,6 +506,10 @@ const MillionaireGame = {
   updateProgress() {
     const scoreEl = document.getElementById('milScore');
     if(scoreEl) scoreEl.innerText = this.score;
+    const totalEl = document.getElementById('milTotalCount');
+    if(totalEl) totalEl.innerText = this.questions.length;
+    const gridCount = document.getElementById('milGridCount');
+    if(gridCount) gridCount.innerText = `${this.score}/${this.questions.length}`;
   },
 
   endGame() {

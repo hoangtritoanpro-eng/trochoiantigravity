@@ -1141,14 +1141,14 @@
         <button class="btn-mil restart" id="btnMilRestart">↺ LÀM LẠI TỪ ĐẦU</button>
       </div>
 
-      <!-- Lưới 22 câu hỏi trực quan -->
+      <!-- Lưới câu hỏi trực quan -->
       <div class="mil-q-grid-wrap">
         <div class="mil-grid-header">
-          <span>DANH SÁCH 22 CÂU HỎI:</span>
+          <span id="milGridTitleText">DANH SÁCH 22 CÂU HỎI:</span>
           <span id="milGridCount">0/22</span>
         </div>
         <div class="mil-q-grid" id="milQuestionGrid">
-          <!-- 22 Nút câu hỏi tạo tự động qua JavaScript -->
+          <!-- Các Nút câu hỏi tạo tự động qua JavaScript -->
         </div>
       </div>
 
@@ -1181,7 +1181,7 @@
         </div>
         <div class="mil-question-content" id="milQuestionText">
           Chào mừng bạn đến với trò chơi <strong>AI LÀ TRIỆU PHÚ</strong>!<br>
-          <span style="font-size: 15px; color: #475569; margin-top: 6px; font-weight: 500;">Nhấn nút <strong>"▶ BẮT ĐẦU CHƠI"</strong> ở góc trái để bắt đầu thử thách 22 câu hỏi!</span>
+          <span style="font-size: 15px; color: #475569; margin-top: 6px; font-weight: 500;" id="milWelcomeHint">Nhấn nút <strong>"▶ BẮT ĐẦU CHƠI"</strong> ở góc trái để bắt đầu thử thách!</span>
         </div>
       </div>
 
@@ -1220,40 +1220,21 @@
 
       <div class="mil-progress-card">
         <div class="mil-progress-label">SỐ CÂU ĐÃ ĐÚNG</div>
-        <div class="mil-progress-value"><span id="milScore">0</span> / 22</div>
+        <div class="mil-progress-value"><span id="milScore">0</span> / <span id="milTotalCount">22</span></div>
         <div class="mil-bar-track">
           <div class="mil-bar-fill" id="milBarFill"></div>
         </div>
       </div>
 
-      <!-- Tháp mốc danh hiệu 22 câu mô phỏng gameshow -->
+      <!-- Tháp mốc danh hiệu mô phỏng gameshow (Render tự động động theo số câu hỏi) -->
       <div class="mil-ladder-box">
         <div class="mil-ladder-title">
           <span>THÁP DANH HIỆU:</span>
           <span>MỐC QUAN TRỌNG</span>
         </div>
-        <div class="mil-ladder-step milestone" data-step="22">
-          <span>Câu 22:</span>
-          <span class="step-tag">👑 TRIỆU PHÚ TOÁN HỌC</span>
+        <div id="milLadderList">
+          <!-- Bậc thang tạo động qua hàm renderLadder() -->
         </div>
-        <div class="mil-ladder-step" data-step="20"><span>Câu 20:</span><span>Nhà Bác Học Trẻ</span></div>
-        <div class="mil-ladder-step" data-step="18"><span>Câu 18:</span><span>Kỷ Lục Gia</span></div>
-        <div class="mil-ladder-step milestone" data-step="15">
-          <span>Câu 15:</span>
-          <span class="step-tag">⭐ BẬC THẦY ĐẠI SỐ</span>
-        </div>
-        <div class="mil-ladder-step" data-step="13"><span>Câu 13:</span><span>Chiến Binh Logic</span></div>
-        <div class="mil-ladder-step milestone" data-step="10">
-          <span>Câu 10:</span>
-          <span class="step-tag">🎯 THÔNG THÁI TOÁN HỌC</span>
-        </div>
-        <div class="mil-ladder-step" data-step="8"><span>Câu 8:</span><span>Vượt Chướng Ngại</span></div>
-        <div class="mil-ladder-step milestone" data-step="5">
-          <span>Câu 5:</span>
-          <span class="step-tag">🚀 KHỞI ĐỘNG VỮNG VÀNG</span>
-        </div>
-        <div class="mil-ladder-step" data-step="3"><span>Câu 3:</span><span>Tự Tin Tỏa Sáng</span></div>
-        <div class="mil-ladder-step current" data-step="1"><span>Câu 1:</span><span>Bắt Đầu Hành Trình</span></div>
       </div>
 
       <div class="mil-card-box mil-rules" style="font-size: 11.5px;">
@@ -1401,8 +1382,8 @@ D. x = -4"></textarea>
       <img src="assets/millionaire/logo_victory.png" alt="Bạn Là Triệu Phú" style="max-width: 190px; height: auto; margin-bottom: 12px; filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.7));">
       <h2 class="mil-win-title" id="winTitle">🏆 CHÚC MỪNG CHIẾN THẮNG!</h2>
       <div class="mil-win-score">
-        Bạn đã hoàn thành 22 câu hỏi thử thách!<br>
-        Số câu trả lời chính xác: <span id="winFinalScore">22</span> / 22<br>
+        Bạn đã hoàn thành <span id="winTotalCount">22</span> câu hỏi thử thách!<br>
+        Số câu trả lời chính xác: <span id="winFinalScore">22</span> / <span id="winTotalFinalScore">22</span><br>
         Danh hiệu: <span id="winRankName" style="color: #4ade80;">TRIỆU PHÚ TOÁN HỌC</span>
       </div>
       <button class="btn-mil start" id="btnWinPlayAgain" style="width: 100%; font-size: 16px;">↺ CHƠI LƯỢT MỚI</button>
@@ -2733,6 +2714,11 @@ Quy tắc bắt buộc:
       },
 
       renderInitialGrid() {
+        const rawList = this.collectQuestions();
+        this.totalQuestions = (rawList && rawList.length > 0) ? rawList.length : 22;
+        this.updateHeaderAndGridLabels();
+        this.renderLadder(this.totalQuestions);
+
         const grid = document.getElementById('milQuestionGrid');
         grid.innerHTML = '';
         for (let i = 0; i < this.totalQuestions; i++) {
@@ -2744,6 +2730,90 @@ Quy tắc bắt buộc:
         }
       },
 
+      updateHeaderAndGridLabels() {
+        const gridTitle = document.getElementById('milGridTitleText');
+        if (gridTitle) gridTitle.innerText = `DANH SÁCH ${this.totalQuestions} CÂU HỎI:`;
+
+        const subtitle = document.getElementById('milSubtitle');
+        if (subtitle) subtitle.innerText = `Chinh phục ${this.totalQuestions} câu hỏi trí tuệ cùng Thầy Sơn SKL`;
+
+        const welcomeHint = document.getElementById('milWelcomeHint');
+        if (welcomeHint) welcomeHint.innerHTML = `Nhấn nút <strong>"▶ BẮT ĐẦU CHƠI"</strong> ở góc trái để bắt đầu thử thách ${this.totalQuestions} câu hỏi!`;
+
+        const totalCountEl = document.getElementById('milTotalCount');
+        if (totalCountEl) totalCountEl.innerText = this.totalQuestions;
+
+        const gridCountEl = document.getElementById('milGridCount');
+        if (gridCountEl) gridCountEl.innerText = `${this.score}/${this.totalQuestions}`;
+
+        const badgeQNum = document.getElementById('milBadgeQNum');
+        if (badgeQNum) badgeQNum.innerText = `Câu ${this.currentIdx + 1}/${this.totalQuestions}`;
+
+        const winTotal = document.getElementById('winTotalCount');
+        if (winTotal) winTotal.innerText = this.totalQuestions;
+
+        const winTotalFinalScore = document.getElementById('winTotalFinalScore');
+        if (winTotalFinalScore) winTotalFinalScore.innerText = this.totalQuestions;
+      },
+
+      renderLadder(total) {
+        const container = document.getElementById('milLadderList');
+        if (!container) return;
+        container.innerHTML = '';
+
+        let steps = [];
+        if (total <= 10) {
+          for (let i = total; i >= 1; i--) {
+            let isMilestone = (i === total || i === Math.round(total / 2));
+            let tag = '';
+            if (i === total) tag = '👑 TRIỆU PHÚ TOÁN HỌC';
+            else if (i === Math.round(total / 2)) tag = '⭐ BẬC THẦY';
+            else if (i === 1) tag = 'Bắt Đầu Hành Trình';
+            else if (i % 2 === 0) tag = 'Nhà Bác Học Trẻ';
+            else tag = 'Chiến Binh Logic';
+
+            steps.push({ step: i, isMilestone, tag });
+          }
+        } else {
+          const keySet = new Set([
+            total,
+            Math.round(total * 0.9),
+            Math.round(total * 0.8),
+            Math.round(total * 0.7),
+            Math.round(total * 0.6),
+            Math.round(total * 0.5),
+            Math.round(total * 0.4),
+            Math.round(total * 0.3),
+            Math.round(total * 0.2),
+            1
+          ]);
+          const sorted = Array.from(keySet).filter(n => n >= 1 && n <= total).sort((a, b) => b - a);
+          sorted.forEach(i => {
+            let isMilestone = (i === total || i === Math.round(total * 0.7) || i === Math.round(total * 0.45) || i === Math.round(total * 0.2));
+            let tag = '';
+            if (i === total) tag = '👑 TRIỆU PHÚ TOÁN HỌC';
+            else if (i === Math.round(total * 0.7)) tag = '⭐ BẬC THẦY ĐẠI SỐ';
+            else if (i === Math.round(total * 0.45)) tag = '🎯 THÔNG THÁI TOÁN HỌC';
+            else if (i === Math.round(total * 0.2)) tag = '🚀 KHỞI ĐỘNG VỮNG VÀNG';
+            else if (i === 1) tag = 'Bắt Đầu Hành Trình';
+            else tag = 'Kỷ Lục Gia';
+
+            steps.push({ step: i, isMilestone, tag });
+          });
+        }
+
+        steps.forEach(s => {
+          const div = document.createElement('div');
+          div.className = 'mil-ladder-step' + (s.isMilestone ? ' milestone' : '');
+          div.setAttribute('data-step', s.step);
+          div.innerHTML = `
+            <span>Câu ${s.step}:</span>
+            ${s.isMilestone ? `<span class="step-tag">${s.tag}</span>` : `<span>${s.tag}</span>`}
+          `;
+          container.appendChild(div);
+        });
+      },
+
       // Lấy câu hỏi từ ngân hàng hoặc đề tự nạp (PDF / Text)
       collectQuestions() {
         const customJson = localStorage.getItem('toan_ai_custom_questions_json');
@@ -2751,7 +2821,7 @@ Quy tắc bắt buộc:
           try {
             const list = JSON.parse(customJson);
             if (Array.isArray(list) && list.length > 0) {
-              return this.expandToCount(list, this.totalQuestions);
+              return list; // Giữ nguyên đúng số câu người dùng nạp (VD: 6 câu thì trả về đúng 6 câu)
             }
           } catch(e) {}
         }
@@ -2760,7 +2830,7 @@ Quy tắc bắt buộc:
         if (customText && customText.trim().length > 0) {
           const parsed = SmartQuizParser.parseTextToQuestions(customText);
           if (parsed && parsed.length > 0) {
-            return this.expandToCount(parsed, this.totalQuestions);
+            return parsed; // Giữ nguyên đúng số câu
           }
         }
 
@@ -2782,7 +2852,7 @@ Quy tắc bắt buộc:
 
         // Trộn ngẫu nhiên câu hỏi
         pool.sort(() => 0.5 - Math.random());
-        return this.expandToCount(pool, this.totalQuestions);
+        return this.expandToCount(pool, 22);
       },
 
       expandToCount(arr, count) {
@@ -2805,12 +2875,17 @@ Quy tắc bắt buộc:
           return;
         }
 
+        // Cập nhật tổng số câu hỏi chính xác theo bộ đề thực tế (VD: 6 câu thì totalQuestions = 6)
+        this.totalQuestions = rawList.length;
+
         this.questions = rawList.map(item => ({
           ...item,
           userAns: null,
           isChecked: false
         }));
 
+        this.updateHeaderAndGridLabels();
+        this.renderLadder(this.totalQuestions);
         this.renderGrid();
         this.loadQuestion(0);
         this.updateProgress();
@@ -2928,7 +3003,13 @@ Quy tắc bắt buộc:
         SoundEngine.fadeIntroToBg();
         q.isChecked = true;
         const isLastQuestion = (this.currentIdx === this.totalQuestions - 1);
-        const isMilestone = [5, 10, 15, 20].includes(this.currentIdx + 1);
+        const curStep = this.currentIdx + 1;
+        let isMilestone = false;
+        if (this.totalQuestions <= 10) {
+          isMilestone = (curStep === Math.round(this.totalQuestions / 2));
+        } else {
+          isMilestone = [5, 10, 15, 20].includes(curStep);
+        }
 
         if (q.userAns === q.ans) {
           this.score++;
@@ -2988,8 +3069,10 @@ Quy tắc bắt buộc:
 
       updateProgress() {
         document.getElementById('milScore').innerText = this.score;
+        const totalCountEl = document.getElementById('milTotalCount');
+        if (totalCountEl) totalCountEl.innerText = this.totalQuestions;
         document.getElementById('milGridCount').innerText = `${this.score}/${this.totalQuestions}`;
-        const pct = Math.round((this.score / this.totalQuestions) * 100);
+        const pct = Math.round((this.score / (this.totalQuestions || 1)) * 100);
         document.getElementById('milBarFill').style.width = `${pct}%`;
       },
 
@@ -2999,12 +3082,18 @@ Quy tắc bắt buộc:
         SoundEngine.playEnding();
 
         let rank = "Khởi Động";
-        if (this.score >= 20) rank = "👑 TRIỆU PHÚ TOÁN HỌC";
-        else if (this.score >= 15) rank = "⭐ BẬC THẦY ĐẠI SỐ";
-        else if (this.score >= 10) rank = "🎯 THÔNG THÁI TOÁN HỌC";
-        else if (this.score >= 5) rank = "🚀 TIỀM NĂNG TOÁN HỌC";
+        const ratio = this.score / (this.totalQuestions || 1);
+        if (ratio === 1) rank = "👑 TRIỆU PHÚ TOÁN HỌC";
+        else if (ratio >= 0.75) rank = "⭐ BẬC THẦY ĐẠI SỐ";
+        else if (ratio >= 0.5) rank = "🎯 THÔNG THÁI TOÁN HỌC";
+        else if (ratio >= 0.25) rank = "🚀 TIỀM NĂNG TOÁN HỌC";
 
         document.getElementById('winFinalScore').innerText = this.score;
+        const winTotal = document.getElementById('winTotalCount');
+        if (winTotal) winTotal.innerText = this.totalQuestions;
+        const winTotalFinalScore = document.getElementById('winTotalFinalScore');
+        if (winTotalFinalScore) winTotalFinalScore.innerText = this.totalQuestions;
+
         document.getElementById('winRankName').innerText = rank;
         document.getElementById('modalEndGame').style.display = 'flex';
       }

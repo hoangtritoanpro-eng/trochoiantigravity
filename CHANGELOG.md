@@ -10,6 +10,23 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.9.8] - 2026-11-03
+
+### Changed & Fixed
+- **Hỗ Trợ Động Số Lượng Câu Hỏi Tùy Chỉnh (Dynamic Question Count Support):**
+  - **Giữ nguyên chính xác số lượng đề nạp:** Khắc phục triệt để lỗi tự động nhân bản ép về 22 câu khi tải đề riêng. Tải lên file PDF hoặc mã văn bản có bao nhiêu câu (ví dụ 6 câu) thì trò chơi sẽ hiển thị và vận hành đúng bấy nhiêu câu.
+  - **Đồng bộ toàn diện giao diện theo số câu thực tế:**
+    - Lưới câu hỏi tự động hiển thị đúng số nút tương ứng (ví dụ nạp 6 câu -> hiển thị đúng 6 nút từ 1 đến 6).
+    - Cập nhật tiêu đề bảng điều khiển: `DANH SÁCH N CÂU HỎI:` và bộ đếm `0/N`.
+    - Cập nhật thẻ hiển thị câu hỏi: `Câu X/N` và `Câu N/N - CÂU CUỐI CÙNG 👑`.
+    - Cập nhật tiến độ điểm số: `0 / N` và tỷ lệ phần trăm thanh trạng thái.
+  - **Tháp Danh Hiệu Thích Ứng Động (Adaptive Ladder):**
+    - Tự động sinh các bậc thang phù hợp theo tổng số câu hỏi (ví dụ với 6 câu: Câu 6 là `👑 TRIỆU PHÚ TOÁN HỌC`, Câu 3 là `⭐ BẬC THẦY`, Câu 1 là `Bắt Đầu Hành Trình`).
+    - Tính toán mốc danh hiệu tỷ lệ phần trăm khi hoàn thành game dựa trên tổng số câu thực tế.
+  - **Đồng bộ hóa:** Áp dụng trên cả file độc lập `ai-la-trieu-phu.html` và module `millionaire.js`.
+
+---
+
 ## [1.9.7] - 2026-11-03
 
 ### Added & Changed

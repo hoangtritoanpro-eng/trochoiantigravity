@@ -81,4 +81,5 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
   - [x] Tích hợp kết nối Google Gemini Flash AI tự động phân tích ngữ nghĩa, giải toán và chuẩn hóa đề nạp về JSON.
   - [x] Nâng cấp model Google Gemini mới nhất (Gemini 3.8 Flash) làm mặc định và chuẩn hóa tên trò chơi thành "AI LÀ TRIỆU PHÚ".
   - [x] Tích hợp trọn vẹn bản nhạc mở đầu chương trình (15.8s), cơ chế chuyển nền tự động và nút "🎵 Mở đầu" tiện ích.
+  - [x] Hỗ trợ động số lượng câu hỏi tùy chỉnh (tải bao nhiêu câu hiển thị bấy nhiêu câu, lưới và tháp danh hiệu tự thích ứng).
 - **Expected Output:** Trò chơi hoạt động độc lập với giao diện y hệt ảnh mẫu, chạy mượt mà trên trình duyệt.
