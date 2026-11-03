@@ -1,18 +1,42 @@
 const MilAudio = {
   audioCtx: null,
   introTimer: null,
-  audioIntro: new Audio(encodeURI('mở đầu chương trình.mp3')),
+  audioIntro: new Audio('nhacmodau.mp3'),
   audioBg: new Audio('nhacnenlientuc.mp3'),
   audioCorrect: new Audio('amthanhdung.mp3'),
   audioWrong: new Audio('amthanhsai.mp3'),
-  audioEnding: new Audio(encodeURI('kết thúc chương trình.mp3')),
+  audioEnding: new Audio('nhacketthuc.mp3'),
 
   init() {
-    this.audioIntro.onerror = () => { this.audioIntro = new Audio('ai-la-trieu-phu mo dau.mp3'); };
-    this.audioEnding.onerror = () => { this.audioEnding = new Audio('nhacketthuc.mp3'); };
+    const setupFallback = (audioEl, sources) => {
+      let srcIdx = 0;
+      audioEl.src = sources[srcIdx];
+      audioEl.onerror = () => {
+        srcIdx++;
+        if (srcIdx < sources.length) {
+          audioEl.src = sources[srcIdx];
+        }
+      };
+    };
+
+    setupFallback(this.audioIntro, [
+      'nhacmodau.mp3',
+      encodeURI('mở đầu chương trình.mp3'),
+      'mở đầu chương trình.mp3',
+      'assets/millionaire/nhacmodau.mp3',
+      'ai-la-trieu-phu mo dau.mp3'
+    ]);
+
+    setupFallback(this.audioEnding, [
+      'nhacketthuc.mp3',
+      encodeURI('kết thúc chương trình.mp3'),
+      'kết thúc chương trình.mp3',
+      'assets/millionaire/nhacketthuc.mp3'
+    ]);
+
     this.audioBg.loop = true;
     this.audioBg.volume = 0.35;
-    this.audioIntro.volume = 0.85;
+    this.audioIntro.volume = 0.9;
     this.audioCorrect.volume = 0.9;
     this.audioWrong.volume = 0.85;
     this.audioEnding.volume = 0.95;
@@ -29,33 +53,53 @@ const MilAudio = {
     return this.audioCtx;
   },
   
-  playIntro() {
-    if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
+  playIntro(onFinished) {
+    if (typeof AppState !== 'undefined' && !AppState.soundEnabled) {
+      if (onFinished) onFinished();
+      return;
+    }
     this.stopAll();
     this.audioIntro.currentTime = 0;
-    this.audioIntro.play().then(() => {
-      this.introTimer = setTimeout(() => {
+    this.audioIntro.volume = 0.9;
+
+    this.audioIntro.onended = () => {
+      this.audioIntro.onended = null;
+      if (typeof AppState === 'undefined' || AppState.soundEnabled) {
+        this.playBg();
+      }
+      if (onFinished) onFinished();
+    };
+
+    const playPromise = this.audioIntro.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(e => {
         if (typeof AppState === 'undefined' || AppState.soundEnabled) {
-          try {
-            let vol = this.audioIntro.volume;
-            const fade = setInterval(() => {
-              vol = Math.max(0, vol - 0.15);
-              this.audioIntro.volume = vol;
-              if (vol <= 0) {
-                clearInterval(fade);
-                this.audioIntro.pause();
-                this.playBg();
-              }
-            }, 50);
-          } catch(e) {
-            this.audioIntro.pause();
-            this.playBg();
-          }
+          this.playBg();
         }
-      }, 5500);
-    }).catch(e => {
-      this.playBg();
-    });
+        if (onFinished) onFinished();
+      });
+    }
+  },
+
+  fadeIntroToBg() {
+    if (!this.audioIntro.paused && this.audioIntro.currentTime > 0) {
+      try {
+        let vol = this.audioIntro.volume;
+        const fade = setInterval(() => {
+          vol = Math.max(0, vol - 0.2);
+          this.audioIntro.volume = vol;
+          if (vol <= 0) {
+            clearInterval(fade);
+            this.audioIntro.pause();
+            this.audioIntro.currentTime = 0;
+            this.resumeBg();
+          }
+        }, 50);
+      } catch(e) {
+        this.audioIntro.pause();
+        this.resumeBg();
+      }
+    }
   },
 
   playBg() {
@@ -377,6 +421,7 @@ const MillionaireGame = {
     const q = this.questions[this.currentIdx];
     if (!q || q.isChecked) return;
 
+    MilAudio.fadeIntroToBg();
     q.userAns = optIdx;
     
     document.querySelectorAll('.mil-option').forEach(b => b.classList.remove('selected'));
@@ -390,6 +435,7 @@ const MillionaireGame = {
     const q = this.questions[this.currentIdx];
     if (!q || q.userAns === null || q.isChecked) return;
 
+    MilAudio.fadeIntroToBg();
     q.isChecked = true;
     const isLastQuestion = (this.currentIdx === this.questions.length - 1);
     const isMilestone = [5, 10, 15, 20].includes(this.currentIdx + 1);

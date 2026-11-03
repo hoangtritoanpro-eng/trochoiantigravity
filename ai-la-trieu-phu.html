@@ -1155,6 +1155,7 @@
       <!-- Tiện ích bên dưới -->
       <div class="mil-tools-row">
         <button class="btn-tool" id="btnSoundToggle" title="Bật/Tắt âm thanh">🔊 Âm thanh</button>
+        <button class="btn-tool" id="btnPlayIntro" title="Phát nhạc mở đầu chương trình">🎵 Mở đầu</button>
         <button class="btn-tool" id="btnFullscreenToggle" title="Bật toàn màn hình">⛶ Toàn màn</button>
         <button class="btn-tool" id="btnCustomQuestions" title="Nạp đề riêng">✎ Nạp đề</button>
       </div>
@@ -1420,19 +1421,43 @@ D. x = -4"></textarea>
       audioCtx: null,
       introTimer: null,
 
-      // Các file MP3 tĩnh trong cùng thư mục
-      mp3Intro: new Audio(encodeURI('mở đầu chương trình.mp3')),
+      // Các file MP3 tĩnh trong cùng thư mục (hỗ trợ fallback đa nguồn)
+      mp3Intro: new Audio('nhacmodau.mp3'),
       mp3Bg: new Audio('nhacnenlientuc.mp3'),
       mp3Correct: new Audio('amthanhdung.mp3'),
       mp3Wrong: new Audio('amthanhsai.mp3'),
-      mp3Ending: new Audio(encodeURI('kết thúc chương trình.mp3')),
+      mp3Ending: new Audio('nhacketthuc.mp3'),
 
       init() {
-        this.mp3Intro.onerror = () => { this.mp3Intro = new Audio('ai-la-trieu-phu mo dau.mp3'); };
-        this.mp3Ending.onerror = () => { this.mp3Ending = new Audio('nhacketthuc.mp3'); };
+        const setupFallback = (audioEl, sources) => {
+          let srcIdx = 0;
+          audioEl.src = sources[srcIdx];
+          audioEl.onerror = () => {
+            srcIdx++;
+            if (srcIdx < sources.length) {
+              audioEl.src = sources[srcIdx];
+            }
+          };
+        };
+
+        setupFallback(this.mp3Intro, [
+          'nhacmodau.mp3',
+          encodeURI('mở đầu chương trình.mp3'),
+          'mở đầu chương trình.mp3',
+          'assets/millionaire/nhacmodau.mp3',
+          'ai-la-trieu-phu mo dau.mp3'
+        ]);
+
+        setupFallback(this.mp3Ending, [
+          'nhacketthuc.mp3',
+          encodeURI('kết thúc chương trình.mp3'),
+          'kết thúc chương trình.mp3',
+          'assets/millionaire/nhacketthuc.mp3'
+        ]);
+
         this.mp3Bg.loop = true;
         this.mp3Bg.volume = 0.35;
-        this.mp3Intro.volume = 0.85;
+        this.mp3Intro.volume = 0.9;
         this.mp3Correct.volume = 0.9;
         this.mp3Wrong.volume = 0.85;
         this.mp3Ending.volume = 0.95;
@@ -1461,6 +1486,12 @@ D. x = -4"></textarea>
 
       stopAll() {
         if (this.introTimer) { clearTimeout(this.introTimer); this.introTimer = null; }
+        const btnIntro = document.getElementById('btnPlayIntro');
+        if (btnIntro) {
+          btnIntro.innerHTML = '🎵 Mở đầu';
+          btnIntro.style.borderColor = '';
+          btnIntro.style.color = '';
+        }
         [this.mp3Intro, this.mp3Bg, this.mp3Correct, this.mp3Wrong, this.mp3Ending].forEach(a => {
           try { a.pause(); a.currentTime = 0; } catch(e){}
         });
@@ -1478,35 +1509,72 @@ D. x = -4"></textarea>
         } catch(e){}
       },
 
-      playIntro() {
-        if (!this.enabled) return;
+      playIntro(onFinished) {
+        if (!this.enabled) {
+          if (onFinished) onFinished();
+          return;
+        }
         this.stopAll();
         this.mp3Intro.currentTime = 0;
-        this.mp3Intro.play().then(() => {
-          // Sau 5.5 giây kết thúc đoạn dạo đầu hào hùng, tự động chuyển tiếp sang nhạc nền
-          this.introTimer = setTimeout(() => {
+        this.mp3Intro.volume = 0.9;
+
+        const updateBtn = (playing) => {
+          const btn = document.getElementById('btnPlayIntro');
+          if (btn) {
+            btn.innerHTML = playing ? '🎵 Đang phát...' : '🎵 Mở đầu';
+            btn.style.borderColor = playing ? 'var(--gold-primary)' : '';
+            btn.style.color = playing ? 'var(--gold-light)' : '';
+          }
+        };
+
+        updateBtn(true);
+
+        this.mp3Intro.onended = () => {
+          this.mp3Intro.onended = null;
+          updateBtn(false);
+          if (this.enabled) {
+            this.playBg();
+          }
+          if (onFinished) onFinished();
+        };
+
+        const playPromise = this.mp3Intro.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            updateBtn(false);
+            this.synthFanfare();
             if (this.enabled) {
-              try {
-                let vol = this.mp3Intro.volume;
-                const fade = setInterval(() => {
-                  vol = Math.max(0, vol - 0.15);
-                  this.mp3Intro.volume = vol;
-                  if (vol <= 0) {
-                    clearInterval(fade);
-                    this.mp3Intro.pause();
-                    this.playBg();
-                  }
-                }, 50);
-              } catch(e) {
-                this.mp3Intro.pause();
-                this.playBg();
-              }
+              this.introTimer = setTimeout(() => this.playBg(), 2000);
             }
-          }, 5500);
-        }).catch(() => {
-          this.synthFanfare();
-          this.introTimer = setTimeout(() => this.playBg(), 2000);
-        });
+          });
+        }
+      },
+
+      fadeIntroToBg() {
+        if (!this.mp3Intro.paused && this.mp3Intro.currentTime > 0) {
+          const btnIntro = document.getElementById('btnPlayIntro');
+          if (btnIntro) {
+            btnIntro.innerHTML = '🎵 Mở đầu';
+            btnIntro.style.borderColor = '';
+            btnIntro.style.color = '';
+          }
+          try {
+            let vol = this.mp3Intro.volume;
+            const fade = setInterval(() => {
+              vol = Math.max(0, vol - 0.2);
+              this.mp3Intro.volume = vol;
+              if (vol <= 0) {
+                clearInterval(fade);
+                this.mp3Intro.pause();
+                this.mp3Intro.currentTime = 0;
+                this.resumeBg();
+              }
+            }, 50);
+          } catch(e) {
+            this.mp3Intro.pause();
+            this.resumeBg();
+          }
+        }
       },
 
       playBg() {
@@ -2624,6 +2692,13 @@ Quy tắc bắt buộc:
           document.getElementById('btnSoundToggle').innerText = isOn ? '🔊 Âm thanh' : '🔇 Tắt tiếng';
         });
 
+        const btnPlayIntro = document.getElementById('btnPlayIntro');
+        if (btnPlayIntro) {
+          btnPlayIntro.addEventListener('click', () => {
+            SoundEngine.playIntro();
+          });
+        }
+
         document.getElementById('btnFullscreenToggle').addEventListener('click', () => {
           if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(() => {});
@@ -2837,6 +2912,7 @@ Quy tắc bắt buộc:
         const q = this.questions[this.currentIdx];
         if (!q || q.isChecked) return;
 
+        SoundEngine.fadeIntroToBg();
         q.userAns = optIdx;
         document.querySelectorAll('.mil-option').forEach(b => b.classList.remove('selected'));
         const sel = document.querySelector(`.mil-option[data-opt="${optIdx}"]`);
@@ -2849,6 +2925,7 @@ Quy tắc bắt buộc:
         const q = this.questions[this.currentIdx];
         if (!q || q.userAns === null || q.isChecked) return;
 
+        SoundEngine.fadeIntroToBg();
         q.isChecked = true;
         const isLastQuestion = (this.currentIdx === this.totalQuestions - 1);
         const isMilestone = [5, 10, 15, 20].includes(this.currentIdx + 1);

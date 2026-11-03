@@ -10,6 +10,18 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.9.7] - 2026-11-03
+
+### Added & Changed
+- **Tích Hợp Trọn Vẹn Đoạn Nhạc Mở Đầu Chương Trình (Ai Là Triệu Phú Intro Theme):**
+  - **Tải file âm thanh đa nguồn an toàn:** Hỗ trợ load chính xác file `mở đầu chương trình.mp3` (và bản copy chống lỗi UTF-8/URL encoding `nhacmodau.mp3`, `assets/millionaire/nhacmodau.mp3`).
+  - **Phát trọn vẹn 15.8 giây bản dạo đầu:** Loại bỏ giới hạn ngắt sớm 5.5s cũ, cho phép người dùng thưởng thức toàn bộ giai điệu hào hùng kinh điển của gameshow Ai Là Triệu Phú.
+  - **Chuyển tiếp tự động và thông minh:** Tự động lắng nghe sự kiện `onended` để chuyển sang nhạc nền căng thẳng (`nhacnenlientuc.mp3`), đồng thời tích hợp `fadeIntroToBg()` khi người chơi tương tác trả lời câu hỏi để âm thanh chuyển êm dịu không bị cắt gắt.
+  - **Nút tiện ích "🎵 Mở đầu":** Bổ sung nút bấm riêng trên bảng điều khiển để giáo viên/MC có thể bấm phát lại nhạc dạo đầu bất cứ lúc nào trong tiết học hoặc sự kiện.
+  - **Đồng bộ song song:** Cập nhật cả file độc lập `ai-la-trieu-phu.html` và module `millionaire.js`.
+
+---
+
 ## [1.9.6] - 2026-11-03
 
 ### Changed
