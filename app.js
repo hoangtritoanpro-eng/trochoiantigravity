@@ -91,6 +91,47 @@ const AudioEngine = {
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
       osc.start(now);
       osc.stop(now + 0.15);
+    } else if (type === 'lock') {
+      // Final answer lock suspense chord
+      const freqs = [146.83, 185.00, 220.00, 293.66];
+      freqs.forEach((freq, idx) => {
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.connect(g);
+        g.connect(this.ctx.destination);
+        o.type = idx === 0 ? 'sine' : 'triangle';
+        o.frequency.setValueAtTime(freq, now);
+        g.gain.setValueAtTime(0.001, now);
+        g.gain.linearRampToValueAtTime(0.12, now + 0.05);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+        o.start(now);
+        o.stop(now + 0.65);
+      });
+    } else if (type === 'reveal') {
+      // Reveal bell arpeggio
+      const notes = [659.25, 830.61, 987.77, 1318.51];
+      notes.forEach((freq, idx) => {
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.connect(g);
+        g.connect(this.ctx.destination);
+        o.type = 'sine';
+        o.frequency.value = freq;
+        const t = now + idx * 0.06;
+        g.gain.setValueAtTime(0.15, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        o.start(t);
+        o.stop(t + 0.25);
+      });
+    } else if (type === 'navigate') {
+      // Swoosh card navigation
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(640, now + 0.08);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc.start(now);
+      osc.stop(now + 0.08);
     }
   }
 };

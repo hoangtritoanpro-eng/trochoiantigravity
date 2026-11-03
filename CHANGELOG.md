@@ -10,6 +10,22 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.9.3] - 2026-11-03
+
+### Changed
+- **Thay đổi thương hiệu tác giả:** Chuyển đổi toàn diện thông tin "Phát triển bởi Thầy Toàn A.I" thành "Thầy Sơn SKL" trên toàn bộ ứng dụng (Title, Header Logo, Sidebar Credit, Panel Tác giả game Ai Là Triệu Phú, PWA Manifest và tài liệu Hướng Dẫn Sử Dụng).
+
+### Added
+- **Nâng cấp Hệ thống Âm Thanh Hợp Lý & Chuyên Nghiệp:**
+  - **Tối ưu thứ tự & hòa âm (Audio Mixing):** Tạm dừng nhạc nền hồi hộp khi phát âm thanh Đúng/Sai để âm thanh chiến thắng vang lên trọn vẹn, không bị phát chồng đè hỗn loạn.
+  - **Chuyển tiếp mượt mà cho Nhạc Mở Đầu (Intro):** Nhạc dạo đầu phát 5.5 giây trọn vẹn rồi tự động fade-out sang nhạc nền hồi hộp, không còn bị ngắt đột ngột sau 2 giây.
+  - **Âm thanh Chốt Đáp Án (Final Answer Lock):** Tích hợp hiệu ứng hợp âm kịch tính đa âm (Tritone suspense chord) mỗi khi người chơi nhấp chọn 1 trong 4 phương án A, B, C, D.
+  - **Âm thanh Vượt Mốc & Khán Giả Vỗ Tay (Applause FX):** Tích hợp tiếng vỗ tay ròn rã của khán giả trường quay khi người chơi vượt qua các mốc quan trọng (Câu 5, 10, 15, 20) và khi hoàn thành chiến thắng.
+  - **Âm thanh Hé Lộ Đáp Án & Lật Thẻ:** Bổ sung âm chuông arpeggio nhẹ nhàng khi bấm "Hiện đáp án" và âm thanh chuyển câu hỏi mượt mà.
+  - Cập nhật đồng bộ trên cả tệp độc lập (`ai-la-trieu-phu.html`), game `millionaire.js` và hệ thống chung `app.js`.
+
+---
+
 ## [1.9.2] - 2026-11-03
 
 ### Added

@@ -148,7 +148,7 @@ const TugOfWarGame = {
     ctx.lineWidth = 3;
     ctx.stroke();
 
-    // DRAW PLAYERS (Left Team - Thầy Toàn A.I & Class)
+    // DRAW PLAYERS (Left Team - Thầy Sơn SKL & Class)
     const px = w * 0.2 + (centerOffset * 0.3);
     const py = ropeY;
     
@@ -159,7 +159,7 @@ const TugOfWarGame = {
     ctx.fillStyle = '#0f172a';
     ctx.font = "bold 13px 'Fredoka', sans-serif";
     ctx.textAlign = 'center';
-    ctx.fillText('Toàn A.I', px, py - 10);
+    ctx.fillText('Sơn SKL', px, py - 10);
 
     // DRAW OPPONENTS (Right Team - Robot AI)
     const ox = w * 0.8 + (centerOffset * 0.3);
@@ -239,7 +239,7 @@ const TugOfWarGame = {
 
   drawEndScreen(w, h) {
     const ctx = this.ctx;
-    const text = this.ropePosition < 0 ? '🏆 THẦY TOÀN A.I CHIẾN THẮNG!' : '🤖 AI BOT CHIẾN THẮNG!';
+    const text = this.ropePosition < 0 ? '🏆 THẦY SƠN SKL CHIẾN THẮNG!' : '🤖 AI BOT CHIẾN THẮNG!';
     const color = this.ropePosition < 0 ? 'var(--primary)' : '#ef4444';
 
     drawGlassCard(

@@ -1,4 +1,6 @@
 const MilAudio = {
+  audioCtx: null,
+  introTimer: null,
   audioIntro: new Audio(encodeURI('mở đầu chương trình.mp3')),
   audioBg: new Audio('nhacnenlientuc.mp3'),
   audioCorrect: new Audio('amthanhdung.mp3'),
@@ -8,24 +10,78 @@ const MilAudio = {
   init() {
     this.audioIntro.onerror = () => { this.audioIntro = new Audio('ai-la-trieu-phu mo dau.mp3'); };
     this.audioEnding.onerror = () => { this.audioEnding = new Audio('nhacketthuc.mp3'); };
+    this.audioBg.loop = true;
+    this.audioBg.volume = 0.35;
+    this.audioIntro.volume = 0.85;
+    this.audioCorrect.volume = 0.9;
+    this.audioWrong.volume = 0.85;
+    this.audioEnding.volume = 0.95;
+  },
+
+  getAudioContext() {
+    if (!this.audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) this.audioCtx = new AudioContextClass();
+    }
+    if (this.audioCtx && this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume();
+    }
+    return this.audioCtx;
   },
   
   playIntro() {
     if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
     this.stopAll();
     this.audioIntro.currentTime = 0;
-    this.audioIntro.play().catch(e => console.log('Audio play failed:', e));
+    this.audioIntro.play().then(() => {
+      this.introTimer = setTimeout(() => {
+        if (typeof AppState === 'undefined' || AppState.soundEnabled) {
+          try {
+            let vol = this.audioIntro.volume;
+            const fade = setInterval(() => {
+              vol = Math.max(0, vol - 0.15);
+              this.audioIntro.volume = vol;
+              if (vol <= 0) {
+                clearInterval(fade);
+                this.audioIntro.pause();
+                this.playBg();
+              }
+            }, 50);
+          } catch(e) {
+            this.audioIntro.pause();
+            this.playBg();
+          }
+        }
+      }, 5500);
+    }).catch(e => {
+      this.playBg();
+    });
   },
 
   playBg() {
     if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
-    this.stopAll();
+    if (this.introTimer) { clearTimeout(this.introTimer); this.introTimer = null; }
+    try { this.audioIntro.pause(); } catch(e){}
+    try { this.audioEnding.pause(); } catch(e){}
     this.audioBg.loop = true;
-    this.audioBg.volume = 0.5;
+    this.audioBg.volume = 0.35;
     this.audioBg.play().catch(e => console.log('Audio play failed:', e));
   },
 
+  pauseBg() {
+    try { this.audioBg.pause(); } catch(e){}
+  },
+
+  resumeBg() {
+    if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
+    try {
+      this.audioBg.volume = 0.35;
+      this.audioBg.play().catch(e => console.log('Audio resume failed:', e));
+    } catch(e){}
+  },
+
   stopAll() {
+    if (this.introTimer) { clearTimeout(this.introTimer); this.introTimer = null; }
     this.audioIntro.pause();
     this.audioBg.pause();
     this.audioCorrect.pause();
@@ -33,14 +89,25 @@ const MilAudio = {
     this.audioEnding.pause();
   },
 
-  playCorrect() {
+  playLockAnswer() {
     if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
+    this.synthLockAnswer();
+  },
+
+  playCorrect(isMilestone = false) {
+    if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
+    this.pauseBg();
     this.audioCorrect.currentTime = 0;
     this.audioCorrect.play().catch(e => console.log('Audio play failed:', e));
+
+    if (isMilestone) {
+      setTimeout(() => this.synthApplause(2.5), 500);
+    }
   },
 
   playWrong() {
     if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
+    this.pauseBg();
     this.audioWrong.currentTime = 0;
     this.audioWrong.play().catch(e => console.log('Audio play failed:', e));
   },
@@ -49,8 +116,121 @@ const MilAudio = {
     if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
     this.stopAll();
     this.audioEnding.currentTime = 0;
-    this.audioEnding.volume = 0.85;
+    this.audioEnding.volume = 0.95;
     this.audioEnding.play().catch(e => console.log('Audio play failed:', e));
+    setTimeout(() => this.synthApplause(4.0), 1000);
+  },
+
+  playReveal() {
+    if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
+    this.synthReveal();
+  },
+
+  playNavigate() {
+    if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
+    this.synthNavigate();
+  },
+
+  synthLockAnswer() {
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const freqs = [146.83, 185.00, 220.00, 293.66];
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = idx === 0 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.12, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.65);
+      });
+    } catch(e) {}
+  },
+
+  synthReveal() {
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const notes = [659.25, 830.61, 987.77, 1318.51];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const t = now + idx * 0.06;
+        gain.gain.setValueAtTime(0.15, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.25);
+      });
+    } catch(e) {}
+  },
+
+  synthNavigate() {
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(640, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.08);
+    } catch(e) {}
+  },
+
+  synthApplause(duration = 2.5) {
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      const bufferSize = ctx.sampleRate * duration;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      for (let i = 0; i < bufferSize; i++) {
+        if (Math.random() < 0.08) {
+          data[i] = (Math.random() * 2 - 1) * 0.85;
+        } else {
+          data[i] = (Math.random() * 2 - 1) * 0.09;
+        }
+      }
+
+      const noiseNode = ctx.createBufferSource();
+      noiseNode.buffer = buffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1300, ctx.currentTime);
+      filter.Q.setValueAtTime(1.2, ctx.currentTime);
+
+      const gain = ctx.createGain();
+      const now = ctx.currentTime;
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.3, now + 0.25);
+      gain.gain.setValueAtTime(0.3, now + duration - 0.7);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      noiseNode.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      noiseNode.start(now);
+      noiseNode.stop(now + duration);
+    } catch(e) {}
   }
 };
 
@@ -128,7 +308,7 @@ const MillionaireGame = {
       btn.className = 'mil-q-btn';
       btn.innerText = i + 1;
       btn.onclick = () => {
-        if(typeof AudioEngine !== 'undefined') AudioEngine.play('click');
+        MilAudio.playNavigate();
         this.loadQuestion(i);
       };
       grid.appendChild(btn);
@@ -203,7 +383,7 @@ const MillionaireGame = {
     const sel = document.querySelector(`.mil-option[data-opt="${optIdx}"]`);
     if(sel) sel.classList.add('selected');
     
-    if(typeof AudioEngine !== 'undefined') AudioEngine.play('click');
+    MilAudio.playLockAnswer();
   },
 
   checkAnswer() {
@@ -212,13 +392,14 @@ const MillionaireGame = {
 
     q.isChecked = true;
     const isLastQuestion = (this.currentIdx === this.questions.length - 1);
+    const isMilestone = [5, 10, 15, 20].includes(this.currentIdx + 1);
     
     if (q.userAns === q.ans) {
       this.score++;
       if (isLastQuestion) {
         MilAudio.playEnding();
       } else {
-        MilAudio.playCorrect();
+        MilAudio.playCorrect(isMilestone);
       }
     } else {
       MilAudio.playWrong();
@@ -232,9 +413,12 @@ const MillionaireGame = {
     this.updateProgress();
 
     if (q.userAns === q.ans && !isLastQuestion) {
-      setTimeout(() => this.navigate(1), 1500);
+      setTimeout(() => {
+        this.navigate(1);
+        MilAudio.resumeBg();
+      }, isMilestone ? 2400 : 1800);
     } else if (isLastQuestion) {
-      setTimeout(() => this.endGame(), 1800);
+      setTimeout(() => this.endGame(), 2000);
     }
   },
 
@@ -244,6 +428,7 @@ const MillionaireGame = {
     q.isChecked = true;
     this.revealAnswer(q);
     this.updateGridActive();
+    MilAudio.playReveal();
   },
 
   revealAnswer(q) {
@@ -258,6 +443,7 @@ const MillionaireGame = {
 
   navigate(dir) {
     this.loadQuestion(this.currentIdx + dir);
+    MilAudio.playNavigate();
   },
 
   updateProgress() {

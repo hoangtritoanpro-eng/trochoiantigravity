@@ -8,7 +8,7 @@ const FlipPuzzleGame = {
   selectedCell: null, // active cell being solved
   score: 0,
   gameState: 'PLAYING', // PLAYING, SOLVING_QUESTION, GAME_WON
-  keyword: 'THẦY TOÀN A.I',
+  keyword: 'THẦY SƠN SKL',
   guessOverlay: null,
   qContainer: null,
   
@@ -157,11 +157,11 @@ const FlipPuzzleGame = {
       ctx.fillStyle = grad;
       ctx.fillRect(bx, by, boardSize, boardSize);
       
-      // Draw text "THẦY TOÀN A.I" inside the secret layer
+      // Draw text "THẦY SƠN SKL" inside the secret layer
       ctx.fillStyle = '#ffffff';
       ctx.font = "bold 36px 'Fredoka', sans-serif";
       ctx.textAlign = 'center';
-      ctx.fillText('THẦY TOÀN A.I', bx + boardSize/2, by + boardSize/2);
+      ctx.fillText('THẦY SƠN SKL', bx + boardSize/2, by + boardSize/2);
     }
     ctx.restore();
 

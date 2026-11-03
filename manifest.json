@@ -1,7 +1,7 @@
 {
-  "name": "Thầy Toàn A.I - Game Center",
-  "short_name": "Toàn A.I Games",
-  "description": "Hệ thống game trí tuệ dạy học Toán học lớp 6-9 của Thầy Toàn A.I",
+  "name": "Thầy Sơn SKL - Game Center",
+  "short_name": "Sơn SKL Games",
+  "description": "Hệ thống game trí tuệ dạy học Toán học lớp 6-9 của Thầy Sơn SKL",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0b0f19",

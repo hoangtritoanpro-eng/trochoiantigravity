@@ -1,6 +1,6 @@
-# HƯỚNG DẪN SỬ DỤNG - THẦY TOÀN A.I GAME CENTER
+# HƯỚNG DẪN SỬ DỤNG - THẦY SƠN SKL GAME CENTER
 
-Chào mừng các thầy cô và các em học sinh đến với **Hệ thống Game Trí Tuệ Dạy Học của Thầy Toàn A.I**. Đây là bộ sản phẩm game học tập tương tác cao, thiết kế theo xu hướng giáo dục đổi mới nhằm tăng cường hứng thú học tập môn Toán THCS (lớp 6-9).
+Chào mừng các thầy cô và các em học sinh đến với **Hệ thống Game Trí Tuệ Dạy Học của Thầy Sơn SKL**. Đây là bộ sản phẩm game học tập tương tác cao, thiết kế theo xu hướng giáo dục đổi mới nhằm tăng cường hứng thú học tập môn Toán THCS (lớp 6-9).
 
 ---
 
