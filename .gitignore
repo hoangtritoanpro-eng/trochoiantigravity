@@ -4,6 +4,7 @@
 
 # ZIP archives and templates
 *.zip
+mau-powerpoint*/
 
 # Temporary/archive folders
 archive/

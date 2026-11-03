@@ -10,6 +10,18 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.9.1] - 2026-11-03
+
+### Changed
+- **Thiết Kế Lại Toàn Diện Nền Game Ai Là Triệu Phú (Theo Mẫu PowerPoint Studio):**
+  - Trích xuất và tích hợp hình nền 3D trường quay studio truyền hình kinh điển (ghế nóng trung tâm, bậc thang phát sáng màu hổ phách, sàn kính phản chiếu và hệ thống đèn spotlight xanh dương đa chiều).
+  - Tích hợp hiệu ứng kính mờ Glassmorphism (`backdrop-filter: blur(10px)`) kết hợp viền vàng Gold sang trọng cho hai bảng điều khiển và tiến độ.
+  - Tinh chỉnh vùng trung tâm câu hỏi với radial gradient ánh sáng sân khấu, giúp trường quay hiển thị lung linh nhưng nội dung câu hỏi và 4 đáp án A, B, C, D vẫn rõ ràng, sắc nét.
+  - Bổ sung huy hiệu Logo chính thức của "Ai Là Triệu Phú" tại header và biểu trưng chiến thắng "Bạn Là Triệu Phú !!!" tại modal kết thúc.
+  - Cập nhật đồng bộ cho cả ứng dụng chính (`index.html`, `index.css`) và tệp độc lập (`ai-la-trieu-phu.html`).
+
+---
+
 ## [1.9.0] - 2026-11-03
 
 ### Added

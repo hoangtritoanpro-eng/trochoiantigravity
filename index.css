@@ -750,10 +750,24 @@ canvas {
 /* ═══════════════════════════════
    AI LÀ TRIỆU PHÚ TOÁN HỌC (DOM GAME)
 ═══════════════════════════════ */
+.game-card.millionaire-card {
+  background: linear-gradient(135deg, rgba(10, 19, 49, 0.9), rgba(15, 28, 66, 0.88)), url('assets/millionaire/bg_studio_wide.jpg') center / cover no-repeat;
+  border: 2px solid #eab308 !important;
+  box-shadow: 0 6px 24px rgba(234, 179, 8, 0.25) !important;
+  color: #fff;
+}
+.game-card.millionaire-card .game-title {
+  color: #fde047 !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+.game-card.millionaire-card .game-desc {
+  color: #bfdbfe !important;
+}
+
 .millionaire-fullscreen {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: #060e22; /* Dark blue */
+  background: linear-gradient(rgba(6, 14, 34, 0.4), rgba(6, 14, 34, 0.65)), url('assets/millionaire/bg_studio_wide.jpg') center center / cover no-repeat fixed;
   z-index: 50;
   display: grid;
   grid-template-columns: 280px 1fr 280px;
@@ -762,12 +776,15 @@ canvas {
 }
 
 .mil-left-panel, .mil-right-panel {
-  background: #0a1331;
-  border: 1.5px solid #1e3a8a;
+  background: rgba(10, 19, 49, 0.84);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(234, 179, 8, 0.4);
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .mil-left-panel { border-right: 2px solid #eab308; }
@@ -848,7 +865,8 @@ canvas {
   flex-direction: column;
   padding: 20px 40px;
   position: relative;
-  background: radial-gradient(circle at center, #0f1c42 0%, #060e22 100%);
+  background: radial-gradient(circle at 50% 25%, rgba(15, 28, 66, 0.25) 0%, rgba(6, 14, 34, 0.6) 100%);
+  backdrop-filter: blur(1.5px);
 }
 
 .mil-header {
