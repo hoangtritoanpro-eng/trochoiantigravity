@@ -245,14 +245,20 @@
           <div style="padding: 24px;">
             <!-- File Input -->
             <div style="margin-bottom: 20px;">
-              <div style="font-weight: 600; font-family: var(--font-display); color: #334155; margin-bottom: 8px;">Tải file Word (.docx)</div>
-              <div style="color: #64748b; font-size: 13px; margin-bottom: 12px;">Tự nhận diện trắc nghiệm nhiều lựa chọn. Câu hỏi: "Câu 1." - Đáp án đúng: "#A."</div>
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <label for="docxFileInput" style="background: #f0fdfa; color: #0d9488; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; border: 1px solid #ccfbf1;">
-                  Chọn tệp
+              <div style="font-weight: 600; font-family: var(--font-display); color: #334155; margin-bottom: 8px;">Tải file Đề thi (PDF hoặc Word .docx)</div>
+              <div style="color: #64748b; font-size: 13px; margin-bottom: 12px;">Hệ thống tự nhận diện câu hỏi trắc nghiệm nhiều lựa chọn, 4 phương án A, B, C, D &amp; đáp án đúng.</div>
+              <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <label for="pdfFileInputMain" style="background: #fef2f2; color: #dc2626; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; border: 1px solid #fecaca; display: inline-flex; align-items: center; gap: 6px;">
+                  <span>📄</span> Chọn file PDF
+                </label>
+                <input type="file" id="pdfFileInputMain" accept=".pdf" style="display: none;">
+
+                <label for="docxFileInput" style="background: #f0fdfa; color: #0d9488; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; border: 1px solid #ccfbf1; display: inline-flex; align-items: center; gap: 6px;">
+                  <span>📝</span> Chọn file Word (.docx)
                 </label>
                 <input type="file" id="docxFileInput" accept=".docx" style="display: none;">
-                <span id="docxFileName" style="color: #94a3b8; font-size: 14px;">Không có tệp nào được chọn</span>
+                
+                <span id="docxFileName" style="color: #94a3b8; font-size: 14px;">Chưa có tệp nào được chọn</span>
               </div>
             </div>
 
@@ -423,6 +429,7 @@
   </div>
 
   <!-- Loading scripts -->
+  <script src="assets/vendor/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
   <script src="app.js"></script>
   <script src="tug-of-war.js"></script>

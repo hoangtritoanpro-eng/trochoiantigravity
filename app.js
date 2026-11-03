@@ -457,6 +457,7 @@ const AppRouter = {
   initBulkQuestionsUI() {
     const bulkInput = document.getElementById('bulkQuestionInput');
     const docxInput = document.getElementById('docxFileInput');
+    const pdfInput = document.getElementById('pdfFileInputMain');
     const docxName = document.getElementById('docxFileName');
     const btnSave = document.getElementById('btnSaveBulkQuestions');
     const btnClear = document.getElementById('btnClearBulkQuestions');
@@ -477,10 +478,55 @@ const AppRouter = {
     btnClear.addEventListener('click', () => {
       bulkInput.value = '';
       if (docxInput) docxInput.value = '';
-      if (docxName) docxName.textContent = 'Không có tệp nào được chọn';
+      if (pdfInput) pdfInput.value = '';
+      if (docxName) docxName.textContent = 'Chưa có tệp nào được chọn';
       if (statusTxt) statusTxt.textContent = '';
       updateParsed();
     });
+
+    if (pdfInput) {
+      pdfInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        docxName.textContent = `PDF: ${file.name}`;
+        statusTxt.textContent = 'Đang đọc và giải mã file PDF...';
+
+        try {
+          if (typeof window.pdfjsLib === 'undefined') {
+            throw new Error('Thư viện PDF.js chưa sẵn sàng!');
+          }
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdf.worker.min.js';
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          let fullText = '';
+
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const items = textContent.items.map(it => ({ str: it.str, x: it.transform[4], y: it.transform[5] }));
+            items.sort((a, b) => (Math.abs(a.y - b.y) <= 4 ? a.x - b.x : b.y - a.y));
+            let pageText = '';
+            let lastY = null;
+            for (const it of items) {
+              if (lastY !== null && Math.abs(it.y - lastY) > 5) pageText += '\n';
+              else if (pageText.length > 0 && !pageText.endsWith('\n') && !pageText.endsWith(' ')) pageText += ' ';
+              pageText += it.str;
+              lastY = it.y;
+            }
+            fullText += pageText + '\n\n';
+          }
+
+          bulkInput.value = fullText;
+          updateParsed();
+          statusTxt.textContent = `✓ Đã trích xuất xong file PDF (${pdf.numPages} trang)!`;
+          AudioEngine.play('click');
+        } catch (err) {
+          console.error(err);
+          alert('Lỗi khi đọc file PDF: ' + err.message);
+          statusTxt.textContent = 'Lỗi đọc file PDF!';
+        }
+      });
+    }
 
     btnSave.addEventListener('click', () => {
       if (parsedQuestions.length === 0) {

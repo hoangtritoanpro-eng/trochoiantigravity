@@ -10,6 +10,26 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.9.4] - 2026-11-03
+
+### Added
+- **Giao Diện & Tính Năng Nạp Đề Tự Động Từ File PDF (PDF Quiz Importer):**
+  - **Giao diện kéo thả PDF hiện đại:** Nâng cấp toàn diện Modal Nạp Đề với khu vực kéo thả (Dropzone) chuyên nghiệp viền vàng hổ phách, icon PDF và nút tải file.
+  - **Trích xuất & Giải mã PDF thuần Client (100% Offline):** Tích hợp công nghệ `pdf.js` giải mã cấu trúc trang PDF đa luồng, sắp xếp tự nhiên theo tọa độ (x, y) để giữ đúng trật tự câu hỏi mà không cần server backend.
+  - **Bộ Parser Phân Tích Đề Trắc Nghiệm Thông Minh (Smart Quiz Parser):**
+    - Tự động nhận diện mọi định dạng câu hỏi trắc nghiệm phổ biến (`Câu 1`, `Bài 1`, `Question 1`).
+    - Tự động phân tách 4 phương án A, B, C, D kể cả khi nằm trên cùng dòng hay cách dòng.
+    - Tự động bóc tách và khớp đáp án đúng từ Bảng đáp án cuối đề thi (`BẢNG ĐÁP ÁN: 1.A 2.B 3.C...`), từ dòng `Đáp án: [A-D]` hoặc ký hiệu tiền tố `#A`, `*A`.
+    - Tự động chuẩn hóa về đúng mã cấu trúc dữ liệu JSON của ứng dụng.
+  - **Bảng Xem Trước Trực Quan & Tương Tác 1-Click:**
+    - Hiển thị danh sách câu hỏi dạng thẻ, phương án đúng được viền xanh lá và gắn huy hiệu `✓ ĐÚNG`.
+    - Cho phép giáo viên nhấp chuột trực tiếp vào A/B/C/D để chuyển đổi đáp án đúng tức thì hoặc bấm `🗑 Xóa câu` thừa.
+    - Tab chuyển đổi linh hoạt giữa "Xem trước trực quan" và "Mã đề văn bản (Code/Text)".
+  - **Tích hợp vào Game Ngay Lập Tức:** Nút `▷ ÁP DỤNG VÀO GAME NGAY` nạp bộ câu hỏi vừa bóc tách vào trò chơi Ai Là Triệu Phú để bắt đầu thử thách ngay.
+  - Đồng bộ tính năng nạp PDF vào cả tệp độc lập (`ai-la-trieu-phu.html`) và tab "Quản Lý Câu Hỏi" của ứng dụng chính (`index.html`, `app.js`).
+
+---
+
 ## [1.9.3] - 2026-11-03
 
 ### Changed

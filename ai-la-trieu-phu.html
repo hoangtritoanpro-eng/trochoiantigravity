@@ -7,6 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- PDF.js Engine: Hỗ trợ nạp và bóc tách đề trắc nghiệm từ file PDF -->
+  <script src="assets/vendor/pdf.min.js"></script>
+  <script>
+    if (typeof window.pdfjsLib === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"><\/script>');
+    }
+  </script>
   <style>
     :root {
       --bg-dark: #060e22;
@@ -671,9 +678,9 @@
       background: #0f172a;
       border: 2px solid var(--gold-primary);
       border-radius: 16px;
-      width: 90%;
-      max-width: 650px;
-      max-height: 85vh;
+      width: 92%;
+      max-width: 820px;
+      max-height: 88vh;
       display: flex;
       flex-direction: column;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(234, 179, 8, 0.3);
@@ -682,17 +689,21 @@
     }
 
     .mil-modal-header {
-      padding: 16px 20px;
+      padding: 14px 20px;
       border-bottom: 1px solid #334155;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: rgba(15, 23, 42, 0.95);
     }
 
     .mil-modal-title {
       font-family: var(--font-display);
-      font-size: 18px;
+      font-size: 16.5px;
       color: var(--gold-light);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .mil-modal-close {
@@ -701,6 +712,12 @@
       color: #94a3b8;
       font-size: 20px;
       cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .mil-modal-close:hover {
+      color: #ef4444;
     }
 
     .mil-modal-body {
@@ -711,11 +728,165 @@
       gap: 12px;
       font-size: 13px;
       color: #cbd5e1;
+      background: #091024;
+    }
+
+    /* Giao diện Kéo Thả File PDF */
+    .pdf-dropzone {
+      border: 2px dashed rgba(234, 179, 8, 0.5);
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 12px;
+      padding: 16px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .pdf-dropzone:hover, .pdf-dropzone.dragover {
+      border-color: var(--gold-light);
+      background: rgba(30, 58, 138, 0.35);
+      box-shadow: 0 0 20px rgba(234, 179, 8, 0.3);
+    }
+    .pdf-icon-badge {
+      font-size: 30px;
+      line-height: 1;
+    }
+    .pdf-drop-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--gold-light);
+      font-family: var(--font-display);
+    }
+    .pdf-drop-hint {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .btn-upload-pdf {
+      background: linear-gradient(135deg, #eab308, #ca8a04);
+      color: #000;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      margin-top: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(234, 179, 8, 0.25);
+      transition: transform 0.15s;
+    }
+    .btn-upload-pdf:hover {
+      transform: scale(1.03);
+    }
+
+    .pdf-status-banner {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #6ee7b7;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-tab-header {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 4px;
+    }
+    .modal-tab-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font-display);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-tab-btn.active {
+      background: rgba(234, 179, 8, 0.2);
+      color: var(--gold-light);
+      border: 1px solid rgba(234, 179, 8, 0.4);
+    }
+
+    .preview-question-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+    .preview-question-card:hover {
+      border-color: #64748b;
+    }
+    .preview-q-title {
+      font-weight: 600;
+      color: #f1f5f9;
+      font-size: 13.5px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.4;
+    }
+    .preview-opt-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .preview-opt-item {
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12.5px;
+      color: #cbd5e1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s;
+    }
+    .preview-opt-item:hover {
+      border-color: var(--gold-light);
+      background: #334155;
+    }
+    .preview-opt-item.is-correct {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      font-weight: 700;
+    }
+    .btn-del-preview-q {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .btn-del-preview-q:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
     }
 
     .mil-textarea {
       width: 100%;
-      height: 220px;
+      height: 200px;
       background: #020617;
       border: 1px solid #334155;
       border-radius: 8px;
@@ -725,6 +896,7 @@
       font-size: 13px;
       resize: vertical;
       outline: none;
+      line-height: 1.5;
     }
 
     .mil-textarea:focus {
@@ -736,6 +908,7 @@
       border-top: 1px solid #334155;
       display: flex;
       justify-content: flex-end;
+      background: rgba(15, 23, 42, 0.95);
       gap: 10px;
     }
 
@@ -1004,33 +1177,79 @@
   </div>
 
   <!-- ═══════════════════════════════
-       MODAL NẠP ĐỀ RIÊNG CHO GIÁO VIÊN
+       MODAL NẠP ĐỀ TỰ ĐỘNG (HỖ TRỢ FILE PDF & WORD)
   ═══════════════════════════════ -->
   <div class="mil-modal-backdrop" id="modalCustomQ">
     <div class="mil-modal-dialog">
       <div class="mil-modal-header">
-        <h3 class="mil-modal-title">✎ NẠP ĐỀ TÙY CHỈNH CHO GAME</h3>
+        <h3 class="mil-modal-title">📄 NẠP ĐỀ TỰ ĐỘNG CHO GAME (HỖ TRỢ FILE PDF)</h3>
         <button class="mil-modal-close" id="btnCloseModalQ">✕</button>
       </div>
+      
       <div class="mil-modal-body">
-        <p>Thầy cô có thể dán danh sách câu hỏi theo mẫu dưới đây (hoặc định dạng trắc nghiệm thông thường):</p>
-        <textarea id="txtCustomQuestions" class="mil-textarea" placeholder="Câu 1: Tính 2 + 3?
-A. 4
-B. 5
-C. 6
-D. 7
-Đáp án: B
+        <!-- Vùng kéo thả File PDF -->
+        <div class="pdf-dropzone" id="pdfDropzone">
+          <div class="pdf-icon-badge">📄</div>
+          <div class="pdf-drop-title">Kéo & Thả file PDF đề thi vào đây, hoặc click để chọn tệp</div>
+          <div class="pdf-drop-hint">Hệ thống tự động đọc nội dung PDF, nhận diện câu hỏi, 4 phương án A, B, C, D &amp; đáp án đúng</div>
+          <button type="button" class="btn-upload-pdf" id="btnSelectPdf">
+            📁 TẢI LÊN FILE PDF
+          </button>
+          <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;">
+        </div>
 
-Câu 2: Diện tích hình vuông cạnh 4cm?
-A. 16cm²
-B. 8cm²
-C. 12cm²
-D. 20cm²
-Đáp án: A"></textarea>
+        <!-- Banner thông báo kết quả đọc file -->
+        <div class="pdf-status-banner" id="pdfStatusBanner">
+          <span id="pdfStatusText">✓ Đã trích xuất thành công: 22 câu hỏi từ file PDF!</span>
+          <span style="font-size: 11.5px; opacity: 0.85;" id="pdfPageInfo"></span>
+        </div>
+
+        <!-- Thanh chuyển đổi tab Xem trước và Mã văn bản -->
+        <div class="modal-tab-header">
+          <button type="button" class="modal-tab-btn active" id="tabBtnPreview">👀 Xem trước câu hỏi (<span id="previewCountBadge">0</span> câu)</button>
+          <button type="button" class="modal-tab-btn" id="tabBtnCode">📝 Mã đề văn bản (Code/Text)</button>
+        </div>
+
+        <!-- Tab 1: Danh sách Xem trước trực quan -->
+        <div id="tabContentPreview" style="max-height: 280px; overflow-y: auto; padding-right: 4px;">
+          <div id="pdfQuestionsPreviewList">
+            <div style="text-align: center; color: #64748b; padding: 30px 10px;">
+              Chưa có câu hỏi nào. Hãy tải lên file PDF đề thi hoặc dán mã vào ô văn bản!
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Ô Textarea mã nguồn -->
+        <div id="tabContentCode" style="display: none;">
+          <textarea id="txtCustomQuestions" class="mil-textarea" placeholder="Câu 1. Tính giá trị của biểu thức 5² - 3 x 4?
+A. 8
+#B. 13
+C. 88
+D. 12
+
+Câu 2. Tìm số nguyên x thỏa mãn: x + 7 = -3?
+A. x = 10
+B. x = 4
+#C. x = -10
+D. x = -4"></textarea>
+          <div style="font-size: 11.5px; color: #94a3b8; margin-top: 4px;">
+            💡 <em>Mẹo định dạng:</em> Đặt dấu <strong>#</strong> trước đáp án đúng (ví dụ: <code>#B. 13</code>) hoặc ghi <code>Đáp án: B</code> ở cuối câu.
+          </div>
+        </div>
       </div>
+
       <div class="mil-modal-footer">
-        <button class="btn-mil restart" id="btnClearCustom" style="padding: 8px 16px;">Xóa đề đã lưu</button>
-        <button class="btn-mil start" id="btnSaveCustom" style="padding: 8px 16px;">Lưu & Áp Dụng Đề Này</button>
+        <div style="margin-right: auto; display: flex; gap: 8px;">
+          <a href="mau_de_ai_la_trieu_phu.pdf" download="mau_de_ai_la_trieu_phu.pdf" class="btn-mil" id="btnDownloadSamplePdf" style="padding: 7px 12px; font-size: 12px; background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; text-decoration: none; display: inline-flex; align-items: center; border-radius: 6px;">
+            📥 Tải đề mẫu PDF
+          </a>
+          <button type="button" class="btn-mil restart" id="btnClearCustom" style="padding: 7px 12px; font-size: 12px;">
+            🗑 Xóa đề đã lưu
+          </button>
+        </div>
+        <button type="button" class="btn-mil start" id="btnSaveCustom" style="padding: 9px 20px; font-size: 13.5px; font-weight: 700;">
+          ▷ ÁP DỤNG VÀO GAME NGAY
+        </button>
       </div>
     </div>
   </div>
@@ -1475,7 +1694,454 @@ D. 20cm²
     };
 
     /* ═══════════════════════════════════════════════
-       3. LOGIC GAME AI LÀ TRIỆU PHÚ TOÁN HỌC (22 CÂU)
+       3. HỆ THỐNG TRÍCH XUẤT VĂN BẢN TỪ FILE PDF (PDF.JS)
+    ═══════════════════════════════════════════════════ */
+    const PdfExtractor = {
+      isInitialized: false,
+
+      async extractText(file, onProgress) {
+        if (typeof window.pdfjsLib === 'undefined') {
+          throw new Error("Thư viện PDF.js chưa sẵn sàng hoặc không thể tải từ CDN!");
+        }
+
+        if (!this.isInitialized) {
+          try {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdf.worker.min.js';
+          } catch(e) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          }
+          this.isInitialized = true;
+        }
+
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = window.pdfjsLib.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
+        let fullText = '';
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          if (onProgress) onProgress(i, pdf.numPages);
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+
+          // Sắp xếp các mẩu chữ: dòng trên trước (y giảm dần), từ trái qua phải (x tăng dần)
+          const items = textContent.items.map(it => ({
+            str: it.str,
+            x: it.transform[4],
+            y: it.transform[5]
+          }));
+
+          items.sort((a, b) => {
+            if (Math.abs(a.y - b.y) <= 4) {
+              return a.x - b.x;
+            }
+            return b.y - a.y;
+          });
+
+          let pageText = '';
+          let lastY = null;
+          for (const it of items) {
+            if (lastY !== null && Math.abs(it.y - lastY) > 5) {
+              pageText += '\n';
+            } else if (pageText.length > 0 && !pageText.endsWith('\n') && !pageText.endsWith(' ')) {
+              pageText += ' ';
+            }
+            pageText += it.str;
+            lastY = it.y;
+          }
+          fullText += `\n--- TRANG ${i} ---\n` + pageText + '\n';
+        }
+
+        return { fullText, numPages: pdf.numPages };
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       4. BỘ PARSER PHÂN TÍCH CÂU HỎI TRẮC NGHIỆM THÔNG MINH
+    ═══════════════════════════════════════════════════ */
+    const SmartQuizParser = {
+      // Trích xuất Bảng đáp án cuối đề nếu có: "BẢNG ĐÁP ÁN: 1.A 2.B 3.C..."
+      extractAnswerKeys(text) {
+        const keys = {};
+        const keySectionMatch = text.match(/(?:bảng\s*đáp\s*án|dap\s*an\s*trac\s*nghiem|dap\s*an)[\s\S]*$/i);
+        const searchArea = keySectionMatch ? keySectionMatch[0] : text;
+
+        const pairRegex = /(?:Câu\s*)?(\d+)[\s.:-]*([A-D])\b/gi;
+        let m;
+        while ((m = pairRegex.exec(searchArea)) !== null) {
+          const qNum = parseInt(m[1], 10);
+          const ansLetter = m[2].toUpperCase();
+          keys[qNum] = ansLetter;
+        }
+        return keys;
+      },
+
+      parseTextToQuestions(text) {
+        if (!text || !text.trim()) return [];
+
+        // Tách riêng phần BẢNG ĐÁP ÁN ở cuối tài liệu nếu có
+        let questionsText = text;
+        const answerSectionMatch = text.match(/(?:^|\n)\s*(?:b[·ảa]ng\s*[·đd]áp\s*án|dap\s*an\s*trac\s*nghiem)[\s\S]*$/i);
+        if (answerSectionMatch) {
+          questionsText = text.substring(0, answerSectionMatch.index);
+        }
+
+        const answerKeys = this.extractAnswerKeys(text);
+        const questions = [];
+
+        // Tìm vị trí các câu hỏi: "Câu 1", "Câu 2", "Bài 1", "Question 1"
+        const qHeaderRegex = /(?:^|\n)\s*(?:Câu|Bài|Question)\s*(\d+)[\s.:-]/gi;
+        const matches = [];
+        let match;
+        while ((match = qHeaderRegex.exec(questionsText)) !== null) {
+          matches.push({
+            num: parseInt(match[1], 10),
+            startIndex: match.index,
+            headerLen: match[0].length
+          });
+        }
+
+        if (matches.length === 0) {
+          return this.fallbackLineParser(questionsText);
+        }
+
+        for (let i = 0; i < matches.length; i++) {
+          const cur = matches[i];
+          const nextIndex = (i + 1 < matches.length) ? matches[i + 1].startIndex : questionsText.length;
+          const block = questionsText.substring(cur.startIndex, nextIndex).trim();
+
+          const qObj = this.parseSingleBlock(block, cur.num, answerKeys[cur.num]);
+          if (qObj) questions.push(qObj);
+        }
+
+        return questions;
+      },
+
+      parseSingleBlock(block, qNum, externalKey) {
+        // Tìm các phương án A, B, C, D
+        const optRegex = /(?:^|\s)(#|\*)?([A-D])[\s.:\)\/]/g;
+        const optPositions = [];
+        let m;
+        while ((m = optRegex.exec(block)) !== null) {
+          // Chỉ lấy tối đa 4 phương án đầu tiên
+          if (optPositions.length < 4) {
+            optPositions.push({
+              isMarked: !!m[1],
+              letter: m[2].toUpperCase(),
+              index: m.index + (m[0].startsWith(' ') ? 1 : 0),
+              len: m[0].trim().length
+            });
+          }
+        }
+
+        if (optPositions.length < 2) return null;
+
+        const qContent = block.substring(0, optPositions[0].index)
+          .replace(/^(?:Câu|Bài|Question)\s*\d+[\s.:-]/i, '')
+          .trim();
+
+        const options = [];
+        let correctIdx = 0;
+
+        // Bắt đáp án từ dòng ghi chú đáp án trong câu (hỗ trợ nhiều font)
+        const ansLineMatch = block.match(/(?:(?:đáp|dap|[·\*\#]?áp)\s*án|chọn|key)[\s.:-]*([A-D])/i);
+        let explicitKey = ansLineMatch ? ansLineMatch[1].toUpperCase() : null;
+
+        for (let i = 0; i < optPositions.length; i++) {
+          const curOpt = optPositions[i];
+          const nextOptIndex = (i + 1 < optPositions.length) ? optPositions[i + 1].index : block.length;
+          let optText = block.substring(curOpt.index, nextOptIndex).trim();
+
+          // Cắt sạch dòng đáp án ở cuối nếu dính vào phương án D
+          optText = optText.split(/\n\s*(?:(?:đáp|dap|[·\*\#]?áp)\s*án|chọn|key)/i)[0].trim();
+
+          if (curOpt.isMarked) {
+            correctIdx = i;
+          } else if (explicitKey && explicitKey === curOpt.letter) {
+            correctIdx = i;
+          } else if (externalKey && externalKey === curOpt.letter) {
+            correctIdx = i;
+          }
+
+          options.push(optText);
+        }
+
+        while (options.length < 4) {
+          const letter = String.fromCharCode(65 + options.length);
+          options.push(`${letter}. (Không có)`);
+        }
+
+        return {
+          q: qContent || `Câu hỏi ${qNum}`,
+          options: options.slice(0, 4),
+          ans: Math.max(0, Math.min(3, correctIdx))
+        };
+      },
+
+      fallbackLineParser(text) {
+        const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(b => b.length > 0);
+        const questions = [];
+        blocks.forEach((block, idx) => {
+          const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+          if (lines.length >= 5) {
+            const q = lines[0].replace(/^(?:Câu|Bài|\d+)[\s.:-]*/i, '');
+            const options = lines.slice(1, 5);
+            let ans = 0;
+            const ansLine = lines.find(l => /đáp\s*án|dap\s*an/i.test(l));
+            if (ansLine) {
+              const m = ansLine.match(/[A-D]/i);
+              if (m) ans = m[0].toUpperCase().charCodeAt(0) - 65;
+            }
+            questions.push({ q, options, ans: Math.max(0, Math.min(3, ans)) });
+          }
+        });
+        return questions;
+      },
+
+      toStandardText(questions) {
+        return questions.map((q, idx) => {
+          const opts = q.options.map((opt, optIdx) => {
+            const cleanOpt = opt.replace(/^[#*]?[A-D][\s.:\)\/]/, '').trim();
+            const letter = String.fromCharCode(65 + optIdx);
+            const prefix = (optIdx === q.ans) ? `#${letter}.` : `${letter}.`;
+            return `${prefix} ${cleanOpt}`;
+          }).join('\n');
+          return `Câu ${idx + 1}. ${q.q}\n${opts}`;
+        }).join('\n\n');
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       5. QUẢN LÝ GIAO DIỆN NẠP ĐỀ (MODAL CONTROLLER)
+    ═══════════════════════════════════════════════════ */
+    const CustomQuestionManager = {
+      parsedQuestions: [],
+
+      init() {
+        this.bindModalEvents();
+      },
+
+      bindModalEvents() {
+        const modal = document.getElementById('modalCustomQ');
+        const dropzone = document.getElementById('pdfDropzone');
+        const fileInput = document.getElementById('pdfFileInput');
+        const btnSelectPdf = document.getElementById('btnSelectPdf');
+        const txtArea = document.getElementById('txtCustomQuestions');
+
+        // Mở modal
+        document.getElementById('btnCustomQuestions').addEventListener('click', () => {
+          const saved = localStorage.getItem('toan_ai_custom_questions_text') || '';
+          txtArea.value = saved;
+          if (saved.trim()) {
+            this.parsedQuestions = SmartQuizParser.parseTextToQuestions(saved);
+          } else {
+            this.parsedQuestions = [];
+          }
+          this.renderPreview();
+          modal.style.display = 'flex';
+        });
+
+        // Đóng modal
+        document.getElementById('btnCloseModalQ').addEventListener('click', () => {
+          modal.style.display = 'none';
+        });
+
+        // Chọn file PDF
+        btnSelectPdf.addEventListener('click', (e) => {
+          e.stopPropagation();
+          fileInput.click();
+        });
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        // Kéo thả file PDF
+        dropzone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dropzone.classList.add('dragover');
+        });
+        dropzone.addEventListener('dragleave', () => {
+          dropzone.classList.remove('dragover');
+        });
+        dropzone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dropzone.classList.remove('dragover');
+          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            this.handlePdfFile(e.dataTransfer.files[0]);
+          }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+          if (e.target.files && e.target.files[0]) {
+            this.handlePdfFile(e.target.files[0]);
+          }
+        });
+
+        // Tab chuyển đổi
+        const tabBtnPrev = document.getElementById('tabBtnPreview');
+        const tabBtnCode = document.getElementById('tabBtnCode');
+        const tabContentPrev = document.getElementById('tabContentPreview');
+        const tabContentCode = document.getElementById('tabContentCode');
+
+        tabBtnPrev.addEventListener('click', () => {
+          tabBtnPrev.classList.add('active');
+          tabBtnCode.classList.remove('active');
+          tabContentPrev.style.display = 'block';
+          tabContentCode.style.display = 'none';
+        });
+
+        tabBtnCode.addEventListener('click', () => {
+          tabBtnCode.classList.add('active');
+          tabBtnPrev.classList.remove('active');
+          tabContentPrev.style.display = 'none';
+          tabContentCode.style.display = 'block';
+        });
+
+        // Khi gõ tay vào ô textarea
+        txtArea.addEventListener('input', () => {
+          this.parsedQuestions = SmartQuizParser.parseTextToQuestions(txtArea.value);
+          this.renderPreview();
+        });
+
+        // Nút Lưu và áp dụng
+        document.getElementById('btnSaveCustom').addEventListener('click', () => {
+          if (this.parsedQuestions.length === 0 && !txtArea.value.trim()) {
+            alert("Vui lòng tải lên file PDF hoặc nhập câu hỏi trước khi áp dụng!");
+            return;
+          }
+
+          const standardText = SmartQuizParser.toStandardText(this.parsedQuestions);
+          localStorage.setItem('toan_ai_custom_questions_text', standardText);
+          localStorage.setItem('toan_ai_custom_questions_json', JSON.stringify(this.parsedQuestions));
+
+          modal.style.display = 'none';
+          MillionaireGame.startGame();
+          SoundEngine.playEnding();
+          alert(`Đã nạp và áp dụng thành công ${this.parsedQuestions.length} câu hỏi vào trò chơi!`);
+        });
+
+        // Nút Xóa đề
+        document.getElementById('btnClearCustom').addEventListener('click', () => {
+          localStorage.removeItem('toan_ai_custom_questions_text');
+          localStorage.removeItem('toan_ai_custom_questions_json');
+          this.parsedQuestions = [];
+          txtArea.value = '';
+          this.renderPreview();
+          document.getElementById('pdfStatusBanner').style.display = 'none';
+          alert('Đã xóa bộ đề tùy chỉnh. Hệ thống sẽ quay về ngân hàng câu hỏi chuẩn.');
+          modal.style.display = 'none';
+          MillionaireGame.startGame();
+        });
+      },
+
+      async handlePdfFile(file) {
+        if (!file.name.toLowerCase().endsWith('.pdf')) {
+          alert('Vui lòng chọn tệp có định dạng .pdf!');
+          return;
+        }
+
+        const banner = document.getElementById('pdfStatusBanner');
+        const statusText = document.getElementById('pdfStatusText');
+        const pageInfo = document.getElementById('pdfPageInfo');
+
+        banner.style.display = 'flex';
+        statusText.innerText = `Đang đọc file PDF: ${file.name}...`;
+        pageInfo.innerText = '';
+
+        try {
+          const res = await PdfExtractor.extractText(file, (cur, total) => {
+            statusText.innerText = `Đang giải mã trang ${cur}/${total} của file PDF...`;
+          });
+
+          const questions = SmartQuizParser.parseTextToQuestions(res.fullText);
+
+          if (questions.length === 0) {
+            statusText.innerText = `Không tìm thấy câu hỏi trắc nghiệm nào trong file "${file.name}"!`;
+            banner.style.borderColor = '#ef4444';
+            banner.style.color = '#fca5a5';
+            return;
+          }
+
+          this.parsedQuestions = questions;
+          const standardText = SmartQuizParser.toStandardText(questions);
+          document.getElementById('txtCustomQuestions').value = standardText;
+
+          banner.style.borderColor = '#10b981';
+          banner.style.color = '#6ee7b7';
+          statusText.innerText = `✓ Đã trích xuất thành công ${questions.length} câu hỏi từ file "${file.name}"!`;
+          pageInfo.innerText = `Số trang: ${res.numPages} | Dung lượng: ${(file.size / 1024).toFixed(1)} KB`;
+
+          this.renderPreview();
+          document.getElementById('tabBtnPreview').click();
+          SoundEngine.playReveal();
+
+        } catch (err) {
+          console.error(err);
+          statusText.innerText = `Lỗi đọc file PDF: ${err.message || 'Không thể bóc tách nội dung'}`;
+          banner.style.borderColor = '#ef4444';
+          banner.style.color = '#fca5a5';
+        }
+      },
+
+      renderPreview() {
+        const container = document.getElementById('pdfQuestionsPreviewList');
+        const countBadge = document.getElementById('previewCountBadge');
+        countBadge.innerText = this.parsedQuestions.length;
+
+        if (this.parsedQuestions.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; color: #64748b; padding: 30px 10px;">
+              Chưa có câu hỏi nào. Hãy tải lên file PDF đề thi hoặc dán mã vào ô văn bản!
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = '';
+        this.parsedQuestions.forEach((item, qIdx) => {
+          const card = document.createElement('div');
+          card.className = 'preview-question-card';
+
+          const titleRow = document.createElement('div');
+          titleRow.className = 'preview-q-title';
+          titleRow.innerHTML = `
+            <span><strong style="color: var(--gold-light);">Câu ${qIdx + 1}:</strong> ${item.q}</span>
+            <button type="button" class="btn-del-preview-q" title="Xóa câu này">🗑 Xóa</button>
+          `;
+
+          titleRow.querySelector('.btn-del-preview-q').onclick = () => {
+            this.parsedQuestions.splice(qIdx, 1);
+            document.getElementById('txtCustomQuestions').value = SmartQuizParser.toStandardText(this.parsedQuestions);
+            this.renderPreview();
+          };
+
+          const optGrid = document.createElement('div');
+          optGrid.className = 'preview-opt-grid';
+
+          item.options.forEach((optText, optIdx) => {
+            const optBtn = document.createElement('div');
+            optBtn.className = 'preview-opt-item' + (optIdx === item.ans ? ' is-correct' : '');
+            optBtn.innerHTML = `
+              <span>${optText}</span>
+              ${optIdx === item.ans ? '<span style="color:#10b981; font-weight:800;">✓ ĐÚNG</span>' : ''}
+            `;
+
+            optBtn.onclick = () => {
+              item.ans = optIdx;
+              document.getElementById('txtCustomQuestions').value = SmartQuizParser.toStandardText(this.parsedQuestions);
+              this.renderPreview();
+              SoundEngine.playClick();
+            };
+
+            optGrid.appendChild(optBtn);
+          });
+
+          card.appendChild(titleRow);
+          card.appendChild(optGrid);
+          container.appendChild(card);
+        });
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       6. LOGIC GAME AI LÀ TRIỆU PHÚ TOÁN HỌC (22 CÂU)
     ═══════════════════════════════════════════════════ */
     const MillionaireGame = {
       questions: [],
@@ -1486,6 +2152,7 @@ D. 20cm²
 
       init() {
         SoundEngine.init();
+        CustomQuestionManager.init();
         this.bindEvents();
         this.renderInitialGrid();
       },
@@ -1519,29 +2186,6 @@ D. 20cm²
           } else {
             document.exitFullscreen().catch(() => {});
           }
-        });
-
-        // Modal Nạp đề
-        const modal = document.getElementById('modalCustomQ');
-        document.getElementById('btnCustomQuestions').addEventListener('click', () => {
-          const saved = localStorage.getItem('toan_ai_custom_questions_text') || '';
-          document.getElementById('txtCustomQuestions').value = saved;
-          modal.style.display = 'flex';
-        });
-        document.getElementById('btnCloseModalQ').addEventListener('click', () => modal.style.display = 'none');
-        document.getElementById('btnSaveCustom').addEventListener('click', () => {
-          const txt = document.getElementById('txtCustomQuestions').value.trim();
-          if (txt) {
-            localStorage.setItem('toan_ai_custom_questions_text', txt);
-            alert('Đã lưu đề tùy chỉnh thành công! Nhấn "BẮT ĐẦU CHƠI" để áp dụng.');
-          }
-          modal.style.display = 'none';
-        });
-        document.getElementById('btnClearCustom').addEventListener('click', () => {
-          localStorage.removeItem('toan_ai_custom_questions_text');
-          document.getElementById('txtCustomQuestions').value = '';
-          alert('Đã xóa câu hỏi tùy chỉnh. Hệ thống sẽ quay về ngân hàng đề chuẩn.');
-          modal.style.display = 'none';
         });
 
         // Modal hoàn thành game
@@ -1581,11 +2225,21 @@ D. 20cm²
         }
       },
 
-      // Lấy câu hỏi từ ngân hàng hoặc đề tự nạp
+      // Lấy câu hỏi từ ngân hàng hoặc đề tự nạp (PDF / Text)
       collectQuestions() {
+        const customJson = localStorage.getItem('toan_ai_custom_questions_json');
+        if (customJson) {
+          try {
+            const list = JSON.parse(customJson);
+            if (Array.isArray(list) && list.length > 0) {
+              return this.expandToCount(list, this.totalQuestions);
+            }
+          } catch(e) {}
+        }
+
         const customText = localStorage.getItem('toan_ai_custom_questions_text');
-        if (customText) {
-          const parsed = this.parseCustomText(customText);
+        if (customText && customText.trim().length > 0) {
+          const parsed = SmartQuizParser.parseTextToQuestions(customText);
           if (parsed && parsed.length > 0) {
             return this.expandToCount(parsed, this.totalQuestions);
           }
@@ -1619,27 +2273,6 @@ D. 20cm²
           res = res.concat(arr);
         }
         return res.slice(0, count);
-      },
-
-      parseCustomText(text) {
-        const questions = [];
-        const rawBlocks = text.split(/(?:Câu\s*\d+[:.]?)/i).filter(b => b.trim().length > 0);
-        rawBlocks.forEach(block => {
-          const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-          if (lines.length >= 5) {
-            const q = lines[0];
-            const opts = lines.slice(1, 5);
-            let ans = 0;
-            const ansLine = lines.find(l => /đáp án|dap an/i.test(l));
-            if (ansLine) {
-              if (/b/i.test(ansLine)) ans = 1;
-              else if (/c/i.test(ansLine)) ans = 2;
-              else if (/d/i.test(ansLine)) ans = 3;
-            }
-            questions.push({ q, options: opts, ans });
-          }
-        });
-        return questions;
       },
 
       startGame() {
