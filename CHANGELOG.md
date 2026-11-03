@@ -10,6 +10,26 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [1.9.9] - 2026-11-03
+
+### Added & Changed
+- **Hiển Thị Chuẩn Xác Công Thức Toán Học (KaTeX Math Engine & Fallback):**
+  - **Tích hợp KaTeX hoàn chỉnh:** Hỗ trợ offline đầy đủ tại `assets/vendor/` (`katex.min.css`, `katex.min.js`, `auto-render.min.js`) và cơ chế fallback trực tuyến qua CDN jsDelivr.
+  - **Tự động nhận diện & chuẩn hóa công thức:** Tự động parse và render các định dạng toán học LaTeX chuẩn (`$...$`, `$$...$$`, `\(...\)`, `\[...\]`), đồng thời tự động chuẩn hóa phân số `\frac`, căn bậc hai `\sqrt`, số mũ `x^2`, chỉ số dưới `x_1`, v.v.
+  - **Styling tương phản chuyên biệt:** Màu chữ công thức trong khung câu hỏi màu tối rõ nét, trong các ô đáp án màu trắng sáng nổi bật trên nền gradient tối.
+  - **Fallback không lỗi:** Tích hợp bộ render HTML thuần (`span.math-frac`, `span.math-sqrt`, `sup`, `sub`) đảm bảo công thức toán luôn hiển thị trọn vẹn ngay cả khi không tải được script KaTeX.
+  - **Áp dụng toàn diện:** Render trên cả khung câu hỏi chính, 4 nút lựa chọn A, B, C, D, và bảng xem trước của Modal Nạp Đề.
+
+- **Hiển Thị Chuẩn Xác Hình Vẽ Minh Họa Trắc Nghiệm (Math Geometry & Image Viewer):**
+  - **Khung hình vẽ thông minh `#milQImageWrap`:** Tự động hiển thị khi câu hỏi có trường `image` (URL ảnh, SVG vector data URL, hoặc Base64 data URL).
+  - **Modal Lightbox Phóng To `#modalImageZoom`:** Nhấp vào hình vẽ để xem phóng to sắc nét toàn màn hình với hiệu ứng viền vàng phát sáng, hỗ trợ phím `Escape` và nút đóng tiện lợi.
+  - **Bộ hình vẽ mẫu SVG sắc nét (`MathGeometrySVGs`):** Tích hợp sẵn các hình vẽ hình học THCS chuẩn mực (Tam giác vuông 3-4-5, Hình thoi hai đường chéo, Đường trung bình tam giác, Tam giác vuông đường cao AH, Hình vuông, Đường tròn góc nội tiếp).
+  - **Trích xuất ảnh tự động từ file PDF (`PdfExtractor`):** Tự động duyệt toán tử vẽ ảnh trong PDF (`paintImageXObject`) và gán ảnh vào các câu hỏi hình học tương ứng.
+  - **Quản lý ảnh trực quan trong Modal Nạp Đề:** Cho phép giáo viên đính kèm hình vẽ riêng từ máy tính, xem thumbnail và xóa ảnh từng câu trước khi áp dụng vào game.
+  - **Tối ưu bố cục responsive:** Điều chỉnh tỉ lệ chiều cao khung ảnh và khoảng cách `gap: 10px;` giúp giao diện không bao giờ bị đè lấn trên mọi độ phân giải màn hình.
+
+---
+
 ## [1.9.8] - 2026-11-03
 
 ### Changed & Fixed

@@ -14,6 +14,16 @@
       document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"><\/script>');
     }
   </script>
+  <!-- KaTeX Engine: Hiển thị công thức Toán học chuẩn mực (hỗ trợ cả Local và CDN Fallback) -->
+  <link rel="stylesheet" href="assets/vendor/katex.min.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';">
+  <script src="assets/vendor/katex.min.js"></script>
+  <script src="assets/vendor/auto-render.min.js"></script>
+  <script>
+    if (typeof window.katex === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script>');
+      document.write('<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"><\/script>');
+    }
+  </script>
   <style>
     :root {
       --bg-dark: #060e22;
@@ -298,23 +308,25 @@
     .mil-center-panel {
       display: flex;
       flex-direction: column;
-      padding: 16px 36px;
+      padding: 12px 30px;
       position: relative;
       background: radial-gradient(circle at 50% 25%, rgba(15, 28, 66, 0.25) 0%, rgba(6, 14, 34, 0.6) 100%);
       backdrop-filter: blur(1px);
       -webkit-backdrop-filter: blur(1px);
       overflow-y: auto;
-      justify-content: space-between;
+      justify-content: flex-start;
+      gap: 10px;
     }
 
     .mil-header {
       text-align: center;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
+      flex-shrink: 0;
     }
 
     .mil-game-title {
       font-family: var(--font-display);
-      font-size: 30px;
+      font-size: 26px;
       color: var(--gold-light);
       text-shadow: 0 0 20px rgba(253, 224, 71, 0.5), 0 2px 4px rgba(0,0,0,0.8);
       letter-spacing: 1px;
@@ -323,7 +335,7 @@
     }
 
     .mil-subtitle {
-      font-size: 13.5px;
+      font-size: 13px;
       color: #bfdbfe;
       font-weight: 600;
     }
@@ -332,16 +344,17 @@
     .mil-question-box {
       background: #ffffff;
       color: #0f172a;
-      border-radius: 16px;
-      padding: 14px 20px;
-      min-height: 130px;
-      margin-bottom: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(234, 179, 8, 0.25);
+      border-radius: 14px;
+      padding: 12px 18px;
+      min-height: 100px;
+      margin-bottom: 0px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 20px rgba(234, 179, 8, 0.25);
       position: relative;
       display: flex;
       flex-direction: column;
       border: 3px solid var(--gold-primary);
       animation: fadeIn 0.3s ease;
+      flex-shrink: 0;
     }
 
     .mil-badges {
@@ -394,30 +407,229 @@
       font-size: 19px;
       font-weight: 600;
       line-height: 1.5;
-      flex-grow: 1;
+      text-align: center;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+
+    /* ═══════════════════════════════
+       ĐỊNH DẠNG CÔNG THỨC TOÁN HỌC (KATEX & MATH FALLBACK)
+    ═══════════════════════════════ */
+    .katex {
+      font-size: 1.15em !important;
+      line-height: 1.25 !important;
+    }
+    .mil-question-content .katex {
+      color: #0f172a !important;
+    }
+    .mil-option .katex {
+      color: #f8fafc !important;
+    }
+    .mil-option.selected .katex,
+    .mil-option.correct .katex {
+      color: #ffffff !important;
+    }
+    .preview-question-card .katex {
+      color: #f1f5f9 !important;
+    }
+
+    /* Fallback công thức Toán không cần KaTeX */
+    .math-frac {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+      padding: 0 4px;
+      font-size: 0.9em;
+      line-height: 1;
+    }
+    .math-num {
+      border-bottom: 1.5px solid currentColor;
+      padding-bottom: 2px;
+    }
+    .math-den {
+      padding-top: 2px;
+    }
+    .math-sqrt {
+      display: inline-flex;
+      align-items: center;
+      padding: 0 2px;
+    }
+    .math-radicand {
+      border-top: 1.5px solid currentColor;
+      padding: 0 2px;
+    }
+    sup {
+      font-size: 0.75em;
+      line-height: 0;
+      position: relative;
+      vertical-align: baseline;
+      top: -0.5em;
+      font-weight: 700;
+    }
+    sub {
+      font-size: 0.75em;
+      line-height: 0;
+      position: relative;
+      vertical-align: baseline;
+      bottom: -0.25em;
+    }
+
+    /* ═══════════════════════════════
+       KHUNG HIỂN THỊ HÌNH VẼ MINH HỌA
+    ═══════════════════════════════ */
+    .mil-q-image-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 8px;
+      padding: 5px;
+      background: #f8fafc;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .mil-q-image-wrap img {
+      max-width: 100%;
+      max-height: 125px;
+      object-fit: contain;
+      border-radius: 6px;
+      cursor: zoom-in;
+      transition: transform 0.2s, box-shadow 0.2s;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    .mil-q-image-wrap img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    }
+
+    .mil-q-image-hint {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Ảnh trong ô đáp án nếu có */
+    .mil-option img {
+      max-height: 44px;
+      max-width: 100px;
+      object-fit: contain;
+      border-radius: 6px;
+      margin-left: 8px;
+      background: #fff;
+      padding: 2px;
+    }
+
+    /* Modal phóng to hình vẽ (Lightbox) */
+    .mil-image-lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(3, 7, 18, 0.92);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+      cursor: zoom-out;
+    }
+
+    .mil-lightbox-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .mil-lightbox-content img {
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 12px;
+      border: 3px solid var(--gold-primary);
+      box-shadow: 0 0 35px rgba(234, 179, 8, 0.5);
+      background: #ffffff;
+      padding: 8px;
+    }
+
+    .mil-lightbox-close {
+      position: absolute;
+      top: -16px;
+      right: -16px;
+      width: 38px;
+      height: 38px;
+      background: #ef4444;
+      border: 2px solid #fff;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
-      flex-direction: column;
-      color: #1e293b;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
 
-    .mil-question-content img {
-      max-width: 100%;
-      max-height: 180px;
-      margin-top: 10px;
-      border: 1px solid #cbd5e1;
+    /* Quản lý ảnh trong bảng xem trước modal */
+    .preview-q-image-box {
+      margin: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px dashed #475569;
+      padding: 6px 10px;
       border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .preview-q-thumb {
+      max-width: 90px;
+      max-height: 60px;
+      border-radius: 4px;
+      border: 1.5px solid var(--gold-primary);
+      object-fit: contain;
+      background: #fff;
+      cursor: zoom-in;
+    }
+    .btn-attach-img {
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #93c5fd;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .btn-attach-img:hover {
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+      background: #334155;
     }
 
     /* LƯỚI ĐÁP ÁN 4 LỰA CHỌN A, B, C, D */
     .mil-options-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
+      gap: 10px;
+      margin-bottom: 4px;
+      flex-shrink: 0;
     }
 
     .mil-option {
@@ -515,6 +727,9 @@
       display: flex;
       justify-content: space-between;
       gap: 20px;
+      margin-top: auto;
+      padding-top: 4px;
+      flex-shrink: 0;
     }
 
     .btn-mil-nav {
@@ -1166,7 +1381,7 @@
     ═══════════════════════════════ -->
     <main class="mil-center-panel">
       <header class="mil-header">
-        <img src="assets/millionaire/logo_trieu_phu.jpg" alt="Ai Là Triệu Phú" style="width: 76px; height: 76px; border-radius: 50%; border: 2.5px solid var(--gold-primary); box-shadow: 0 0 20px rgba(234, 179, 8, 0.65); object-fit: cover; margin-bottom: 6px;">
+        <img src="assets/millionaire/logo_trieu_phu.jpg" alt="Ai Là Triệu Phú" style="width: 58px; height: 58px; border-radius: 50%; border: 2.5px solid var(--gold-primary); box-shadow: 0 0 16px rgba(234, 179, 8, 0.65); object-fit: cover; margin-bottom: 2px;">
         <h1 class="mil-game-title">AI LÀ TRIỆU PHÚ</h1>
         <div class="mil-subtitle" id="milSubtitle">Chinh phục 22 câu hỏi trí tuệ cùng Thầy Sơn SKL</div>
       </header>
@@ -1182,6 +1397,11 @@
         <div class="mil-question-content" id="milQuestionText">
           Chào mừng bạn đến với trò chơi <strong>AI LÀ TRIỆU PHÚ</strong>!<br>
           <span style="font-size: 15px; color: #475569; margin-top: 6px; font-weight: 500;" id="milWelcomeHint">Nhấn nút <strong>"▶ BẮT ĐẦU CHƠI"</strong> ở góc trái để bắt đầu thử thách!</span>
+        </div>
+        <!-- Vùng hiển thị hình vẽ minh họa toán học -->
+        <div class="mil-q-image-wrap" id="milQImageWrap" style="display: none;">
+          <img id="milQImage" src="" alt="Hình vẽ câu hỏi" onclick="MillionaireGame.zoomImage(this.src)">
+          <div class="mil-q-image-hint">🔍 Nhấp vào hình vẽ để phóng to toàn màn hình</div>
         </div>
       </div>
 
@@ -1391,9 +1611,94 @@ D. x = -4"></textarea>
   </div>
 
   <!-- ═══════════════════════════════
+       MODAL PHÓNG TO HÌNH VẼ (LIGHTBOX)
+  ═══════════════════════════════ -->
+  <div class="mil-image-lightbox" id="modalImageZoom" onclick="MillionaireGame.closeZoomImage()">
+    <div class="mil-lightbox-content" onclick="event.stopPropagation()">
+      <button type="button" class="mil-lightbox-close" onclick="MillionaireGame.closeZoomImage()" title="Đóng (Esc)">✕</button>
+      <img id="zoomImageTarget" src="" alt="Hình vẽ minh họa phóng to">
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
        JAVASCRIPT: HỆ THỐNG TOÀN DIỆN
   ═══════════════════════════════ -->
   <script>
+    /* ═══════════════════════════════════════════════
+       0. HỆ THỐNG RENDER CÔNG THỨC TOÁN (KATEX + FALLBACK)
+    ═══════════════════════════════════════════════════ */
+    const MathRenderer = {
+      // Tự động chuẩn hóa các công thức toán thông thường nếu chưa bọc $
+      formatRawMath(text) {
+        if (!text) return '';
+        let s = String(text);
+
+        // Nếu văn bản đã có chứa dấu LaTeX $...$ hoặc \(...\), giữ nguyên
+        if (/\$[^$]+\$|\\\([^\)]+\\\)|\\\[[^\]]+\\\]/.test(s)) {
+          return s;
+        }
+
+        // Tự động bọc $ cho các biểu thức chứa phân số LaTeX hoặc căn thức
+        s = s.replace(/(\\frac\{[^{}]+\}\{[^{}]+\})/g, '$$$1$$');
+        s = s.replace(/(\\sqrt(?:\[[^{}]+\])?\{[^{}]+\})/g, '$$$1$$');
+
+        // Chuẩn hóa mũ thông thường: ví dụ x^2, x^3 -> $x^2$
+        s = s.replace(/([a-zA-Z0-9\)])\^([0-9nkmx\+\-]+)/g, '$$$1^{$2}$$');
+
+        // Chuẩn hóa chỉ số dưới: ví dụ x_1, x_2 -> $x_1$
+        s = s.replace(/([a-zA-Z])_([0-9ijkm])/g, '$$$1_$2$$');
+
+        return s;
+      },
+
+      // Render KaTeX trên phần tử DOM
+      render(container) {
+        if (!container) return;
+
+        if (typeof window.renderMathInElement === 'function') {
+          try {
+            window.renderMathInElement(container, {
+              delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+              ],
+              throwOnError: false,
+              errorColor: '#ef4444'
+            });
+            return;
+          } catch(e) {
+            console.warn("KaTeX render failed, using fallback:", e);
+          }
+        }
+
+        // Fallback định dạng toán học nếu KaTeX chưa sẵn sàng
+        this.fallbackRender(container);
+      },
+
+      fallbackRender(container) {
+        if (!container) return;
+        let html = container.innerHTML;
+
+        // Bỏ bọc $...$ và render các thẻ HTML
+        html = html.replace(/\$([^$]+)\$/g, (m, expr) => {
+          let clean = expr;
+          clean = clean.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '<span class="math-frac"><span class="math-num">$1</span><span class="math-den">$2</span></span>');
+          clean = clean.replace(/\\sqrt\{([^{}]+)\}/g, '<span class="math-sqrt">√<span class="math-radicand">$1</span></span>');
+          clean = clean.replace(/\^\{?([0-9a-zA-Z\+\-]+)\}?/g, '<sup>$1</sup>');
+          clean = clean.replace(/_\{?([0-9a-zA-Z\+\-]+)\}?/g, '<sub>$1</sub>');
+          clean = clean.replace(/\\times/g, '×').replace(/\\div/g, '÷').replace(/\\pm/g, '±');
+          clean = clean.replace(/\\le/g, '≤').replace(/\\ge/g, '≥').replace(/\\ne/g, '≠');
+          clean = clean.replace(/\\approx/g, '≈').replace(/\\pi/g, 'π').replace(/\\Delta/g, 'Δ');
+          clean = clean.replace(/\\angle/g, '∠').replace(/\\circ/g, '°');
+          return clean;
+        });
+
+        container.innerHTML = html;
+      }
+    };
+
     /* ═══════════════════════════════════════════════
        1. HỆ THỐNG ÂM THANH KÉP (MP3 + SYNTHESIZER FALLBACK)
     ═══════════════════════════════════════════════════ */
@@ -1805,83 +2110,92 @@ D. x = -4"></textarea>
     };
 
     /* ═══════════════════════════════════════════════
-       2. NGÂN HÀNG CÂU HỎI TOÁN HỌC PHONG PHÚ (55+ CÂU)
+       2. HÌNH VẼ MINH HỌA TOÁN HỌC SVG & NGÂN HÀNG ĐỀ
     ═══════════════════════════════════════════════════ */
+    const MathGeometrySVGs = {
+      square: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" width="240" height="180"><rect x="50" y="25" width="130" height="130" fill="%23eff6ff" stroke="%232563eb" stroke-width="2.5"/><text x="110" y="20" font-family="sans-serif" font-size="13" font-weight="bold" fill="%231e293b">5 cm</text><text x="25" y="95" font-family="sans-serif" font-size="13" font-weight="bold" fill="%231e293b">5 cm</text><rect x="50" y="25" width="12" height="12" fill="none" stroke="%23ef4444" stroke-width="1.5"/><rect x="168" y="25" width="12" height="12" fill="none" stroke="%23ef4444" stroke-width="1.5"/><rect x="50" y="143" width="12" height="12" fill="none" stroke="%23ef4444" stroke-width="1.5"/><rect x="168" y="143" width="12" height="12" fill="none" stroke="%23ef4444" stroke-width="1.5"/><text x="40" y="20" font-weight="bold" fill="%230f172a">A</text><text x="185" y="20" font-weight="bold" fill="%230f172a">B</text><text x="185" y="170" font-weight="bold" fill="%230f172a">C</text><text x="40" y="170" font-weight="bold" fill="%230f172a">D</text></svg>`,
+      rightTriangle: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 190" width="260" height="190"><polygon points="50,150 210,150 50,40" fill="%23f0fdf4" stroke="%2316a34a" stroke-width="2.5"/><polyline points="50,135 65,135 65,150" fill="none" stroke="%23dc2626" stroke-width="1.8"/><text x="25" y="100" font-family="sans-serif" font-size="13" font-weight="bold" fill="%231e293b">4 cm</text><text x="120" y="172" font-family="sans-serif" font-size="13" font-weight="bold" fill="%231e293b">3 cm</text><text x="135" y="90" font-family="sans-serif" font-size="14" font-weight="bold" fill="%23dc2626">5 cm</text><text x="35" y="165" font-weight="bold" fill="%230f172a">A</text><text x="215" y="165" font-weight="bold" fill="%230f172a">B</text><text x="35" y="35" font-weight="bold" fill="%230f172a">C</text></svg>`,
+      rhombus: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" width="260" height="180"><polygon points="130,20 230,90 130,160 30,90" fill="%23fefce8" stroke="%23ca8a04" stroke-width="2.5"/><line x1="30" y1="90" x2="230" y2="90" stroke="%2364748b" stroke-width="1.8" stroke-dasharray="4,4"/><line x1="130" y1="20" x2="130" y2="160" stroke="%2364748b" stroke-width="1.8" stroke-dasharray="4,4"/><polyline points="130,80 140,80 140,90" fill="none" stroke="%23ef4444" stroke-width="1.6"/><text x="125" y="14" font-weight="bold" fill="%230f172a">A</text><text x="238" y="95" font-weight="bold" fill="%230f172a">B</text><text x="125" y="176" font-weight="bold" fill="%230f172a">C</text><text x="15" y="95" font-weight="bold" fill="%230f172a">D</text><text x="134" y="105" font-size="12" font-weight="bold" fill="%232563eb">O</text><text x="75" y="85" font-size="11.5" fill="%23475569">d₁ = 6</text><text x="136" y="55" font-size="11.5" fill="%23475569">d₂ = 8</text></svg>`,
+      midlineTriangle: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" width="260" height="180"><polygon points="130,25 220,155 40,155" fill="%23f5f3ff" stroke="%237c3aed" stroke-width="2.5"/><line x1="85" y1="90" x2="175" y2="90" stroke="%23dc2626" stroke-width="2.5"/><circle cx="85" cy="90" r="3.5" fill="%23dc2626"/><circle cx="175" cy="90" r="3.5" fill="%23dc2626"/><text x="125" y="18" font-weight="bold" fill="%230f172a">A</text><text x="228" y="162" font-weight="bold" fill="%230f172a">C</text><text x="25" y="162" font-weight="bold" fill="%230f172a">B</text><text x="65" y="93" font-weight="bold" fill="%23dc2626">M</text><text x="183" y="93" font-weight="bold" fill="%23dc2626">N</text><text x="110" y="83" font-size="12" font-weight="bold" fill="%23dc2626">MN // BC</text></svg>`,
+      altitudeTriangle: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" width="260" height="180"><polygon points="40,145 220,145 90,45" fill="%23eff6ff" stroke="%232563eb" stroke-width="2.5"/><line x1="90" y1="45" x2="90" y2="145" stroke="%23dc2626" stroke-width="2.2"/><polyline points="90,132 103,132 103,145" fill="none" stroke="%23dc2626" stroke-width="1.8"/><polyline points="80,55 90,65 100,55" fill="none" stroke="%232563eb" stroke-width="1.6"/><text x="85" y="35" font-weight="bold" fill="%230f172a">A</text><text x="25" y="152" font-weight="bold" fill="%230f172a">B</text><text x="228" y="152" font-weight="bold" fill="%230f172a">C</text><text x="85" y="165" font-weight="bold" fill="%23dc2626">H</text></svg>`,
+      circleAngles: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 190" width="260" height="190"><circle cx="130" cy="95" r="70" fill="%23f8fafc" stroke="%230284c7" stroke-width="2.2"/><circle cx="130" cy="95" r="3" fill="%230f172a"/><line x1="130" y1="95" x2="75" y2="135" stroke="%230284c7" stroke-width="2"/><line x1="130" y1="95" x2="185" y2="135" stroke="%230284c7" stroke-width="2"/><line x1="130" y1="25" x2="75" y2="135" stroke="%23dc2626" stroke-width="2"/><line x1="130" y1="25" x2="185" y2="135" stroke="%23dc2626" stroke-width="2"/><text x="125" y="112" font-size="12" font-weight="bold" fill="%230f172a">O</text><text x="60" y="145" font-weight="bold" fill="%230f172a">A</text><text x="192" y="145" font-weight="bold" fill="%230f172a">B</text><text x="125" y="18" font-weight="bold" fill="%23dc2626">M</text></svg>`
+    };
+
     const MathQuestionDB = {
       '6': {
         'algebra': [
-          { q: "Tính giá trị của biểu thức: 5² - 3 x 4", options: ["A. 8", "B. 13", "C. 88", "D. 12"], ans: 1 },
-          { q: "Tìm số nguyên x thỏa mãn: x + 7 = -3", options: ["A. x = 10", "B. x = 4", "C. x = -10", "D. x = -4"], ans: 2 },
+          { q: "Tính giá trị của biểu thức: $5^2 - 3 \\times 4$", options: ["A. 8", "B. 13", "C. 88", "D. 12"], ans: 1 },
+          { q: "Tìm số nguyên $x$ thỏa mãn: $x + 7 = -3$", options: ["A. $x = 10$", "B. $x = 4$", "C. $x = -10$", "D. $x = -4$"], ans: 2 },
           { q: "Ước chung lớn nhất của 12 và 18 là gì?", options: ["A. 2", "B. 3", "C. 6", "D. 36"], ans: 2 },
-          { q: "Số đối của số nguyên -15 là:", options: ["A. -15", "B. 15", "C. 0", "D. 1/15"], ans: 1 },
-          { q: "Tính chất phân phối của phép nhân đối với phép cộng: a(b + c) = ?", options: ["A. ab + ac", "B. ab + c", "C. abc", "D. a + b + c"], ans: 0 },
+          { q: "Số đối của số nguyên $-15$ là:", options: ["A. $-15$", "B. $15$", "C. $0$", "D. $\\frac{1}{15}$"], ans: 1 },
+          { q: "Tính chất phân phối của phép nhân đối với phép cộng: $a(b + c) = ?$", options: ["A. $ab + ac$", "B. $ab + c$", "C. $abc$", "D. $a + b + c$"], ans: 0 },
           { q: "Bội chung nhỏ nhất của 6 và 8 là:", options: ["A. 12", "B. 48", "C. 24", "D. 14"], ans: 2 },
           { q: "Số nguyên tố nhỏ nhất là số nào?", options: ["A. 0", "B. 1", "C. 2", "D. 3"], ans: 2 }
         ],
         'geometry': [
-          { q: "Chu vi của một hình vuông có cạnh 5cm là:", options: ["A. 10cm", "B. 20cm", "C. 25cm", "D. 15cm"], ans: 1 },
+          { q: "Chu vi của một hình vuông có cạnh $a = 5\\text{ cm}$ (như hình bên) là:", image: MathGeometrySVGs.square, options: ["A. 10 cm", "B. 20 cm", "C. 25 cm", "D. 15 cm"], ans: 1 },
           { q: "Hình nào dưới đây có tâm đối xứng?", options: ["A. Tam giác đều", "B. Hình vuông", "C. Hình thang cân", "D. Hình tam giác vuông"], ans: 1 },
-          { q: "Diện tích hình chữ nhật có chiều dài 6cm và chiều rộng 4cm là:", options: ["A. 10 cm²", "B. 20 cm²", "C. 24 cm²", "D. 12 cm²"], ans: 2 },
+          { q: "Diện tích hình chữ nhật có chiều dài 6 cm và chiều rộng 4 cm là:", options: ["A. $10\\text{ cm}^2$", "B. $20\\text{ cm}^2$", "C. $24\\text{ cm}^2$", "D. $12\\text{ cm}^2$"], ans: 2 },
           { q: "Tam giác đều có mấy trục đối xứng?", options: ["A. 1 trục", "B. 2 trục", "C. 3 trục", "D. Không có"], ans: 2 },
-          { q: "Hình thoi có hai đường chéo dài 6cm và 8cm. Diện tích là:", options: ["A. 48 cm²", "B. 24 cm²", "C. 14 cm²", "D. 28 cm²"], ans: 1 }
+          { q: "Hình thoi $ABCD$ có hai đường chéo $d_1 = 6\\text{ cm}$ và $d_2 = 8\\text{ cm}$ (như hình vẽ). Diện tích là:", image: MathGeometrySVGs.rhombus, options: ["A. $48\\text{ cm}^2$", "B. $24\\text{ cm}^2$", "C. $14\\text{ cm}^2$", "D. $28\\text{ cm}^2$"], ans: 1 }
         ]
       },
       '7': {
         'algebra': [
-          { q: "Tính giá trị của đa thức: P(x) = x² - 3 khi x = -2", options: ["A. 1", "B. -7", "C. -1", "D. 7"], ans: 0 },
-          { q: "Tỉ lệ thức: x/4 = 3/2. Giá trị của x là:", options: ["A. 6", "B. 8", "C. 2", "D. 12"], ans: 0 },
-          { q: "Bậc của đa thức x³y² - 5x⁴ + 1 là:", options: ["A. 3", "B. 4", "C. 5", "D. 6"], ans: 2 },
-          { q: "Tích của hai đơn thức (2x²y) và (-3xy³) là:", options: ["A. -6x²y³", "B. -6x³y⁴", "C. 5x³y⁴", "D. -6x³y³"], ans: 1 },
-          { q: "Nghiệm của đa thức 2x - 6 là:", options: ["A. x = -3", "B. x = 3", "C. x = 0", "D. x = 6"], ans: 1 },
-          { q: "Căn bậc hai số học của 49 là:", options: ["A. 7", "B. -7", "C. ±7", "D. 2401"], ans: 0 }
+          { q: "Tính giá trị của đa thức: $P(x) = x^2 - 3$ khi $x = -2$", options: ["A. 1", "B. -7", "C. -1", "D. 7"], ans: 0 },
+          { q: "Tỉ lệ thức: $\\frac{x}{4} = \\frac{3}{2}$. Giá trị của $x$ là:", options: ["A. $x = 6$", "B. $x = 8$", "C. $x = 2$", "D. $x = 12$"], ans: 0 },
+          { q: "Bậc của đa thức $x^3y^2 - 5x^4 + 1$ là:", options: ["A. 3", "B. 4", "C. 5", "D. 6"], ans: 2 },
+          { q: "Tích của hai đơn thức $(2x^2y)$ và $(-3xy^3)$ là:", options: ["A. $-6x^2y^3$", "B. $-6x^3y^4$", "C. $5x^3y^4$", "D. $-6x^3y^3$"], ans: 1 },
+          { q: "Nghiệm của đa thức $2x - 6 = 0$ là:", options: ["A. $x = -3$", "B. $x = 3$", "C. $x = 0$", "D. $x = 6$"], ans: 1 },
+          { q: "Căn bậc hai số học của số 49 là:", options: ["A. $\\sqrt{49} = 7$", "B. $-7$", "C. $\\pm 7$", "D. 2401"], ans: 0 }
         ],
         'geometry': [
-          { q: "Tam giác có độ dài ba cạnh nào sau đây là tam giác vuông?", options: ["A. 3cm, 4cm, 5cm", "B. 2cm, 3cm, 4cm", "C. 5cm, 5cm, 8cm", "D. 4cm, 5cm, 6cm"], ans: 0 },
+          { q: "Quan sát hình vẽ tam giác vuông $ABC$ có hai cạnh góc vuông 3 cm và 4 cm. Độ dài cạnh huyền $BC$ là:", image: MathGeometrySVGs.rightTriangle, options: ["A. 5 cm", "B. 6 cm", "C. 7 cm", "D. 8 cm"], ans: 0 },
           { q: "Giao điểm của ba đường trung trực của một tam giác cách đều:", options: ["A. Ba cạnh", "B. Ba đỉnh", "C. Hai đỉnh", "D. Trọng tâm"], ans: 1 },
-          { q: "Tổng ba góc trong của một tam giác bất kỳ bằng:", options: ["A. 90 độ", "B. 180 độ", "C. 360 độ", "D. 270 độ"], ans: 1 },
+          { q: "Tổng ba góc trong của một tam giác bất kỳ bằng:", options: ["A. $90^\\circ$", "B. $180^\\circ$", "C. $360^\\circ$", "D. $270^\\circ$"], ans: 1 },
           { q: "Giao điểm của ba đường cao trong một tam giác gọi là gì?", options: ["A. Trọng tâm", "B. Trực tâm", "C. Tâm ngoại tiếp", "D. Tâm nội tiếp"], ans: 1 },
           { q: "Trọng tâm của tam giác là giao điểm của ba đường nào?", options: ["A. Ba đường trung tuyến", "B. Ba đường cao", "C. Ba đường phân giác", "D. Ba đường trung trực"], ans: 0 }
         ]
       },
       '8': {
         'algebra': [
-          { q: "Khai triển hằng đẳng thức đáng nhớ: (x - y)² = ?", options: ["A. x² - y²", "B. x² - 2xy + y²", "C. x² + 2xy + y²", "D. (x-y)(x+y)"], ans: 1 },
-          { q: "Phân tích đa thức thành nhân tử: x² - 4 = ?", options: ["A. (x - 2)²", "B. (x - 2)(x + 2)", "C. (x + 2)²", "D. x(x - 4)"], ans: 1 },
-          { q: "Mẫu thức chung nhỏ nhất của hai phân thức 1/(x-1) và 1/(x+1) là:", options: ["A. x - 1", "B. x + 1", "C. x² - 1", "D. x² + 1"], ans: 2 },
-          { q: "Phân tích đa thức thành nhân tử: x² - 2x + 1 = ?", options: ["A. (x + 1)²", "B. (x - 1)²", "C. (x - 1)(x + 1)", "D. x(x - 2) + 1"], ans: 1 },
-          { q: "Phân tích đa thức thành nhân tử: 3x² + 6x = ?", options: ["A. 3x(x + 2)", "B. 3(x² + 2x)", "C. 3x(x + 3)", "D. 3(x + 2)"], ans: 0 },
-          { q: "Khai triển hằng đẳng thức hiệu hai lập phương: x³ - 8 = ?", options: ["A. (x - 2)(x² + 2x + 4)", "B. (x - 2)(x² - 2x + 4)", "C. (x - 2)³", "D. (x + 2)(x² - 2x + 4)"], ans: 0 },
-          { q: "Phương trình 2x + 4 = 0 có tập nghiệm là:", options: ["A. S = {2}", "B. S = {-2}", "C. S = {4}", "D. S = {-4}"], ans: 1 }
+          { q: "Khai triển hằng đẳng thức đáng nhớ: $(x - y)^2 = ?$", options: ["A. $x^2 - y^2$", "B. $x^2 - 2xy + y^2$", "C. $x^2 + 2xy + y^2$", "D. $(x-y)(x+y)$"], ans: 1 },
+          { q: "Phân tích đa thức thành nhân tử: $x^2 - 4 = ?$", options: ["A. $(x - 2)^2$", "B. $(x - 2)(x + 2)$", "C. $(x + 2)^2$", "D. $x(x - 4)$"], ans: 1 },
+          { q: "Mẫu thức chung nhỏ nhất của hai phân thức $\\frac{1}{x-1}$ và $\\frac{1}{x+1}$ là:", options: ["A. $x - 1$", "B. $x + 1$", "C. $x^2 - 1$", "D. $x^2 + 1$"], ans: 2 },
+          { q: "Phân tích đa thức thành nhân tử: $x^2 - 2x + 1 = ?$", options: ["A. $(x + 1)^2$", "B. $(x - 1)^2$", "C. $(x - 1)(x + 1)$", "D. $x(x - 2) + 1$"], ans: 1 },
+          { q: "Phân tích đa thức thành nhân tử: $3x^2 + 6x = ?$", options: ["A. $3x(x + 2)$", "B. $3(x^2 + 2x)$", "C. $3x(x + 3)$", "D. $3(x + 2)$"], ans: 0 },
+          { q: "Khai triển hằng đẳng thức hiệu hai lập phương: $x^3 - 8 = ?$", options: ["A. $(x - 2)(x^2 + 2x + 4)$", "B. $(x - 2)(x^2 - 2x + 4)$", "C. $(x - 2)^3$", "D. $(x + 2)(x^2 - 2x + 4)$"], ans: 0 },
+          { q: "Phương trình $2x + 4 = 0$ có tập nghiệm là:", options: ["A. $S = \\{2\\}$", "B. $S = \\{-2\\}$", "C. $S = \\{4\\}$", "D. $S = \\{-4\\}$"], ans: 1 }
         ],
         'geometry': [
           { q: "Hình bình hành có một góc vuông là hình gì?", options: ["A. Hình thoi", "B. Hình chữ nhật", "C. Hình vuông", "D. Hình thang cân"], ans: 1 },
-          { q: "Đường trung bình của tam giác có tính chất gì?", options: ["A. Song song với cạnh đáy và bằng nửa cạnh ấy", "B. Vuông góc với cạnh đáy", "C. Bằng 2/3 cạnh đáy", "D. Song song và bằng cạnh đáy"], ans: 0 },
+          { q: "Cho tam giác $ABC$, $MN$ là đường trung bình (như hình vẽ bên). Khẳng định nào đúng?", image: MathGeometrySVGs.midlineTriangle, options: ["A. $MN \\parallel BC$ và $MN = \\frac{1}{2}BC$", "B. $MN \\perp BC$", "C. $MN = \\frac{2}{3}BC$", "D. $MN = BC$"], ans: 0 },
           { q: "Tứ giác có bốn cạnh bằng nhau là hình gì?", options: ["A. Hình vuông", "B. Hình chữ nhật", "C. Hình thoi", "D. Hình bình hành"], ans: 2 },
           { q: "Hình thoi có hai đường chéo bằng nhau là hình gì?", options: ["A. Hình bình hành", "B. Hình vuông", "C. Hình chữ nhật", "D. Hình thang"], ans: 1 },
-          { q: "Tổng các góc trong của một tứ giác lồi bằng:", options: ["A. 180 độ", "B. 270 độ", "C. 360 độ", "D. 540 độ"], ans: 2 }
+          { q: "Tổng các góc trong của một tứ giác lồi bằng:", options: ["A. $180^\\circ$", "B. $270^\\circ$", "C. $360^\\circ$", "D. $540^\\circ$"], ans: 2 }
         ]
       },
       '9': {
         'algebra': [
-          { q: "Căn bậc hai số học của số 16 là:", options: ["A. 4", "B. -4", "C. ±4", "D. 256"], ans: 0 },
-          { q: "Hệ phương trình { x + y = 3, x - y = 1 } có nghiệm (x; y) là:", options: ["A. (2; 1)", "B. (1; 2)", "C. (2; -1)", "D. (3; 0)"], ans: 0 },
-          { q: "Biệt thức Δ của phương trình bậc hai ax² + bx + c = 0 (a ≠ 0) là:", options: ["A. b² - ac", "B. b² - 4ac", "C. b - 4ac", "D. b² + 4ac"], ans: 1 },
-          { q: "Phương trình x² - 5x + 6 = 0 có hai nghiệm là:", options: ["A. 1 và 6", "B. 2 và 3", "C. -2 và -3", "D. 1 và 5"], ans: 1 },
-          { q: "Theo định lý Vi-ét, tổng hai nghiệm x₁ + x₂ của phương trình ax² + bx + c = 0 là:", options: ["A. -b/a", "B. b/a", "C. c/a", "D. -c/a"], ans: 0 },
-          { q: "Điều kiện xác định của biểu thức √(2x - 4) là:", options: ["A. x ≥ 2", "B. x > 2", "C. x ≤ 2", "D. x < 2"], ans: 0 }
+          { q: "Căn bậc hai số học của số 16 là:", options: ["A. $\\sqrt{16} = 4$", "B. $-4$", "C. $\\pm 4$", "D. $256$"], ans: 0 },
+          { q: "Hệ phương trình $\\begin{cases} x + y = 3 \\\\ x - y = 1 \\end{cases}$ có nghiệm $(x; y)$ là:", options: ["A. $(2; 1)$", "B. $(1; 2)$", "C. $(2; -1)$", "D. $(3; 0)$"], ans: 0 },
+          { q: "Biệt thức $\\Delta$ của phương trình bậc hai $ax^2 + bx + c = 0$ ($a \\ne 0$) là:", options: ["A. $\\Delta = b^2 - ac$", "B. $\\Delta = b^2 - 4ac$", "C. $\\Delta = b - 4ac$", "D. $\\Delta = b^2 + 4ac$"], ans: 1 },
+          { q: "Phương trình $x^2 - 5x + 6 = 0$ có hai nghiệm là:", options: ["A. $x_1 = 1, x_2 = 6$", "B. $x_1 = 2, x_2 = 3$", "C. $x_1 = -2, x_2 = -3$", "D. $x_1 = 1, x_2 = 5$"], ans: 1 },
+          { q: "Theo định lý Vi-ét, tổng hai nghiệm $x_1 + x_2$ của phương trình $ax^2 + bx + c = 0$ là:", options: ["A. $-\\frac{b}{a}$", "B. $\\frac{b}{a}$", "C. $\\frac{c}{a}$", "D. $-\\frac{c}{a}$"], ans: 0 },
+          { q: "Điều kiện xác định của biểu thức $\\sqrt{2x - 4}$ là:", options: ["A. $x \\ge 2$", "B. $x > 2$", "C. $x \\le 2$", "D. $x < 2$"], ans: 0 }
         ],
         'geometry': [
-          { q: "Cho tam giác ABC vuông tại A, đường cao AH. Hệ thức lượng nào đúng?", options: ["A. AH² = HB x HC", "B. AB² = AH x BC", "C. AC² = HB x BC", "D. AH = HB x HC"], ans: 0 },
-          { q: "Trong một đường tròn, góc nội tiếp có số đo bằng:", options: ["A. Góc ở tâm cùng chắn cung đó", "B. Một nửa số đo góc ở tâm cùng chắn cung đó", "C. Số đo cung bị chắn", "D. Gấp đôi số đo góc ở tâm"], ans: 1 },
-          { q: "Độ dài đường tròn bán kính R được tính theo công thức:", options: ["A. C = πR²", "B. C = 2πR", "C. C = πR", "D. C = 2πR²"], ans: 1 },
-          { q: "Tứ giác nội tiếp đường tròn có tổng hai góc đối diện bằng:", options: ["A. 90 độ", "B. 180 độ", "C. 360 độ", "D. 270 độ"], ans: 1 },
+          { q: "Cho tam giác $ABC$ vuông tại $A$, đường cao $AH$ (như hình bên). Hệ thức lượng nào đúng?", image: MathGeometrySVGs.altitudeTriangle, options: ["A. $AH^2 = HB \\times HC$", "B. $AB^2 = AH \\times BC$", "C. $AC^2 = HB \\times BC$", "D. $AH = HB \\times HC$"], ans: 0 },
+          { q: "Quan sát đường tròn $(O)$ (như hình vẽ bên). Góc nội tiếp $\\widehat{AMB}$ và góc ở tâm $\\widehat{AOB}$ có mối liên hệ gì?", image: MathGeometrySVGs.circleAngles, options: ["A. $\\widehat{AMB} = \\frac{1}{2}\\widehat{AOB}$", "B. $\\widehat{AMB} = \\widehat{AOB}$", "C. $\\widehat{AMB} = 2\\widehat{AOB}$", "D. $\\widehat{AMB} + \\widehat{AOB} = 180^\\circ$"], ans: 0 },
+          { q: "Độ dài đường tròn bán kính $R$ được tính theo công thức:", options: ["A. $C = \\pi R^2$", "B. $C = 2\\pi R$", "C. $C = \\pi R$", "D. $C = 2\\pi R^2$"], ans: 1 },
+          { q: "Tứ giác nội tiếp đường tròn có tổng hai góc đối diện bằng:", options: ["A. $90^\\circ$", "B. $180^\\circ$", "C. $360^\\circ$", "D. $270^\\circ$"], ans: 1 },
           { q: "Góc tạo bởi tia tiếp tuyến và dây cung có số đo bằng:", options: ["A. Nửa số đo cung bị chắn", "B. Số đo cung bị chắn", "C. Nửa góc bẹt", "D. Số đo góc ở tâm"], ans: 0 }
         ]
       }
     };
 
     /* ═══════════════════════════════════════════════
-       3. HỆ THỐNG TRÍCH XUẤT VĂN BẢN TỪ FILE PDF (PDF.JS)
+       3. HỆ THỐNG TRÍCH XUẤT VĂN BẢN VÀ HÌNH ẢNH TỪ FILE PDF (PDF.JS)
     ═══════════════════════════════════════════════════ */
     const PdfExtractor = {
       isInitialized: false,
@@ -1904,6 +2218,7 @@ D. x = -4"></textarea>
         const loadingTask = window.pdfjsLib.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
         let fullText = '';
+        const allImages = [];
 
         for (let i = 1; i <= pdf.numPages; i++) {
           if (onProgress) onProgress(i, pdf.numPages);
@@ -1936,9 +2251,62 @@ D. x = -4"></textarea>
             lastY = it.y;
           }
           fullText += `\n--- TRANG ${i} ---\n` + pageText + '\n';
+
+          // Trích xuất hình ảnh từ trang PDF nếu có
+          try {
+            const opList = await page.getOperatorList();
+            const fnArray = opList.fnArray;
+            const argsArray = opList.argsArray;
+            const OPS = window.pdfjsLib.OPS || {};
+
+            for (let j = 0; j < fnArray.length; j++) {
+              if (fnArray[j] === OPS.paintImageXObject || fnArray[j] === OPS.paintInlineImageXObject) {
+                const imgKey = argsArray[j][0];
+                const imgObj = await new Promise((res) => {
+                  if (page.objs && page.objs.get) {
+                    page.objs.get(imgKey, (o) => res(o));
+                  } else if (page.commonObjs && page.commonObjs.get) {
+                    page.commonObjs.get(imgKey, (o) => res(o));
+                  } else {
+                    res(null);
+                  }
+                });
+
+                if (imgObj && (imgObj.bitmap || imgObj.data)) {
+                  const canvas = document.createElement('canvas');
+                  canvas.width = imgObj.width || 300;
+                  canvas.height = imgObj.height || 200;
+                  const ctx = canvas.getContext('2d');
+                  if (imgObj.bitmap) {
+                    ctx.drawImage(imgObj.bitmap, 0, 0);
+                  } else if (imgObj.data) {
+                    const imgData = ctx.createImageData(canvas.width, canvas.height);
+                    if (imgObj.data.length === canvas.width * canvas.height * 3) {
+                      let s = 0, d = 0;
+                      while (s < imgObj.data.length) {
+                        imgData.data[d] = imgObj.data[s];
+                        imgData.data[d + 1] = imgObj.data[s + 1];
+                        imgData.data[d + 2] = imgObj.data[s + 2];
+                        imgData.data[d + 3] = 255;
+                        s += 3; d += 4;
+                      }
+                    } else {
+                      const len = Math.min(imgData.data.length, imgObj.data.length);
+                      imgData.data.set(imgObj.data.subarray(0, len));
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+                  }
+                  const dataUrl = canvas.toDataURL('image/png');
+                  if (dataUrl && dataUrl.length > 200) {
+                    allImages.push({ pageNum: i, dataUrl });
+                  }
+                }
+              }
+            }
+          } catch(e) {}
         }
 
-        return { fullText, numPages: pdf.numPages };
+        return { fullText, numPages: pdf.numPages, images: allImages };
       }
     };
 
@@ -2551,6 +2919,23 @@ Quy tắc bắt buộc:
             return;
           }
 
+          // Tự động liên kết hình ảnh trích xuất từ PDF vào câu hỏi hình học tương ứng
+          if (res.images && res.images.length > 0) {
+            let imgCursor = 0;
+            questions.forEach(q => {
+              const hasImgKeyword = /(?:hình\s*(?:vẽ|bên|sau|dưới|\d+)|đồ\s*thị|sơ\s*đồ|tam\s*giác\s*[A-D]|tứ\s*giác\s*[A-D])/i.test(q.q);
+              if (hasImgKeyword && !q.image && imgCursor < res.images.length) {
+                q.image = res.images[imgCursor].dataUrl;
+                imgCursor++;
+              }
+            });
+            // Nếu câu hỏi chưa có ảnh nào mà PDF có ảnh, gán ảnh đầu tiên vào câu hình học đầu tiên
+            if (imgCursor === 0 && res.images.length > 0) {
+              const firstGeomQ = questions.find(q => /(?:tam giác|tứ giác|hình|đoạn thẳng|góc)/i.test(q.q));
+              if (firstGeomQ) firstGeomQ.image = res.images[0].dataUrl;
+            }
+          }
+
           this.parsedQuestions = questions;
           const standardText = SmartQuizParser.toStandardText(questions);
           document.getElementById('txtCustomQuestions').value = standardText;
@@ -2558,7 +2943,8 @@ Quy tắc bắt buộc:
           banner.style.borderColor = '#10b981';
           banner.style.color = '#6ee7b7';
           const prefix = useAI ? "✨ Gemini AI đã" : "✓ Đã";
-          statusText.innerText = `${prefix} trích xuất thành công ${questions.length} câu hỏi từ file "${file.name}"!`;
+          const imgNotice = (res.images && res.images.length > 0) ? ` & trích xuất được ${res.images.length} hình vẽ` : '';
+          statusText.innerText = `${prefix} trích xuất thành công ${questions.length} câu hỏi${imgNotice} từ file "${file.name}"!`;
           pageInfo.innerText = `Số trang: ${res.numPages} | Dung lượng: ${(file.size / 1024).toFixed(1)} KB`;
 
           this.renderPreview();
@@ -2605,6 +2991,63 @@ Quy tắc bắt buộc:
             this.renderPreview();
           };
 
+          card.appendChild(titleRow);
+
+          // Khung hiển thị / quản lý hình vẽ cho câu hỏi
+          if (item.image) {
+            const imgBox = document.createElement('div');
+            imgBox.className = 'preview-q-image-box';
+
+            const thumbImg = document.createElement('img');
+            thumbImg.className = 'preview-q-thumb';
+            thumbImg.src = item.image;
+            thumbImg.title = 'Nhấp để phóng to toàn màn hình';
+            thumbImg.onclick = () => MillionaireGame.zoomImage(item.image);
+
+            const infoSpan = document.createElement('span');
+            infoSpan.style.cssText = 'font-size: 11.5px; color: #93c5fd; font-weight: 600;';
+            infoSpan.innerText = '✓ Có hình vẽ minh họa đính kèm';
+
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'btn-attach-img';
+            delBtn.style.cssText = 'color: #fca5a5; border-color: #ef4444; margin-left: auto;';
+            delBtn.title = 'Xóa ảnh';
+            delBtn.innerText = '🗑 Xóa hình';
+            delBtn.onclick = () => {
+              delete item.image;
+              document.getElementById('txtCustomQuestions').value = SmartQuizParser.toStandardText(this.parsedQuestions);
+              this.renderPreview();
+            };
+
+            imgBox.appendChild(thumbImg);
+            imgBox.appendChild(infoSpan);
+            imgBox.appendChild(delBtn);
+            card.appendChild(imgBox);
+          } else {
+            const addImgBox = document.createElement('div');
+            addImgBox.style.margin = '6px 0 8px 0';
+            addImgBox.innerHTML = `
+              <label class="btn-attach-img" style="cursor: pointer;">
+                📷 Đính kèm hình vẽ cho câu ${qIdx + 1}
+                <input type="file" accept="image/*" style="display: none;" class="preview-img-input">
+              </label>
+            `;
+            const fileInput = addImgBox.querySelector('.preview-img-input');
+            fileInput.onchange = (e) => {
+              if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (re) => {
+                  item.image = re.target.result;
+                  document.getElementById('txtCustomQuestions').value = SmartQuizParser.toStandardText(this.parsedQuestions);
+                  this.renderPreview();
+                };
+                reader.readAsDataURL(e.target.files[0]);
+              }
+            };
+            card.appendChild(addImgBox);
+          }
+
           const optGrid = document.createElement('div');
           optGrid.className = 'preview-opt-grid';
 
@@ -2626,9 +3069,11 @@ Quy tắc bắt buộc:
             optGrid.appendChild(optBtn);
           });
 
-          card.appendChild(titleRow);
           card.appendChild(optGrid);
           container.appendChild(card);
+
+          // Render công thức Toán học KaTeX trên toàn bộ thẻ xem trước
+          MathRenderer.render(card);
         });
       }
     };
@@ -2696,6 +3141,9 @@ Quy tắc bắt buộc:
 
         // Lắng nghe phím tắt thuận tiện cho giáo viên trên lớp
         window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            this.closeZoomImage();
+          }
           if (document.getElementById('modalCustomQ').style.display === 'flex') return;
           const key = e.key.toLowerCase();
           if (key === '1' || key === 'a') this.selectOption(0);
@@ -2932,15 +3380,29 @@ Quy tắc bắt buộc:
         const topicText = topicVal === 'algebra' ? 'Đại Số' : (topicVal === 'geometry' ? 'Hình Học' : 'Toán Học Tổng Hợp');
         document.getElementById('milBadgeTopic').innerText = topicText;
 
-        document.getElementById('milQuestionText').innerHTML = q.q;
+        const qContentEl = document.getElementById('milQuestionText');
+        qContentEl.innerHTML = MathRenderer.formatRawMath(q.q);
+        MathRenderer.render(qContentEl);
 
-        // Cập nhật 4 đáp án A, B, C, D
+        // Hiển thị hình vẽ minh họa toán học nếu có
+        const qImgWrap = document.getElementById('milQImageWrap');
+        const qImg = document.getElementById('milQImage');
+        if (q.image) {
+          qImg.src = q.image;
+          qImgWrap.style.display = 'flex';
+        } else {
+          qImgWrap.style.display = 'none';
+          qImg.src = '';
+        }
+
+        // Cập nhật 4 đáp án A, B, C, D & render công thức toán học
         document.querySelectorAll('.mil-option').forEach((btn, i) => {
           btn.className = 'mil-option';
           const textEl = document.getElementById(`milOpt${i}`);
           if (textEl && q.options[i]) {
-            // Lược bỏ tiền tố "A. " nếu có sẵn trong đề
-            textEl.innerText = q.options[i].replace(/^[A-D]\.\s*/i, '');
+            let optClean = q.options[i].replace(/^[A-D]\.\s*/i, '');
+            textEl.innerHTML = MathRenderer.formatRawMath(optClean);
+            MathRenderer.render(textEl);
           }
         });
 
@@ -2957,6 +3419,21 @@ Quy tắc bắt buộc:
 
         this.updateGridActive();
         this.updateLadder(idx + 1);
+      },
+
+      zoomImage(src) {
+        if (!src) return;
+        const modal = document.getElementById('modalImageZoom');
+        const target = document.getElementById('zoomImageTarget');
+        if (modal && target) {
+          target.src = src;
+          modal.style.display = 'flex';
+        }
+      },
+
+      closeZoomImage() {
+        const modal = document.getElementById('modalImageZoom');
+        if (modal) modal.style.display = 'none';
       },
 
       updateGridActive() {

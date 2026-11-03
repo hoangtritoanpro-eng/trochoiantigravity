@@ -278,6 +278,58 @@ const MilAudio = {
   }
 };
 
+// Bộ render công thức toán LaTeX & fallback
+const MathRenderer = {
+  formatRawMath(text) {
+    if (!text) return '';
+    let s = String(text);
+    if (/\$[^$]+\$|\\\([^\)]+\\\)|\\\[[^\]]+\\\]/.test(s)) return s;
+    s = s.replace(/(\\frac\{[^{}]+\}\{[^{}]+\})/g, '$$$1$$');
+    s = s.replace(/(\\sqrt(?:\[[^{}]+\])?\{[^{}]+\})/g, '$$$1$$');
+    s = s.replace(/([a-zA-Z0-9\)])\^([0-9nkmx\+\-]+)/g, '$$$1^{$2}$$');
+    s = s.replace(/([a-zA-Z])_([0-9ijkm])/g, '$$$1_$2$$');
+    return s;
+  },
+
+  render(container) {
+    if (!container) return;
+    if (typeof window.renderMathInElement === 'function') {
+      try {
+        window.renderMathInElement(container, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "\\[", right: "\\]", display: true }
+          ],
+          throwOnError: false,
+          errorColor: '#ef4444'
+        });
+        return;
+      } catch(e) {}
+    }
+    this.fallbackRender(container);
+  },
+
+  fallbackRender(container) {
+    if (!container) return;
+    let html = container.innerHTML;
+    html = html.replace(/\$([^$]+)\$/g, (m, expr) => {
+      let clean = expr;
+      clean = clean.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '<span class="math-frac"><span class="math-num">$1</span><span class="math-den">$2</span></span>');
+      clean = clean.replace(/\\sqrt\{([^{}]+)\}/g, '<span class="math-sqrt">√<span class="math-radicand">$1</span></span>');
+      clean = clean.replace(/\^\{?([0-9a-zA-Z\+\-]+)\}?/g, '<sup>$1</sup>');
+      clean = clean.replace(/_\{?([0-9a-zA-Z\+\-]+)\}?/g, '<sub>$1</sub>');
+      clean = clean.replace(/\\times/g, '×').replace(/\\div/g, '÷').replace(/\\pm/g, '±');
+      clean = clean.replace(/\\le/g, '≤').replace(/\\ge/g, '≥').replace(/\\ne/g, '≠');
+      clean = clean.replace(/\\approx/g, '≈').replace(/\\pi/g, 'π').replace(/\\Delta/g, 'Δ');
+      clean = clean.replace(/\\angle/g, '∠').replace(/\\circ/g, '°');
+      return clean;
+    });
+    container.innerHTML = html;
+  }
+};
+
 const MillionaireGame = {
   questions: [],
   currentIdx: 0,
@@ -394,12 +446,32 @@ const MillionaireGame = {
     if(topicBadge) topicBadge.innerText = (typeof AppState !== 'undefined' && AppState.topic === 'algebra') ? 'Đại số' : 'Hình học';
     
     const qText = document.getElementById('milQuestionText');
-    if(qText) qText.innerHTML = q.q;
+    if(qText) {
+      qText.innerHTML = MathRenderer.formatRawMath(q.q);
+      MathRenderer.render(qText);
+    }
+
+    // Hiển thị hình ảnh minh họa nếu câu hỏi có ảnh
+    const imgWrap = document.getElementById('milQImageWrap');
+    const imgEl = document.getElementById('milQImage');
+    if (imgWrap && imgEl) {
+      if (q.image) {
+        imgEl.src = q.image;
+        imgWrap.style.display = 'block';
+      } else {
+        imgWrap.style.display = 'none';
+        imgEl.src = '';
+      }
+    }
     
     document.querySelectorAll('.mil-option').forEach((btn, i) => {
       btn.className = 'mil-option';
       const optText = document.getElementById(`milOpt${i}`);
-      if(optText && q.options[i]) optText.innerText = q.options[i].replace(/^[A-D]\.\s*/, ''); // bỏ tiền tố A. B. C. D. nếu có
+      if(optText && q.options[i]) {
+        const cleanOpt = q.options[i].replace(/^[A-D]\.\s*/, '');
+        optText.innerHTML = MathRenderer.formatRawMath(cleanOpt);
+        MathRenderer.render(optText);
+      }
     });
 
     if (q.userAns !== null) {
@@ -412,6 +484,16 @@ const MillionaireGame = {
     }
 
     this.updateGridActive();
+  },
+
+  zoomImage(src) {
+    if (!src) return;
+    const modal = document.getElementById('modalImageZoom');
+    const modalImg = document.getElementById('zoomModalImg');
+    if (modal && modalImg) {
+      modalImg.src = src;
+      modal.style.display = 'flex';
+    }
   },
 
   updateGridActive() {
