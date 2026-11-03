@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infographic Poster: AI LÀ TRIỆU PHÚ - SKY-LINE AISPARK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070d1e;
+      --card-bg: rgba(12, 22, 45, 0.9);
+      --card-border: #00d2ff;
+      --cyan-neon: #00f0ff;
+      --blue-glow: #0077ff;
+      --magenta-neon: #d946ef;
+      --purple-neon: #a855f7;
+      --gold-neon: #facc15;
+      --green-neon: #22c55e;
+      --red-neon: #ef4444;
+      --text-white: #ffffff;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(217, 70, 239, 0.15) 0%, transparent 40%),
+        linear-gradient(to bottom, #050a17, #081126);
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    /* KHUNG POSTER CHUẨN TỶ LỆ 16:9 / INFOGRAPHIC BOARD */
+    .poster-container {
+      width: 1400px;
+      max-width: 100%;
+      background: rgba(8, 16, 36, 0.95);
+      border: 2px solid #00f0ff;
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0, 240, 255, 0.35), inset 0 0 30px rgba(0, 119, 255, 0.2);
+      padding: 24px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Hiệu ứng viền công nghệ */
+    .poster-container::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #00f0ff, #a855f7, #ec4899, #00f0ff);
+      box-shadow: 0 0 15px #00f0ff;
+    }
+
+    /* ═══════════════════════════════
+       HEADER CỦA POSTER
+    ═══════════════════════════════ */
+    .poster-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1.5px solid rgba(0, 240, 255, 0.3);
+      position: relative;
+    }
+
+    .brand-logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #f472b6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      text-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .brand-logo .sub-spark {
+      font-size: 26px;
+      background: linear-gradient(135deg, #f43f5e, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 3px;
+    }
+
+    .header-product-info {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .product-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ai-badge-icon {
+      width: 44px;
+      height: 44px;
+      background: radial-gradient(circle, #0284c7, #0369a1);
+      border: 2px solid #38bdf8;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 18px;
+      color: #fff;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+      transform: rotate(45deg);
+    }
+    .ai-badge-icon span {
+      transform: rotate(-45deg);
+    }
+
+    .product-main-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+    }
+
+    .product-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #e2e8f0;
+      flex-wrap: wrap;
+    }
+    .meta-tag {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid #38bdf8;
+      padding: 3px 10px;
+      border-radius: 12px;
+      color: #7dd3fc;
+    }
+    .meta-tag.highlight {
+      border-color: #f472b6;
+      color: #f472b6;
+    }
+
+    /* ═══════════════════════════════
+       LƯỚI 8 KHỐI CHÍNH (2 HÀNG X 4 CỘT)
+    ═══════════════════════════════ */
+    .infographic-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .info-card {
+      background: rgba(11, 20, 42, 0.85);
+      border: 1.5px solid #0284c7;
+      border-radius: 14px;
+      padding: 14px 14px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(2, 132, 199, 0.12);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .info-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 240, 255, 0.25), inset 0 0 20px rgba(0, 240, 255, 0.15);
+      border-color: var(--cyan-neon);
+    }
+
+    /* Card header có số thứ tự tròn */
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .card-num {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      border: 1.5px solid #38bdf8;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 14px;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.6);
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Item list & text styling */
+    .card-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .bullet-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .bullet-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(14, 165, 233, 0.2);
+      border: 1px solid #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #38bdf8;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .bullet-icon.check {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: #22c55e;
+      color: #4ade80;
+    }
+
+    .bullet-icon.cross {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #f87171;
+    }
+
+    .bullet-text {
+      color: #e2e8f0;
+      flex: 1;
+    }
+    .bullet-text strong {
+      color: #f8fafc;
+    }
+
+    /* KHỐI 2: GIẢI PHÁP - MINI MOCKUP */
+    .mockup-box {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
+      border: 1.5px solid #a855f7;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
+    }
+    .mockup-title {
+      font-weight: 800;
+      font-size: 13px;
+      color: #f0abfc;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .mockup-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .mockup-pill {
+      background: rgba(59, 130, 246, 0.25);
+      border: 1px solid #60a5fa;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #bfdbfe;
+    }
+    .mockup-tools {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 10.5px;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .mockup-tools span {
+      color: #f472b6;
+      font-weight: 800;
+    }
+
+    /* KHỐI 3: QUY TRÌNH BƯỚC */
+    .step-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid #334155;
+      padding: 6px 8px;
+      border-radius: 8px;
+    }
+    .step-badge {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #60a5fa;
+    }
+    .step-content {
+      font-size: 11px;
+      color: #e2e8f0;
+    }
+    .step-content strong {
+      color: #7dd3fc;
+      display: block;
+      margin-bottom: 1px;
+    }
+
+    /* KHỐI 4: SO SÁNH & KẾT QUẢ NỔI BẬT */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .compare-col {
+      border-radius: 8px;
+      padding: 6px;
+      font-size: 10px;
+    }
+    .compare-col.old {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+    .compare-col.new {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+    .compare-header {
+      font-weight: 800;
+      font-size: 10.5px;
+      margin-bottom: 4px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .compare-col.old .compare-header { color: #fca5a5; }
+    .compare-col.new .compare-header { color: #86efac; }
+
+    .stats-highlight-box {
+      background: linear-gradient(135deg, rgba(30, 27, 75, 0.8), rgba(49, 46, 129, 0.8));
+      border: 1px solid #818cf8;
+      border-radius: 8px;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .stats-title {
+      font-size: 10px;
+      font-weight: 800;
+      color: #c7d2fe;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .stats-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .stat-number {
+      font-size: 12px;
+      font-weight: 900;
+      color: #facc15;
+    }
+    .stat-desc {
+      font-size: 8.5px;
+      color: #cbd5e1;
+    }
+
+    /* KHỐI 6: CHI PHÍ & TÍNH BỀN VỮNG */
+    .cost-block {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid #eab308;
+      border-radius: 8px;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cost-icon {
+      font-size: 24px;
+    }
+    .cost-desc {
+      font-size: 11px;
+      color: #fef08a;
+      line-height: 1.35;
+    }
+
+    /* KHỐI 7: AN TOÀN DỮ LIỆU */
+    .shield-badge-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+    .shield-badge {
+      width: 48px;
+      height: 48px;
+      background: radial-gradient(circle, #0284c7, #0f172a);
+      border: 2px solid #38bdf8;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+
+    /* KHỐI 8: MINH CHỨNG */
+    .proof-icons-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .proof-btn {
+      flex: 1;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid #38bdf8;
+      border-radius: 6px;
+      padding: 6px 4px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .proof-btn .icon {
+      font-size: 16px;
+      color: #38bdf8;
+    }
+    .proof-btn .lbl {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+
+    .mockup-preview-img {
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #38bdf8;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      text-align: center;
+    }
+    .mockup-screen-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #facc15;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .mockup-screen-sub {
+      font-size: 9px;
+      color: #94a3b8;
+    }
+
+    /* NÚT THAO TÁC / IN POSTER */
+    .action-bar {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .btn-action {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: 1.5px solid #38bdf8;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: transform 0.15s;
+    }
+    .btn-action:hover {
+      transform: scale(1.04);
+      background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
+    }
+    @media print {
+      body {
+        padding: 0;
+        background: #070d1e;
+      }
+      .poster-container {
+        border: none;
+        box-shadow: none;
+        width: 100%;
+      }
+      .action-bar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="poster-container" id="posterArea">
+    
+    <!-- ═══════════════════════════════
+         HEADER INFOGRAPHIC
+    ═══════════════════════════════ -->
+    <header class="poster-header">
+      <div class="brand-logo-wrap">
+        <div class="brand-logo">
+          <span>SKY-LINE</span>
+          <span class="sub-spark">AISPARK</span>
+        </div>
+      </div>
+
+      <div class="header-product-info">
+        <div class="product-title-row">
+          <div class="ai-badge-icon"><span>AI</span></div>
+          <h1 class="product-main-title">TRÒ CHƠI HỌC TẬP "AI LÀ TRIỆU PHÚ"</h1>
+        </div>
+        <div class="product-meta-row">
+          <span><strong>Tác giả:</strong> Nguyễn Viết Sơn - Nguyễn Thiên Ân</span>
+          <span style="color:#38bdf8;">•</span>
+          <span class="meta-tag">Đơn vị: Tổ Toán - Văn</span>
+          <span class="meta-tag">Bảng A</span>
+          <span class="meta-tag highlight">Nhóm: Đột phá</span>
+          <span style="color:#38bdf8;">•</span>
+          <span><strong>Công cụ AI:</strong> Gemini + Antigravity</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ═══════════════════════════════
+         LƯỚI 8 KHỐI NỘI DUNG (2 HÀNG X 4 CỘT)
+    ═══════════════════════════════ -->
+    <main class="infographic-grid">
+
+      <!-- KHỐI 1: BỐI CẢNH, VẤN ĐỀ -->
+      <section class="info-card">
+        <div class="card-header">
+          <div class="card-num">1</div>
+          <h2 class="card-title">Bối cảnh, vấn đề</h2>
+        </div>
+        <div class="card-body">
+          <div class="bullet-item">
+            <div class="bullet-icon">🎓</div>
+            <div class="bullet-text"><strong>Soạn đề Toán mất nhiều giờ:</strong> Gõ công thức LaTeX, vẽ hình học phức tạp và tạo 4 phương án nhiễu rất tốn thời gian.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon">👥</div>
+            <div class="bullet-text"><strong>Giờ học dễ khô khan:</strong> Học sinh THCS thường e ngại kiểm tra trắc nghiệm giấy truyền thống, giảm động lực tự giác.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon">📄</div>
+            <div class="bullet-text"><strong>Công cụ cũ hạn chế:</strong> Kahoot / Quizizz / PPT khó gõ công thức Toán chuẩn, hay vỡ font, giới hạn kích thước hình vẽ.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon">⚠️</div>
+            <div class="bullet-text"><strong>Nhập liệu thủ công:</strong> Giáo viên phải copy-paste từng câu, khó cá nhân hóa bộ đề theo từng tiết học hoặc khối lớp.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KHỐI 2: GIẢI PHÁP -->
+      <section class="info-card">
+        <div class="card-header">
+          <div class="card-num">2</div>
+          <h2 class="card-title">Giải pháp</h2>
+        </div>
+        <div class="card-body">
+          <div style="font-size: 11px; color: #93c5fd; font-weight: 600; margin-bottom: 2px;">
+            "AI Là Triệu Phú" là hệ thống trò chơi học tập Toán học All-in-One tích hợp AI:
+          </div>
+          <div class="mockup-box">
+            <div class="mockup-title">AI LÀ TRIỆU PHÚ TOÁN HỌC</div>
+            <div class="mockup-features">
+              <div class="mockup-pill">⚡ Nạp PDF 1-Click</div>
+              <div class="mockup-pill">📐 KaTeX & SVG Chuẩn</div>
+              <div class="mockup-pill">🔍 Zoom Ảnh Toàn Màn</div>
+              <div class="mockup-pill">👑 Tháp Thưởng Động</div>
+            </div>
+            <div class="mockup-tools">
+              Công cụ AI sử dụng: <span>Gemini 3.8 Flash + Antigravity</span>
+            </div>
+          </div>
+          <div class="bullet-item" style="margin-top: 4px;">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text">Tự động đọc nội dung file PDF đề thi và trích xuất hình vẽ sơ đồ vào câu hỏi.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text">Gemini AI tự động chuẩn hóa cú pháp, giải toán và phân bổ 4 phương án A-B-C-D.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KHỐI 3: TRIỂN KHAI TẠI SKY-LINE -->
+      <section class="info-card">
+        <div class="card-header">
+          <div class="card-num">3</div>
+          <h2 class="card-title">Triển khai tại Sky-Line</h2>
+        </div>
+        <div class="card-body">
+          <div class="step-box">
+            <div class="step-badge">01</div>
+            <div class="step-content">
+              <strong>Lập trình siêu tốc với Antigravity:</strong>
+              Xây dựng giao diện Dark Blue & Gold, engine KaTeX toán học, âm thanh kép và bộ đọc PDF.
+            </div>
+          </div>
+          <div class="step-box">
+            <div class="step-badge">02</div>
+            <div class="step-content">
+              <strong>Tích hợp Trí tuệ nhân tạo Gemini AI:</strong>
+              Kết nối model Gemini 3.8 Flash tự động đọc hiểu đề thi, chuẩn hóa câu hỏi chỉ trong vài giây.
+            </div>
+          </div>
+          <div class="step-box">
+            <div class="step-badge">03</div>
+            <div class="step-content">
+              <strong>Ứng dụng thực tế tại lớp học:</strong>
+              Chiếu trên Smart TV / Bảng tương tác; học sinh thi đấu cá nhân hoặc nhóm giải đề sôi nổi.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KHỐI 4: THAY ĐỔI VÀ TÁC ĐỘNG -->
+      <section class="info-card">
+        <div class="card-header">
+          <div class="card-num">4</div>
+          <h2 class="card-title">Thay đổi và tác động</h2>
+        </div>
+        <div class="card-body">
+          <div class="compare-grid">
+            <div class="compare-col old">
+              <div class="compare-header">Cách làm cũ</div>
+              <div>❌ Mất 1 - 2 giờ gõ đề & chèn hình thủ công.</div>
+              <div style="margin-top: 4px;">❌ Ít kịch tính, học sinh thụ động ghi chép.</div>
+            </div>
+            <div class="compare-col new">
+              <div class="compare-header">Sau khi áp dụng</div>
+              <div>✔ Nạp đề PDF xong trong 30 giây nhờ AI.</div>
+              <div style="margin-top: 4px;">✔ Kịch tính hào hùng như gameshow truyền hình.</div>
+            </div>
+          </div>
+          <div class="stats-highlight-box">
+            <div class="stats-title">Kết quả nổi bật tại lớp</div>
+            <div class="stats-row">
+              <div class="stat-item">
+                <span class="stat-number">40% ➔ 95%</span>
+                <span class="stat-desc">Mức độ tham gia</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">+20% ➔ +30%</span>
+                <span class="stat-desc">Tỷ lệ làm đúng</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">> 95%</span>
+                <span class="stat-desc">Học sinh hào hứng</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KHỐI 5: KHẢ NĂNG TÁI SỬ DỤNG -->
+      <section class="info-card">
+        <div class="card-header">
+          <div class="card-num">5</div>
+          <h2 class="card-title">Khả năng tái sử dụng</h2>
+        </div>
+        <div class="card-body">
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text"><strong>Cực kỳ dễ dùng:</strong> Giáo viên không cần biết code, chỉ cần tải lên file PDF là có trò chơi ngay.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text"><strong>Thời gian làm quen:</strong> Dưới 5 phút để thành thạo toàn bộ thao tác nạp đề và điều khiển game.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text"><strong>Linh hoạt đa môn học:</strong> Dễ dàng mở rộng cho môn Văn, Lý, Hóa, Sinh, Tiếng Anh (không chỉ riêng môn Toán).</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text"><strong>Đóng gói hoàn chỉnh:</strong> Cung cấp sẵn file `Chay_Game.bat` và file nén zip chạy offline 100%.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text">Có tài liệu hướng dẫn và video clip mẫu đi kèm chi tiết cho tổ bộ môn.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KHỐI 6: CHI PHÍ, TÍNH BỀN VỮNG -->
+      <section class="info-card">
+        <div class="card-header">
+          <div class="card-num">6</div>
+          <h2 class="card-title">Chi phí, tính bền vững</h2>
+        </div>
+        <div class="card-body">
+          <div class="cost-block">
+            <div class="cost-icon">💰</div>
+            <div class="cost-desc">
+              <strong>Chi phí 0 VNĐ:</strong> Sử dụng mã nguồn web thuần, miễn phí hoàn toàn, không mất phí duy trì hay mua tài khoản học sinh.
+            </div>
+          </div>
+          <div class="bullet-item" style="margin-top: 4px;">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text"><strong>Dễ duy trì:</strong> Dễ dàng cập nhật bộ đề mới sau mỗi chương học hoặc kỳ thi.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text"><strong>Không phụ thuộc phần mềm trả phí:</strong> Chạy trực tiếp trên trình duyệt, không lo hết hạn bản quyền.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text"><strong>Hoạt động Offline 100%:</strong> Tích hợp sẵn font KaTeX và file âm thanh, chạy mượt cả khi mất mạng.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KHỐI 7: AN TOÀN DỮ LIỆU, AI CÓ TRÁCH NHIỆM -->
+      <section class="info-card">
+        <div class="card-header">
+          <div class="card-num">7</div>
+          <h2 class="card-title">An toàn dữ liệu, AI có trách nhiệm</h2>
+        </div>
+        <div class="card-body">
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text"><strong>Bảo vệ quyền riêng tư:</strong> Tuyệt đối không đưa thông tin hay danh tính học sinh lên AI / Cloud.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text"><strong>Không yêu cầu tài khoản:</strong> Học sinh không cần đăng ký hay cung cấp email cá nhân.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text"><strong>Khóa API bảo mật:</strong> Gemini API Key lưu hoàn toàn tại máy giáo viên (Local Storage), không lộ lọt.</div>
+          </div>
+          <div class="bullet-item">
+            <div class="bullet-icon check">✓</div>
+            <div class="bullet-text"><strong>Giáo viên làm chủ (Human-in-the-loop):</strong> Luôn có bước xem trước và duyệt nội dung trước khi đưa vào game.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KHỐI 8: MINH CHỨNG -->
+      <section class="info-card">
+        <div class="card-header">
+          <div class="card-num">8</div>
+          <h2 class="card-title">Minh chứng</h2>
+        </div>
+        <div class="card-body">
+          <div class="proof-icons-row">
+            <div class="proof-btn">
+              <span class="icon">📱</span>
+              <span class="lbl">Mã QR Code</span>
+            </div>
+            <div class="proof-btn">
+              <span class="icon">▶️</span>
+              <span class="lbl">Bản Demo</span>
+            </div>
+            <div class="proof-btn">
+              <span class="icon">📄</span>
+              <span class="lbl">Tài liệu HDSD</span>
+            </div>
+          </div>
+
+          <div class="mockup-preview-img">
+            <div class="mockup-screen-title">👑 AI LÀ TRIỆU PHÚ</div>
+            <div class="mockup-screen-sub">Studio 3D • KaTeX Math • Âm thanh hào hùng</div>
+            <div style="font-size: 9.5px; color: #38bdf8; margin-top: 4px; font-weight: 700;">
+              ✓ Đã triển khai trên Web & Desktop Offline
+            </div>
+          </div>
+
+          <div style="font-size: 10.5px; color: #cbd5e1; text-align: center; margin-top: 2px;">
+            Mã nguồn GitHub: <strong style="color: #f472b6;">trochoiantigravity</strong>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Nút in / xuất poster -->
+    <div class="action-bar">
+      <button class="btn-action" onclick="window.print()">🖨️ In Poster / Xuất PDF (Khổ Ngang A4 / 16:9)</button>
+      <a class="btn-action" href="ai-la-trieu-phu.html" target="_blank" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399;">🎮 Trải Nghiệm Game "Ai Là Triệu Phú"</a>
+    </div>
+
+  </div>
+
+</body>
+</html>
