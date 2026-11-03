@@ -12,3 +12,4 @@ python -m http.server 8888 2>nul || (
     start "" "index.html"
 )
 pause
+
