@@ -83,4 +83,5 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
   - [x] Tích hợp trọn vẹn bản nhạc mở đầu chương trình (15.8s), cơ chế chuyển nền tự động và nút "🎵 Mở đầu" tiện ích.
   - [x] Hỗ trợ động số lượng câu hỏi tùy chỉnh (tải bao nhiêu câu hiển thị bấy nhiêu câu, lưới và tháp danh hiệu tự thích ứng).
   - [x] Hiển thị chuẩn xác công thức toán học LaTeX (KaTeX offline + fallback) và hình vẽ minh họa toán học (SVG + Lightbox zoom toàn màn hình + trích xuất ảnh PDF).
+  - [x] Đóng gói thành 1 trò chơi riêng biệt hoàn chỉnh (`game-ai-la-trieu-phu/` & `tro-choi-ai-la-trieu-phu.zip`) sẵn sàng triển khai độc lập hoặc chạy offline.
 - **Expected Output:** Trò chơi hoạt động độc lập với giao diện y hệt ảnh mẫu, chạy mượt mà trên trình duyệt.

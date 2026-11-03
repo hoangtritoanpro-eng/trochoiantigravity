@@ -1,0 +1,3586 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI LÀ TRIỆU PHÚ - Thầy Sơn SKL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- PDF.js Engine: Hỗ trợ nạp và bóc tách đề trắc nghiệm từ file PDF -->
+  <script src="assets/vendor/pdf.min.js"></script>
+  <script>
+    if (typeof window.pdfjsLib === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"><\/script>');
+    }
+  </script>
+  <!-- KaTeX Engine: Hiển thị công thức Toán học chuẩn mực (hỗ trợ cả Local và CDN Fallback) -->
+  <link rel="stylesheet" href="assets/vendor/katex.min.css" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';">
+  <script src="assets/vendor/katex.min.js"></script>
+  <script src="assets/vendor/auto-render.min.js"></script>
+  <script>
+    if (typeof window.katex === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script>');
+      document.write('<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"><\/script>');
+    }
+  </script>
+  <style>
+    :root {
+      --bg-dark: #060e22;
+      --bg-panel: #0a1331;
+      --bg-center: radial-gradient(circle at center, #0f1c42 0%, #060e22 100%);
+      --gold-primary: #eab308;
+      --gold-light: #fde047;
+      --gold-lighter: #fef08a;
+      --gold-dark: #b45309;
+      --border-blue: #1e3a8a;
+      --text-blue-light: #bfdbfe;
+      --font-display: 'Fredoka', 'Segoe UI', Roboto, sans-serif;
+      --font-body: 'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif;
+      --correct-color: #22c55e;
+      --wrong-color: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-body);
+      background-color: var(--bg-dark);
+      color: #fff;
+    }
+
+    /* ═══════════════════════════════
+       CHÍNH: LAYOUT 3 CỘT ĐỘC LẬP (NỀN STUDIO TRUYỀN HÌNH AI LÀ TRIỆU PHÚ)
+    ═══════════════════════════════ */
+    .millionaire-app {
+      display: grid;
+      grid-template-columns: 290px 1fr 290px;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(rgba(6, 14, 34, 0.4), rgba(6, 14, 34, 0.65)), url('assets/millionaire/bg_studio_wide.jpg') center center / cover no-repeat fixed;
+    }
+
+    /* CỘT TRÁI & PHẢI HIỆU ỨNG KÍNH MỜ GLASSMORHPISM */
+    .mil-left-panel, .mil-right-panel {
+      background: rgba(10, 19, 49, 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1.5px solid rgba(234, 179, 8, 0.4);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      z-index: 10;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .mil-left-panel {
+      border-right: 2px solid var(--gold-primary);
+      box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6);
+    }
+
+    .mil-right-panel {
+      border-left: 2px solid var(--gold-primary);
+      box-shadow: -4px 0 25px rgba(0, 0, 0, 0.6);
+    }
+
+    /* TIÊU ĐỀ BẢNG */
+    .mil-panel-title {
+      color: var(--gold-light);
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 17px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1.5px solid rgba(234, 179, 8, 0.35);
+      padding-bottom: 8px;
+      margin-bottom: 2px;
+      text-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+    }
+
+    /* KHUNG LUẬT CHƠI & BỘ LỌC */
+    .mil-card-box {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--text-blue-light);
+      line-height: 1.45;
+    }
+
+    .mil-rules strong {
+      color: var(--gold-light);
+    }
+
+    /* BỘ LỌC LỚP & CHỦ ĐỀ */
+    .mil-filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mil-filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: #93c5fd;
+    }
+
+    .mil-select {
+      background: #0f172a;
+      color: #fde047;
+      border: 1px solid var(--gold-dark);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* CÁC NÚT ĐIỀU KHIỂN */
+    .mil-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-mil {
+      padding: 10px 8px;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      color: #fff;
+      transition: all 0.15s ease;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .btn-mil:active {
+      transform: translateY(2px);
+      box-shadow: none !important;
+    }
+
+    .btn-mil.start {
+      background: linear-gradient(180deg, #4ade80, #16a34a);
+      box-shadow: 0 3px 0 #15803d;
+      grid-column: span 2;
+      font-size: 15px;
+      padding: 12px;
+    }
+
+    .btn-mil.check {
+      background: linear-gradient(180deg, #fcd34d, #f59e0b);
+      color: #78350f;
+      box-shadow: 0 3px 0 #b45309;
+      text-shadow: none;
+    }
+
+    .btn-mil.answer {
+      background: linear-gradient(180deg, #94a3b8, #64748b);
+      box-shadow: 0 3px 0 #475569;
+    }
+
+    .btn-mil.restart {
+      background: linear-gradient(180deg, #f87171, #dc2626);
+      box-shadow: 0 3px 0 #b91c1c;
+      grid-column: span 2;
+    }
+
+    /* LƯỚI 22 CÂU HỎI */
+    .mil-q-grid-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mil-grid-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #93c5fd;
+      font-weight: 600;
+    }
+
+    .mil-q-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .mil-q-btn {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 6px 0;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mil-q-btn:hover {
+      background: #334155;
+      border-color: #64748b;
+      transform: scale(1.05);
+    }
+
+    .mil-q-btn.active {
+      background: var(--gold-primary);
+      color: #000;
+      border-color: var(--gold-lighter);
+      box-shadow: 0 0 10px rgba(234, 179, 8, 0.6);
+      transform: scale(1.08);
+      z-index: 2;
+    }
+
+    .mil-q-btn.correct {
+      background: var(--correct-color);
+      color: #fff;
+      border-color: #86efac;
+    }
+
+    .mil-q-btn.wrong {
+      background: var(--wrong-color);
+      color: #fff;
+      border-color: #fca5a5;
+    }
+
+    /* TIỆN ÍCH DƯỚI CÙNG BẢNG ĐIỀU KHIỂN */
+    .mil-tools-row {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-tool {
+      flex: 1;
+      padding: 8px 4px;
+      border-radius: 6px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: background 0.2s;
+    }
+
+    .btn-tool:hover {
+      background: #334155;
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+    }
+
+    /* ═══════════════════════════════
+       CỘT GIỮA: MÀN HÌNH CHÍNH
+    ═══════════════════════════════ */
+    .mil-center-panel {
+      display: flex;
+      flex-direction: column;
+      padding: 12px 30px;
+      position: relative;
+      background: radial-gradient(circle at 50% 25%, rgba(15, 28, 66, 0.25) 0%, rgba(6, 14, 34, 0.6) 100%);
+      backdrop-filter: blur(1px);
+      -webkit-backdrop-filter: blur(1px);
+      overflow-y: auto;
+      justify-content: flex-start;
+      gap: 10px;
+    }
+
+    .mil-header {
+      text-align: center;
+      margin-bottom: 4px;
+      flex-shrink: 0;
+    }
+
+    .mil-game-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      color: var(--gold-light);
+      text-shadow: 0 0 20px rgba(253, 224, 71, 0.5), 0 2px 4px rgba(0,0,0,0.8);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .mil-subtitle {
+      font-size: 13px;
+      color: #bfdbfe;
+      font-weight: 600;
+    }
+
+    /* KHUNG CÂU HỎI TRẮNG BO TRÒN */
+    .mil-question-box {
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 14px;
+      padding: 12px 18px;
+      min-height: 100px;
+      margin-bottom: 0px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 20px rgba(234, 179, 8, 0.25);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border: 3px solid var(--gold-primary);
+      animation: fadeIn 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .mil-badges {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mil-badge {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mil-badge.qnum {
+      border-color: var(--gold-primary);
+      color: var(--gold-dark);
+      background: #fef9c3;
+      box-shadow: 0 1px 3px rgba(180, 83, 9, 0.15);
+    }
+
+    .mil-badge.part {
+      border-color: #38bdf8;
+      color: #0369a1;
+      background: #e0f2fe;
+    }
+
+    .mil-badge.topic {
+      border-color: #a855f7;
+      color: #7e22ce;
+      background: #f3e8ff;
+    }
+
+    .mil-badge.shortcut {
+      margin-left: auto;
+      border-color: #cbd5e1;
+      color: #64748b;
+      background: #f8fafc;
+      font-weight: 500;
+      text-transform: none;
+    }
+
+    .mil-question-content {
+      font-size: 19px;
+      font-weight: 600;
+      line-height: 1.5;
+      text-align: center;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+
+    /* ═══════════════════════════════
+       ĐỊNH DẠNG CÔNG THỨC TOÁN HỌC (KATEX & MATH FALLBACK)
+    ═══════════════════════════════ */
+    .katex {
+      font-size: 1.15em !important;
+      line-height: 1.25 !important;
+    }
+    .mil-question-content .katex {
+      color: #0f172a !important;
+    }
+    .mil-option .katex {
+      color: #f8fafc !important;
+    }
+    .mil-option.selected .katex,
+    .mil-option.correct .katex {
+      color: #ffffff !important;
+    }
+    .preview-question-card .katex {
+      color: #f1f5f9 !important;
+    }
+
+    /* Fallback công thức Toán không cần KaTeX */
+    .math-frac {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+      padding: 0 4px;
+      font-size: 0.9em;
+      line-height: 1;
+    }
+    .math-num {
+      border-bottom: 1.5px solid currentColor;
+      padding-bottom: 2px;
+    }
+    .math-den {
+      padding-top: 2px;
+    }
+    .math-sqrt {
+      display: inline-flex;
+      align-items: center;
+      padding: 0 2px;
+    }
+    .math-radicand {
+      border-top: 1.5px solid currentColor;
+      padding: 0 2px;
+    }
+    sup {
+      font-size: 0.75em;
+      line-height: 0;
+      position: relative;
+      vertical-align: baseline;
+      top: -0.5em;
+      font-weight: 700;
+    }
+    sub {
+      font-size: 0.75em;
+      line-height: 0;
+      position: relative;
+      vertical-align: baseline;
+      bottom: -0.25em;
+    }
+
+    /* ═══════════════════════════════
+       KHUNG HIỂN THỊ HÌNH VẼ MINH HỌA
+    ═══════════════════════════════ */
+    .mil-q-image-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 8px;
+      padding: 5px;
+      background: #f8fafc;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .mil-q-image-wrap img {
+      max-width: 100%;
+      max-height: 125px;
+      object-fit: contain;
+      border-radius: 6px;
+      cursor: zoom-in;
+      transition: transform 0.2s, box-shadow 0.2s;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    .mil-q-image-wrap img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    }
+
+    .mil-q-image-hint {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Ảnh trong ô đáp án nếu có */
+    .mil-option img {
+      max-height: 44px;
+      max-width: 100px;
+      object-fit: contain;
+      border-radius: 6px;
+      margin-left: 8px;
+      background: #fff;
+      padding: 2px;
+    }
+
+    /* Modal phóng to hình vẽ (Lightbox) */
+    .mil-image-lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(3, 7, 18, 0.92);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+      cursor: zoom-out;
+    }
+
+    .mil-lightbox-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .mil-lightbox-content img {
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 12px;
+      border: 3px solid var(--gold-primary);
+      box-shadow: 0 0 35px rgba(234, 179, 8, 0.5);
+      background: #ffffff;
+      padding: 8px;
+    }
+
+    .mil-lightbox-close {
+      position: absolute;
+      top: -16px;
+      right: -16px;
+      width: 38px;
+      height: 38px;
+      background: #ef4444;
+      border: 2px solid #fff;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    /* Quản lý ảnh trong bảng xem trước modal */
+    .preview-q-image-box {
+      margin: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px dashed #475569;
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+    .preview-q-thumb {
+      max-width: 90px;
+      max-height: 60px;
+      border-radius: 4px;
+      border: 1.5px solid var(--gold-primary);
+      object-fit: contain;
+      background: #fff;
+      cursor: zoom-in;
+    }
+    .btn-attach-img {
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #93c5fd;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .btn-attach-img:hover {
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+      background: #334155;
+    }
+
+    /* LƯỚI ĐÁP ÁN 4 LỰA CHỌN A, B, C, D */
+    .mil-options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 4px;
+      flex-shrink: 0;
+    }
+
+    .mil-option {
+      background: linear-gradient(90deg, #09132c, #162447);
+      border: 2px solid var(--gold-primary);
+      border-radius: 30px;
+      padding: 12px 18px;
+      color: #fff;
+      font-size: 15.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: left;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      outline: none;
+    }
+
+    .mil-option:hover {
+      background: linear-gradient(90deg, #162447, #1f3567);
+      border-color: var(--gold-light);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 18px rgba(234, 179, 8, 0.3);
+    }
+
+    .mil-option.selected {
+      background: linear-gradient(90deg, #b45309, #d97706);
+      border-color: #fde047;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.7);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    .mil-option.correct {
+      background: linear-gradient(90deg, #15803d, #22c55e);
+      border-color: #86efac;
+      animation: milFlashCorrect 0.6s infinite alternate;
+    }
+
+    .mil-option.wrong {
+      background: linear-gradient(90deg, #b91c1c, #ef4444);
+      border-color: #fca5a5;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+    }
+
+    @keyframes milFlashCorrect {
+      0% { box-shadow: 0 0 10px #22c55e; }
+      100% { box-shadow: 0 0 25px #86efac, 0 0 40px #22c55e; }
+    }
+
+    .opt-letter {
+      color: var(--gold-light);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
+      margin-right: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: #000;
+      border: 1.5px solid var(--gold-primary);
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .mil-option.selected .opt-letter {
+      background: #fff;
+      color: var(--gold-dark);
+      border-color: #fff;
+    }
+
+    .mil-option.correct .opt-letter {
+      background: #fff;
+      color: #15803d;
+      border-color: #fff;
+    }
+
+    .mil-option.wrong .opt-letter {
+      background: #fff;
+      color: #b91c1c;
+      border-color: #fff;
+    }
+
+    .opt-text {
+      flex-grow: 1;
+      word-break: break-word;
+    }
+
+    /* ĐIỀU HƯỚNG CÂU TRƯỚC / TIẾP */
+    .mil-nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      margin-top: auto;
+      padding-top: 4px;
+      flex-shrink: 0;
+    }
+
+    .btn-mil-nav {
+      background: linear-gradient(180deg, #475569, #334155);
+      border: 1.5px solid #64748b;
+      color: #fff;
+      padding: 12px 34px;
+      border-radius: 25px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-mil-nav:hover {
+      background: #64748b;
+      border-color: var(--gold-primary);
+      color: var(--gold-light);
+      transform: translateY(-2px);
+    }
+
+    .btn-mil-nav:active {
+      transform: translateY(1px);
+    }
+
+    /* ═══════════════════════════════
+       CỘT PHẢI: TIẾN ĐỘ & MỐC THƯỞNG
+    ═══════════════════════════════ */
+    .mil-progress-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1.5px solid var(--gold-primary);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .mil-progress-label {
+      font-size: 12px;
+      color: #93c5fd;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .mil-progress-value {
+      font-family: var(--font-display);
+      font-size: 26px;
+      color: var(--gold-light);
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(253, 224, 71, 0.5);
+    }
+
+    .mil-bar-track {
+      width: 100%;
+      height: 8px;
+      background: #1e293b;
+      border-radius: 4px;
+      margin-top: 10px;
+      overflow: hidden;
+      border: 1px solid #334155;
+    }
+
+    .mil-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f59e0b, #22c55e);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    /* THÁP DANH HIỆU 22 BẬC (MÔ PHỎNG GAMESHOW) */
+    .mil-ladder-box {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+    }
+
+    .mil-ladder-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .mil-ladder-step {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(30, 41, 59, 0.5);
+      color: #94a3b8;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .mil-ladder-step.milestone {
+      color: #fff;
+      font-weight: 700;
+      border-color: rgba(234, 179, 8, 0.4);
+      background: rgba(234, 179, 8, 0.1);
+    }
+
+    .mil-ladder-step.milestone .step-tag {
+      color: var(--gold-light);
+    }
+
+    .mil-ladder-step.current {
+      background: var(--gold-primary);
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+      border-color: var(--gold-lighter);
+    }
+
+    .mil-ladder-step.current .step-tag {
+      color: #000;
+    }
+
+    .mil-author {
+      font-size: 12px;
+      color: #93c5fd;
+      text-align: center;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* ═══════════════════════════════
+       MODAL NHẬP CÂU HỎI TÙY CHỈNH
+    ═══════════════════════════════ */
+    .mil-modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mil-modal-dialog {
+      background: #0f172a;
+      border: 2px solid var(--gold-primary);
+      border-radius: 16px;
+      width: 92%;
+      max-width: 820px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(234, 179, 8, 0.3);
+      overflow: hidden;
+      animation: zoomIn 0.25s ease;
+    }
+
+    .mil-modal-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .mil-modal-title {
+      font-family: var(--font-display);
+      font-size: 16.5px;
+      color: var(--gold-light);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mil-modal-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .mil-modal-close:hover {
+      color: #ef4444;
+    }
+
+    .mil-modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 13px;
+      color: #cbd5e1;
+      background: #091024;
+    }
+
+    /* Giao diện Kéo Thả File PDF */
+    .pdf-dropzone {
+      border: 2px dashed rgba(234, 179, 8, 0.5);
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 12px;
+      padding: 16px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .pdf-dropzone:hover, .pdf-dropzone.dragover {
+      border-color: var(--gold-light);
+      background: rgba(30, 58, 138, 0.35);
+      box-shadow: 0 0 20px rgba(234, 179, 8, 0.3);
+    }
+    .pdf-icon-badge {
+      font-size: 30px;
+      line-height: 1;
+    }
+    .pdf-drop-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--gold-light);
+      font-family: var(--font-display);
+    }
+    .pdf-drop-hint {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .btn-upload-pdf {
+      background: linear-gradient(135deg, #eab308, #ca8a04);
+      color: #000;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      margin-top: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(234, 179, 8, 0.25);
+      transition: transform 0.15s;
+    }
+    .btn-upload-pdf:hover {
+      transform: scale(1.03);
+    }
+
+    .pdf-status-banner {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #6ee7b7;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Khối cấu hình Gemini AI Chuẩn Hóa */
+    .gemini-config-box {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(168, 85, 247, 0.45);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.12);
+      transition: all 0.25s;
+    }
+    .gemini-config-box.active {
+      border-color: #c084fc;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+    }
+    .gemini-toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .gemini-badge {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      color: #fff;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-right: 6px;
+    }
+    .gemini-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      border-top: 1px dashed rgba(168, 85, 247, 0.3);
+      padding-top: 10px;
+    }
+    .gemini-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .gemini-input-group label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+    .gemini-text-input {
+      background: #020617;
+      border: 1px solid #475569;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+      width: 100%;
+    }
+    .gemini-text-input:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+    }
+    .btn-gemini-action {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-gemini-action:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    .btn-gemini-action:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .modal-tab-header {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 4px;
+    }
+    .modal-tab-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font-display);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-tab-btn.active {
+      background: rgba(234, 179, 8, 0.2);
+      color: var(--gold-light);
+      border: 1px solid rgba(234, 179, 8, 0.4);
+    }
+
+    .preview-question-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+    .preview-question-card:hover {
+      border-color: #64748b;
+    }
+    .preview-q-title {
+      font-weight: 600;
+      color: #f1f5f9;
+      font-size: 13.5px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.4;
+    }
+    .preview-opt-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .preview-opt-item {
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12.5px;
+      color: #cbd5e1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s;
+    }
+    .preview-opt-item:hover {
+      border-color: var(--gold-light);
+      background: #334155;
+    }
+    .preview-opt-item.is-correct {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      font-weight: 700;
+    }
+    .btn-del-preview-q {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .btn-del-preview-q:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .mil-textarea {
+      width: 100%;
+      height: 200px;
+      background: #020617;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px;
+      color: #fff;
+      font-family: monospace;
+      font-size: 13px;
+      resize: vertical;
+      outline: none;
+      line-height: 1.5;
+    }
+
+    .mil-textarea:focus {
+      border-color: var(--gold-primary);
+    }
+
+    .mil-modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid #334155;
+      display: flex;
+      justify-content: flex-end;
+      background: rgba(15, 23, 42, 0.95);
+      gap: 10px;
+    }
+
+    /* DIALOG THÔNG BÁO HOÀN THÀNH GAME */
+    .mil-win-dialog {
+      background: radial-gradient(circle at center, #1e293b, #0f172a);
+      border: 3px solid var(--gold-light);
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 0 40px rgba(234, 179, 8, 0.5);
+      animation: bounceIn 0.4s ease;
+    }
+
+    .mil-win-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--gold-light);
+      margin-bottom: 12px;
+      text-shadow: 0 0 15px rgba(253, 224, 71, 0.6);
+    }
+
+    .mil-win-score {
+      font-size: 20px;
+      color: #fff;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .mil-win-score span {
+      color: var(--gold-light);
+      font-weight: 700;
+      font-size: 24px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.7); opacity: 0; }
+      70% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    /* ═══════════════════════════════
+       RESPONSIVE KHI THU NHỎ MÀN HÌNH
+    ═══════════════════════════════ */
+    @media (max-width: 1024px) {
+      .millionaire-app {
+        grid-template-columns: 240px 1fr 240px;
+      }
+      .mil-center-panel {
+        padding: 15px 20px;
+      }
+      .mil-game-title {
+        font-size: 26px;
+      }
+      .mil-question-content {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 860px) {
+      body, html {
+        overflow: auto;
+      }
+      .millionaire-app {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+      }
+      .mil-left-panel {
+        border-right: none;
+        border-bottom: 2px solid var(--gold-primary);
+      }
+      .mil-right-panel {
+        border-left: none;
+        border-top: 2px solid var(--gold-primary);
+      }
+      .mil-options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="millionaire-app" id="milApp">
+    <!-- ═══════════════════════════════
+         CỘT TRÁI: BẢNG ĐIỀU KHIỂN
+    ═══════════════════════════════ -->
+    <aside class="mil-left-panel">
+      <h3 class="mil-panel-title">BẢNG ĐIỀU KHIỂN</h3>
+
+      <div class="mil-card-box mil-rules">
+        <strong>LUẬT CHƠI:</strong><br>
+        • Nhấn chọn đáp án (A, B, C, D) hoặc phím tắt <strong>1, 2, 3, 4</strong>.<br>
+        • Bấm <strong>KIỂM TRA</strong> (hoặc phím <strong>Space/Enter</strong>) để chấm điểm.<br>
+        • Trả lời đúng sẽ tự động chuyển câu tiếp theo.
+      </div>
+
+      <!-- Bộ chọn lớp và chủ đề -->
+      <div class="mil-card-box mil-filter-group">
+        <div class="mil-filter-row">
+          <label for="selectGrade">Khối Lớp:</label>
+          <select id="selectGrade" class="mil-select">
+            <option value="all">Tổng Hợp (6-9)</option>
+            <option value="6">Toán Lớp 6</option>
+            <option value="7">Toán Lớp 7</option>
+            <option value="8" selected>Toán Lớp 8</option>
+            <option value="9">Toán Lớp 9</option>
+          </select>
+        </div>
+        <div class="mil-filter-row">
+          <label for="selectTopic">Chủ Đề:</label>
+          <select id="selectTopic" class="mil-select">
+            <option value="all" selected>Tất cả</option>
+            <option value="algebra">Đại số</option>
+            <option value="geometry">Hình học</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 4 nút chức năng chính -->
+      <div class="mil-buttons">
+        <button class="btn-mil start" id="btnMilStart">▶ BẮT ĐẦU CHƠI</button>
+        <button class="btn-mil check" id="btnMilCheck">✓ KIỂM TRA</button>
+        <button class="btn-mil answer" id="btnMilAnswer">👁 ĐÁP ÁN</button>
+        <button class="btn-mil restart" id="btnMilRestart">↺ LÀM LẠI TỪ ĐẦU</button>
+      </div>
+
+      <!-- Lưới câu hỏi trực quan -->
+      <div class="mil-q-grid-wrap">
+        <div class="mil-grid-header">
+          <span id="milGridTitleText">DANH SÁCH 22 CÂU HỎI:</span>
+          <span id="milGridCount">0/22</span>
+        </div>
+        <div class="mil-q-grid" id="milQuestionGrid">
+          <!-- Các Nút câu hỏi tạo tự động qua JavaScript -->
+        </div>
+      </div>
+
+      <!-- Tiện ích bên dưới -->
+      <div class="mil-tools-row">
+        <button class="btn-tool" id="btnSoundToggle" title="Bật/Tắt âm thanh">🔊 Âm thanh</button>
+        <button class="btn-tool" id="btnPlayIntro" title="Phát nhạc mở đầu chương trình">🎵 Mở đầu</button>
+        <button class="btn-tool" id="btnFullscreenToggle" title="Bật toàn màn hình">⛶ Toàn màn</button>
+        <button class="btn-tool" id="btnCustomQuestions" title="Nạp đề riêng">✎ Nạp đề</button>
+      </div>
+    </aside>
+
+    <!-- ═══════════════════════════════
+         CỘT GIỮA: MÀN HÌNH CHÍNH
+    ═══════════════════════════════ -->
+    <main class="mil-center-panel">
+      <header class="mil-header">
+        <img src="assets/millionaire/logo_trieu_phu.jpg" alt="Ai Là Triệu Phú" style="width: 58px; height: 58px; border-radius: 50%; border: 2.5px solid var(--gold-primary); box-shadow: 0 0 16px rgba(234, 179, 8, 0.65); object-fit: cover; margin-bottom: 2px;">
+        <h1 class="mil-game-title">AI LÀ TRIỆU PHÚ</h1>
+        <div class="mil-subtitle" id="milSubtitle">Chinh phục 22 câu hỏi trí tuệ cùng Thầy Sơn SKL</div>
+      </header>
+
+      <!-- Khung hiển thị câu hỏi màu trắng bo tròn viền vàng -->
+      <div class="mil-question-box">
+        <div class="mil-badges">
+          <span class="mil-badge qnum" id="milBadgeQNum">Câu 1/22</span>
+          <span class="mil-badge part">Phần I</span>
+          <span class="mil-badge topic" id="milBadgeTopic">Toán Học</span>
+          <span class="mil-badge shortcut">Phím tắt: A, B, C, D | Enter</span>
+        </div>
+        <div class="mil-question-content" id="milQuestionText">
+          Chào mừng bạn đến với trò chơi <strong>AI LÀ TRIỆU PHÚ</strong>!<br>
+          <span style="font-size: 15px; color: #475569; margin-top: 6px; font-weight: 500;" id="milWelcomeHint">Nhấn nút <strong>"▶ BẮT ĐẦU CHƠI"</strong> ở góc trái để bắt đầu thử thách!</span>
+        </div>
+        <!-- Vùng hiển thị hình vẽ minh họa toán học -->
+        <div class="mil-q-image-wrap" id="milQImageWrap" style="display: none;">
+          <img id="milQImage" src="" alt="Hình vẽ câu hỏi" onclick="MillionaireGame.zoomImage(this.src)">
+          <div class="mil-q-image-hint">🔍 Nhấp vào hình vẽ để phóng to toàn màn hình</div>
+        </div>
+      </div>
+
+      <!-- Lưới 4 đáp án A, B, C, D -->
+      <div class="mil-options-grid">
+        <button class="mil-option" data-opt="0">
+          <span class="opt-letter">A</span>
+          <span class="opt-text" id="milOpt0">Lựa chọn A</span>
+        </button>
+        <button class="mil-option" data-opt="1">
+          <span class="opt-letter">B</span>
+          <span class="opt-text" id="milOpt1">Lựa chọn B</span>
+        </button>
+        <button class="mil-option" data-opt="2">
+          <span class="opt-letter">C</span>
+          <span class="opt-text" id="milOpt2">Lựa chọn C</span>
+        </button>
+        <button class="mil-option" data-opt="3">
+          <span class="opt-letter">D</span>
+          <span class="opt-text" id="milOpt3">Lựa chọn D</span>
+        </button>
+      </div>
+
+      <!-- 2 Nút điều hướng CÂU TRƯỚC / CÂU TIẾP -->
+      <footer class="mil-nav-buttons">
+        <button class="btn-mil-nav" id="btnMilPrev">◀ CÂU TRƯỚC</button>
+        <button class="btn-mil-nav" id="btnMilNext">CÂU TIẾP ▶</button>
+      </footer>
+    </main>
+
+    <!-- ═══════════════════════════════
+         CỘT PHẢI: TIẾN ĐỘ & MỐC THƯỞNG
+    ═══════════════════════════════ -->
+    <aside class="mil-right-panel">
+      <h3 class="mil-panel-title">TIẾN ĐỘ & MỐC THƯỞNG</h3>
+
+      <div class="mil-progress-card">
+        <div class="mil-progress-label">SỐ CÂU ĐÃ ĐÚNG</div>
+        <div class="mil-progress-value"><span id="milScore">0</span> / <span id="milTotalCount">22</span></div>
+        <div class="mil-bar-track">
+          <div class="mil-bar-fill" id="milBarFill"></div>
+        </div>
+      </div>
+
+      <!-- Tháp mốc danh hiệu mô phỏng gameshow (Render tự động động theo số câu hỏi) -->
+      <div class="mil-ladder-box">
+        <div class="mil-ladder-title">
+          <span>THÁP DANH HIỆU:</span>
+          <span>MỐC QUAN TRỌNG</span>
+        </div>
+        <div id="milLadderList">
+          <!-- Bậc thang tạo động qua hàm renderLadder() -->
+        </div>
+      </div>
+
+      <div class="mil-card-box mil-rules" style="font-size: 11.5px;">
+        💡 <strong>Ghi chú giáo viên:</strong><br>
+        Nút <em>"Hiện đáp án"</em> dùng để hướng dẫn học sinh hoặc kiểm tra nhanh mà không cộng điểm.
+      </div>
+
+      <div class="mil-author">
+        Phát triển bởi: <strong>Thầy Sơn SKL</strong>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ═══════════════════════════════
+       MODAL NẠP ĐỀ TỰ ĐỘNG (HỖ TRỢ FILE PDF & WORD)
+  ═══════════════════════════════ -->
+  <div class="mil-modal-backdrop" id="modalCustomQ">
+    <div class="mil-modal-dialog">
+      <div class="mil-modal-header">
+        <h3 class="mil-modal-title">📄 NẠP ĐỀ TỰ ĐỘNG - TRÒ CHƠI: AI LÀ TRIỆU PHÚ</h3>
+        <button class="mil-modal-close" id="btnCloseModalQ">✕</button>
+      </div>
+      
+      <div class="mil-modal-body">
+        <!-- Vùng kéo thả File PDF -->
+        <div class="pdf-dropzone" id="pdfDropzone">
+          <div class="pdf-icon-badge">📄</div>
+          <div class="pdf-drop-title">Kéo & Thả file PDF đề thi vào đây, hoặc click để chọn tệp</div>
+          <div class="pdf-drop-hint">Hệ thống tự động đọc nội dung PDF, nhận diện câu hỏi, 4 phương án A, B, C, D &amp; đáp án đúng</div>
+          <button type="button" class="btn-upload-pdf" id="btnSelectPdf">
+            📁 TẢI LÊN FILE PDF
+          </button>
+          <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;">
+        </div>
+
+        <!-- Khối tích hợp Gemini AI Chuẩn Hóa -->
+        <div class="gemini-config-box" id="geminiConfigBox">
+          <div class="gemini-toggle-row">
+            <div style="display: flex; align-items: center;">
+              <span class="gemini-badge">✨ GEMINI 3.8 FLASH</span>
+              <span style="font-weight: 600; font-size: 13px; color: #f1f5f9;">Chuẩn Hóa &amp; Tự Giải Đề Bằng AI</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 11px; color: #94a3b8;" id="geminiStatusLabel">Chưa bật</span>
+              <label class="switch">
+                <input type="checkbox" id="chkUseGemini">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="gemini-inputs" id="geminiInputsPanel" style="display: none;">
+            <div class="gemini-input-group">
+              <label>🔑 Google Gemini API Key:</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="password" id="geminiApiKey" class="gemini-text-input" placeholder="Dán API Key (AIzaSy...)">
+                <button type="button" id="btnToggleApiKey" class="btn-sm-tool" style="background:#1e293b; border:1px solid #475569; color:#cbd5e1; border-radius:6px; padding:0 8px; cursor:pointer;" title="Hiện/Ẩn Key">👁</button>
+                <button type="button" id="btnTestGeminiKey" class="btn-sm-tool" style="background:#3b82f6; border:none; color:#fff; border-radius:6px; padding:0 10px; font-weight:600; cursor:pointer; font-size:11.5px; white-space:nowrap;">Test Key</button>
+              </div>
+              <small style="color: #94a3b8; font-size: 10.5px;">Key lưu cục bộ trên máy. Chưa có key? <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--gold-light); text-decoration: underline;">Lấy miễn phí tại Google AI Studio ↗</a></small>
+            </div>
+
+            <div class="gemini-input-group">
+              <label>⚡ Model Gemini Flash (Mới Nhất):</label>
+              <select id="geminiModelSelect" class="gemini-text-input">
+                <option value="gemini-3.8-flash" selected>Gemini 3.8 Flash (Mới nhất - Siêu nhanh &amp; Thông minh)</option>
+                <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (Tối ưu tốc độ cao)</option>
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Legacy)</option>
+                <option value="custom">Model tùy chỉnh...</option>
+              </select>
+              <input type="text" id="geminiCustomModelInput" class="gemini-text-input" placeholder="Nhập tên model tùy chỉnh" style="display: none; margin-top: 4px;">
+            </div>
+
+            <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px;">
+              <button type="button" id="btnRunGeminiAI" class="btn-gemini-action">
+                ✨ Chuẩn Hóa Bằng Gemini 3.8 Flash AI
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner thông báo kết quả đọc file -->
+        <div class="pdf-status-banner" id="pdfStatusBanner">
+          <span id="pdfStatusText">✓ Đã trích xuất thành công: 22 câu hỏi từ file PDF!</span>
+          <span style="font-size: 11.5px; opacity: 0.85;" id="pdfPageInfo"></span>
+        </div>
+
+        <!-- Thanh chuyển đổi tab Xem trước và Mã văn bản -->
+        <div class="modal-tab-header">
+          <button type="button" class="modal-tab-btn active" id="tabBtnPreview">👀 Xem trước câu hỏi (<span id="previewCountBadge">0</span> câu)</button>
+          <button type="button" class="modal-tab-btn" id="tabBtnCode">📝 Mã đề văn bản (Code/Text)</button>
+        </div>
+
+        <!-- Tab 1: Danh sách Xem trước trực quan -->
+        <div id="tabContentPreview" style="max-height: 280px; overflow-y: auto; padding-right: 4px;">
+          <div id="pdfQuestionsPreviewList">
+            <div style="text-align: center; color: #64748b; padding: 30px 10px;">
+              Chưa có câu hỏi nào. Hãy tải lên file PDF đề thi hoặc dán mã vào ô văn bản!
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Ô Textarea mã nguồn -->
+        <div id="tabContentCode" style="display: none;">
+          <textarea id="txtCustomQuestions" class="mil-textarea" placeholder="Câu 1. Tính giá trị của biểu thức 5² - 3 x 4?
+A. 8
+#B. 13
+C. 88
+D. 12
+
+Câu 2. Tìm số nguyên x thỏa mãn: x + 7 = -3?
+A. x = 10
+B. x = 4
+#C. x = -10
+D. x = -4"></textarea>
+          <div style="font-size: 11.5px; color: #94a3b8; margin-top: 4px;">
+            💡 <em>Mẹo định dạng:</em> Đặt dấu <strong>#</strong> trước đáp án đúng (ví dụ: <code>#B. 13</code>) hoặc ghi <code>Đáp án: B</code> ở cuối câu.
+          </div>
+        </div>
+      </div>
+
+      <div class="mil-modal-footer">
+        <div style="margin-right: auto; display: flex; gap: 8px;">
+          <a href="mau_de_ai_la_trieu_phu.pdf" download="mau_de_ai_la_trieu_phu.pdf" class="btn-mil" id="btnDownloadSamplePdf" style="padding: 7px 12px; font-size: 12px; background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; text-decoration: none; display: inline-flex; align-items: center; border-radius: 6px;">
+            📥 Tải đề mẫu PDF
+          </a>
+          <button type="button" class="btn-mil restart" id="btnClearCustom" style="padding: 7px 12px; font-size: 12px;">
+            🗑 Xóa đề đã lưu
+          </button>
+        </div>
+        <button type="button" class="btn-mil start" id="btnSaveCustom" style="padding: 9px 20px; font-size: 13.5px; font-weight: 700;">
+          ▷ ÁP DỤNG VÀO TRÒ CHƠI: AI LÀ TRIỆU PHÚ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       MODAL HOÀN THÀNH GAME (KẾT QUẢ)
+  ═══════════════════════════════ -->
+  <div class="mil-modal-backdrop" id="modalEndGame">
+    <div class="mil-win-dialog">
+      <img src="assets/millionaire/logo_victory.png" alt="Bạn Là Triệu Phú" style="max-width: 190px; height: auto; margin-bottom: 12px; filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.7));">
+      <h2 class="mil-win-title" id="winTitle">🏆 CHÚC MỪNG CHIẾN THẮNG!</h2>
+      <div class="mil-win-score">
+        Bạn đã hoàn thành <span id="winTotalCount">22</span> câu hỏi thử thách!<br>
+        Số câu trả lời chính xác: <span id="winFinalScore">22</span> / <span id="winTotalFinalScore">22</span><br>
+        Danh hiệu: <span id="winRankName" style="color: #4ade80;">TRIỆU PHÚ TOÁN HỌC</span>
+      </div>
+      <button class="btn-mil start" id="btnWinPlayAgain" style="width: 100%; font-size: 16px;">↺ CHƠI LƯỢT MỚI</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       MODAL PHÓNG TO HÌNH VẼ (LIGHTBOX)
+  ═══════════════════════════════ -->
+  <div class="mil-image-lightbox" id="modalImageZoom" onclick="MillionaireGame.closeZoomImage()">
+    <div class="mil-lightbox-content" onclick="event.stopPropagation()">
+      <button type="button" class="mil-lightbox-close" onclick="MillionaireGame.closeZoomImage()" title="Đóng (Esc)">✕</button>
+      <img id="zoomImageTarget" src="" alt="Hình vẽ minh họa phóng to">
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       JAVASCRIPT: HỆ THỐNG TOÀN DIỆN
+  ═══════════════════════════════ -->
+  <script>
+    /* ═══════════════════════════════════════════════
+       0. HỆ THỐNG RENDER CÔNG THỨC TOÁN (KATEX + FALLBACK)
+    ═══════════════════════════════════════════════════ */
+    const MathRenderer = {
+      // Tự động chuẩn hóa các công thức toán thông thường nếu chưa bọc $
+      formatRawMath(text) {
+        if (!text) return '';
+        let s = String(text);
+
+        // Nếu văn bản đã có chứa dấu LaTeX $...$ hoặc \(...\), giữ nguyên
+        if (/\$[^$]+\$|\\\([^\)]+\\\)|\\\[[^\]]+\\\]/.test(s)) {
+          return s;
+        }
+
+        // Tự động bọc $ cho các biểu thức chứa phân số LaTeX hoặc căn thức
+        s = s.replace(/(\\frac\{[^{}]+\}\{[^{}]+\})/g, '$$$1$$');
+        s = s.replace(/(\\sqrt(?:\[[^{}]+\])?\{[^{}]+\})/g, '$$$1$$');
+
+        // Chuẩn hóa mũ thông thường: ví dụ x^2, x^3 -> $x^2$
+        s = s.replace(/([a-zA-Z0-9\)])\^([0-9nkmx\+\-]+)/g, '$$$1^{$2}$$');
+
+        // Chuẩn hóa chỉ số dưới: ví dụ x_1, x_2 -> $x_1$
+        s = s.replace(/([a-zA-Z])_([0-9ijkm])/g, '$$$1_$2$$');
+
+        return s;
+      },
+
+      // Render KaTeX trên phần tử DOM
+      render(container) {
+        if (!container) return;
+
+        if (typeof window.renderMathInElement === 'function') {
+          try {
+            window.renderMathInElement(container, {
+              delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+              ],
+              throwOnError: false,
+              errorColor: '#ef4444'
+            });
+            return;
+          } catch(e) {
+            console.warn("KaTeX render failed, using fallback:", e);
+          }
+        }
+
+        // Fallback định dạng toán học nếu KaTeX chưa sẵn sàng
+        this.fallbackRender(container);
+      },
+
+      fallbackRender(container) {
+        if (!container) return;
+        let html = container.innerHTML;
+
+        // Bỏ bọc $...$ và render các thẻ HTML
+        html = html.replace(/\$([^$]+)\$/g, (m, expr) => {
+          let clean = expr;
+          clean = clean.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '<span class="math-frac"><span class="math-num">$1</span><span class="math-den">$2</span></span>');
+          clean = clean.replace(/\\sqrt\{([^{}]+)\}/g, '<span class="math-sqrt">√<span class="math-radicand">$1</span></span>');
+          clean = clean.replace(/\^\{?([0-9a-zA-Z\+\-]+)\}?/g, '<sup>$1</sup>');
+          clean = clean.replace(/_\{?([0-9a-zA-Z\+\-]+)\}?/g, '<sub>$1</sub>');
+          clean = clean.replace(/\\times/g, '×').replace(/\\div/g, '÷').replace(/\\pm/g, '±');
+          clean = clean.replace(/\\le/g, '≤').replace(/\\ge/g, '≥').replace(/\\ne/g, '≠');
+          clean = clean.replace(/\\approx/g, '≈').replace(/\\pi/g, 'π').replace(/\\Delta/g, 'Δ');
+          clean = clean.replace(/\\angle/g, '∠').replace(/\\circ/g, '°');
+          return clean;
+        });
+
+        container.innerHTML = html;
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       1. HỆ THỐNG ÂM THANH KÉP (MP3 + SYNTHESIZER FALLBACK)
+    ═══════════════════════════════════════════════════ */
+    const SoundEngine = {
+      enabled: true,
+      audioCtx: null,
+      introTimer: null,
+
+      // Các file MP3 tĩnh trong cùng thư mục (hỗ trợ fallback đa nguồn)
+      mp3Intro: new Audio('nhacmodau.mp3'),
+      mp3Bg: new Audio('nhacnenlientuc.mp3'),
+      mp3Correct: new Audio('amthanhdung.mp3'),
+      mp3Wrong: new Audio('amthanhsai.mp3'),
+      mp3Ending: new Audio('nhacketthuc.mp3'),
+
+      init() {
+        const setupFallback = (audioEl, sources) => {
+          let srcIdx = 0;
+          audioEl.src = sources[srcIdx];
+          audioEl.onerror = () => {
+            srcIdx++;
+            if (srcIdx < sources.length) {
+              audioEl.src = sources[srcIdx];
+            }
+          };
+        };
+
+        setupFallback(this.mp3Intro, [
+          'nhacmodau.mp3',
+          encodeURI('mở đầu chương trình.mp3'),
+          'mở đầu chương trình.mp3',
+          'assets/millionaire/nhacmodau.mp3',
+          'ai-la-trieu-phu mo dau.mp3'
+        ]);
+
+        setupFallback(this.mp3Ending, [
+          'nhacketthuc.mp3',
+          encodeURI('kết thúc chương trình.mp3'),
+          'kết thúc chương trình.mp3',
+          'assets/millionaire/nhacketthuc.mp3'
+        ]);
+
+        this.mp3Bg.loop = true;
+        this.mp3Bg.volume = 0.35;
+        this.mp3Intro.volume = 0.9;
+        this.mp3Correct.volume = 0.9;
+        this.mp3Wrong.volume = 0.85;
+        this.mp3Ending.volume = 0.95;
+      },
+
+      getAudioContext() {
+        if (!this.audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) this.audioCtx = new AudioContextClass();
+        }
+        if (this.audioCtx && this.audioCtx.state === 'suspended') {
+          this.audioCtx.resume();
+        }
+        return this.audioCtx;
+      },
+
+      toggle() {
+        this.enabled = !this.enabled;
+        if (!this.enabled) {
+          this.stopAll();
+        } else {
+          this.playBg();
+        }
+        return this.enabled;
+      },
+
+      stopAll() {
+        if (this.introTimer) { clearTimeout(this.introTimer); this.introTimer = null; }
+        const btnIntro = document.getElementById('btnPlayIntro');
+        if (btnIntro) {
+          btnIntro.innerHTML = '🎵 Mở đầu';
+          btnIntro.style.borderColor = '';
+          btnIntro.style.color = '';
+        }
+        [this.mp3Intro, this.mp3Bg, this.mp3Correct, this.mp3Wrong, this.mp3Ending].forEach(a => {
+          try { a.pause(); a.currentTime = 0; } catch(e){}
+        });
+      },
+
+      pauseBg() {
+        try { this.mp3Bg.pause(); } catch(e){}
+      },
+
+      resumeBg() {
+        if (!this.enabled) return;
+        try {
+          this.mp3Bg.volume = 0.35;
+          this.mp3Bg.play().catch(() => {});
+        } catch(e){}
+      },
+
+      playIntro(onFinished) {
+        if (!this.enabled) {
+          if (onFinished) onFinished();
+          return;
+        }
+        this.stopAll();
+        this.mp3Intro.currentTime = 0;
+        this.mp3Intro.volume = 0.9;
+
+        const updateBtn = (playing) => {
+          const btn = document.getElementById('btnPlayIntro');
+          if (btn) {
+            btn.innerHTML = playing ? '🎵 Đang phát...' : '🎵 Mở đầu';
+            btn.style.borderColor = playing ? 'var(--gold-primary)' : '';
+            btn.style.color = playing ? 'var(--gold-light)' : '';
+          }
+        };
+
+        updateBtn(true);
+
+        this.mp3Intro.onended = () => {
+          this.mp3Intro.onended = null;
+          updateBtn(false);
+          if (this.enabled) {
+            this.playBg();
+          }
+          if (onFinished) onFinished();
+        };
+
+        const playPromise = this.mp3Intro.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            updateBtn(false);
+            this.synthFanfare();
+            if (this.enabled) {
+              this.introTimer = setTimeout(() => this.playBg(), 2000);
+            }
+          });
+        }
+      },
+
+      fadeIntroToBg() {
+        if (!this.mp3Intro.paused && this.mp3Intro.currentTime > 0) {
+          const btnIntro = document.getElementById('btnPlayIntro');
+          if (btnIntro) {
+            btnIntro.innerHTML = '🎵 Mở đầu';
+            btnIntro.style.borderColor = '';
+            btnIntro.style.color = '';
+          }
+          try {
+            let vol = this.mp3Intro.volume;
+            const fade = setInterval(() => {
+              vol = Math.max(0, vol - 0.2);
+              this.mp3Intro.volume = vol;
+              if (vol <= 0) {
+                clearInterval(fade);
+                this.mp3Intro.pause();
+                this.mp3Intro.currentTime = 0;
+                this.resumeBg();
+              }
+            }, 50);
+          } catch(e) {
+            this.mp3Intro.pause();
+            this.resumeBg();
+          }
+        }
+      },
+
+      playBg() {
+        if (!this.enabled) return;
+        if (this.introTimer) { clearTimeout(this.introTimer); this.introTimer = null; }
+        try { this.mp3Intro.pause(); } catch(e){}
+        try { this.mp3Ending.pause(); } catch(e){}
+        this.mp3Bg.volume = 0.35;
+        this.mp3Bg.play().catch(() => {});
+      },
+
+      playLockAnswer() {
+        if (!this.enabled) return;
+        this.synthLockAnswer();
+      },
+
+      playCorrect(isMilestone = false) {
+        if (!this.enabled) return;
+        this.pauseBg(); // Tắt nhạc nền để chuông đúng vang trọn vẹn
+        this.mp3Correct.currentTime = 0;
+        this.mp3Correct.play().catch(() => this.synthCorrect());
+
+        if (isMilestone) {
+          setTimeout(() => this.playApplause(), 500);
+        }
+      },
+
+      playWrong() {
+        if (!this.enabled) return;
+        this.pauseBg(); // Tắt nhạc nền để âm thanh sai rõ ràng
+        this.mp3Wrong.currentTime = 0;
+        this.mp3Wrong.play().catch(() => this.synthWrong());
+      },
+
+      playEnding() {
+        if (!this.enabled) return;
+        this.stopAll();
+        this.mp3Ending.currentTime = 0;
+        this.mp3Ending.volume = 0.95;
+        this.mp3Ending.play().catch(() => this.synthFanfare());
+        setTimeout(() => this.playApplause(true), 1000);
+      },
+
+      playReveal() {
+        if (!this.enabled) return;
+        this.synthReveal();
+      },
+
+      playNavigate() {
+        if (!this.enabled) return;
+        this.synthNavigate();
+      },
+
+      playClick() {
+        if (!this.enabled) return;
+        this.synthClick();
+      },
+
+      playApplause(isLong = false) {
+        if (!this.enabled) return;
+        this.synthApplause(isLong ? 4.0 : 2.5);
+      },
+
+      /* ═══════════════════════════════════════════════
+         BỘ TỔNG HỢP ÂM THANH SYNTHESIZER (WEB AUDIO API)
+         Đảm bảo hoạt động 100% offline, độ trễ 0ms
+      ═══════════════════════════════════════════════ */
+      synthClick() {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(260, ctx.currentTime + 0.04);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.04);
+        } catch(e) {}
+      },
+
+      synthNavigate() {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(640, ctx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.12, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.08);
+        } catch(e) {}
+      },
+
+      synthLockAnswer() {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          // Hợp âm hồi hộp đa âm (D3 + F#3 + A3 + D4)
+          const freqs = [146.83, 185.00, 220.00, 293.66];
+          freqs.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = idx === 0 ? 'sine' : 'triangle';
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(0.12, now + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.65);
+          });
+        } catch(e) {}
+      },
+
+      synthReveal() {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const notes = [659.25, 830.61, 987.77, 1318.51]; // E5 - G#5 - B5 - E6
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            const t = now + idx * 0.06;
+            gain.gain.setValueAtTime(0.15, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.25);
+          });
+        } catch(e) {}
+      },
+
+      synthCorrect() {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 - E5 - G5 - C6
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            const startTime = ctx.currentTime + idx * 0.08;
+            gain.gain.setValueAtTime(0.2, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + 0.35);
+          });
+        } catch(e) {}
+      },
+
+      synthWrong() {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(90, ctx.currentTime + 0.3);
+          gain.gain.setValueAtTime(0.25, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        } catch(e) {}
+      },
+
+      synthFanfare() {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const chords = [392, 523.25, 659.25, 783.99];
+          chords.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + i * 0.12);
+            osc.stop(ctx.currentTime + 0.8);
+          });
+        } catch(e) {}
+      },
+
+      synthApplause(duration = 2.5) {
+        try {
+          const ctx = this.getAudioContext();
+          if (!ctx) return;
+          const bufferSize = ctx.sampleRate * duration;
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+
+          for (let i = 0; i < bufferSize; i++) {
+            if (Math.random() < 0.08) {
+              data[i] = (Math.random() * 2 - 1) * 0.85;
+            } else {
+              data[i] = (Math.random() * 2 - 1) * 0.09;
+            }
+          }
+
+          const noiseNode = ctx.createBufferSource();
+          noiseNode.buffer = buffer;
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(1300, ctx.currentTime);
+          filter.Q.setValueAtTime(1.2, ctx.currentTime);
+
+          const gain = ctx.createGain();
+          const now = ctx.currentTime;
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.3, now + 0.25);
+          gain.gain.setValueAtTime(0.3, now + duration - 0.7);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+          noiseNode.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+
+          noiseNode.start(now);
+          noiseNode.stop(now + duration);
+        } catch(e) {}
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       2. HÌNH VẼ MINH HỌA TOÁN HỌC SVG & NGÂN HÀNG ĐỀ
+    ═══════════════════════════════════════════════════ */
+    const MathGeometrySVGs = {
+      square: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" width="240" height="180"><rect x="50" y="25" width="130" height="130" fill="%23eff6ff" stroke="%232563eb" stroke-width="2.5"/><text x="110" y="20" font-family="sans-serif" font-size="13" font-weight="bold" fill="%231e293b">5 cm</text><text x="25" y="95" font-family="sans-serif" font-size="13" font-weight="bold" fill="%231e293b">5 cm</text><rect x="50" y="25" width="12" height="12" fill="none" stroke="%23ef4444" stroke-width="1.5"/><rect x="168" y="25" width="12" height="12" fill="none" stroke="%23ef4444" stroke-width="1.5"/><rect x="50" y="143" width="12" height="12" fill="none" stroke="%23ef4444" stroke-width="1.5"/><rect x="168" y="143" width="12" height="12" fill="none" stroke="%23ef4444" stroke-width="1.5"/><text x="40" y="20" font-weight="bold" fill="%230f172a">A</text><text x="185" y="20" font-weight="bold" fill="%230f172a">B</text><text x="185" y="170" font-weight="bold" fill="%230f172a">C</text><text x="40" y="170" font-weight="bold" fill="%230f172a">D</text></svg>`,
+      rightTriangle: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 190" width="260" height="190"><polygon points="50,150 210,150 50,40" fill="%23f0fdf4" stroke="%2316a34a" stroke-width="2.5"/><polyline points="50,135 65,135 65,150" fill="none" stroke="%23dc2626" stroke-width="1.8"/><text x="25" y="100" font-family="sans-serif" font-size="13" font-weight="bold" fill="%231e293b">4 cm</text><text x="120" y="172" font-family="sans-serif" font-size="13" font-weight="bold" fill="%231e293b">3 cm</text><text x="135" y="90" font-family="sans-serif" font-size="14" font-weight="bold" fill="%23dc2626">5 cm</text><text x="35" y="165" font-weight="bold" fill="%230f172a">A</text><text x="215" y="165" font-weight="bold" fill="%230f172a">B</text><text x="35" y="35" font-weight="bold" fill="%230f172a">C</text></svg>`,
+      rhombus: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" width="260" height="180"><polygon points="130,20 230,90 130,160 30,90" fill="%23fefce8" stroke="%23ca8a04" stroke-width="2.5"/><line x1="30" y1="90" x2="230" y2="90" stroke="%2364748b" stroke-width="1.8" stroke-dasharray="4,4"/><line x1="130" y1="20" x2="130" y2="160" stroke="%2364748b" stroke-width="1.8" stroke-dasharray="4,4"/><polyline points="130,80 140,80 140,90" fill="none" stroke="%23ef4444" stroke-width="1.6"/><text x="125" y="14" font-weight="bold" fill="%230f172a">A</text><text x="238" y="95" font-weight="bold" fill="%230f172a">B</text><text x="125" y="176" font-weight="bold" fill="%230f172a">C</text><text x="15" y="95" font-weight="bold" fill="%230f172a">D</text><text x="134" y="105" font-size="12" font-weight="bold" fill="%232563eb">O</text><text x="75" y="85" font-size="11.5" fill="%23475569">d₁ = 6</text><text x="136" y="55" font-size="11.5" fill="%23475569">d₂ = 8</text></svg>`,
+      midlineTriangle: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" width="260" height="180"><polygon points="130,25 220,155 40,155" fill="%23f5f3ff" stroke="%237c3aed" stroke-width="2.5"/><line x1="85" y1="90" x2="175" y2="90" stroke="%23dc2626" stroke-width="2.5"/><circle cx="85" cy="90" r="3.5" fill="%23dc2626"/><circle cx="175" cy="90" r="3.5" fill="%23dc2626"/><text x="125" y="18" font-weight="bold" fill="%230f172a">A</text><text x="228" y="162" font-weight="bold" fill="%230f172a">C</text><text x="25" y="162" font-weight="bold" fill="%230f172a">B</text><text x="65" y="93" font-weight="bold" fill="%23dc2626">M</text><text x="183" y="93" font-weight="bold" fill="%23dc2626">N</text><text x="110" y="83" font-size="12" font-weight="bold" fill="%23dc2626">MN // BC</text></svg>`,
+      altitudeTriangle: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" width="260" height="180"><polygon points="40,145 220,145 90,45" fill="%23eff6ff" stroke="%232563eb" stroke-width="2.5"/><line x1="90" y1="45" x2="90" y2="145" stroke="%23dc2626" stroke-width="2.2"/><polyline points="90,132 103,132 103,145" fill="none" stroke="%23dc2626" stroke-width="1.8"/><polyline points="80,55 90,65 100,55" fill="none" stroke="%232563eb" stroke-width="1.6"/><text x="85" y="35" font-weight="bold" fill="%230f172a">A</text><text x="25" y="152" font-weight="bold" fill="%230f172a">B</text><text x="228" y="152" font-weight="bold" fill="%230f172a">C</text><text x="85" y="165" font-weight="bold" fill="%23dc2626">H</text></svg>`,
+      circleAngles: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 190" width="260" height="190"><circle cx="130" cy="95" r="70" fill="%23f8fafc" stroke="%230284c7" stroke-width="2.2"/><circle cx="130" cy="95" r="3" fill="%230f172a"/><line x1="130" y1="95" x2="75" y2="135" stroke="%230284c7" stroke-width="2"/><line x1="130" y1="95" x2="185" y2="135" stroke="%230284c7" stroke-width="2"/><line x1="130" y1="25" x2="75" y2="135" stroke="%23dc2626" stroke-width="2"/><line x1="130" y1="25" x2="185" y2="135" stroke="%23dc2626" stroke-width="2"/><text x="125" y="112" font-size="12" font-weight="bold" fill="%230f172a">O</text><text x="60" y="145" font-weight="bold" fill="%230f172a">A</text><text x="192" y="145" font-weight="bold" fill="%230f172a">B</text><text x="125" y="18" font-weight="bold" fill="%23dc2626">M</text></svg>`
+    };
+
+    const MathQuestionDB = {
+      '6': {
+        'algebra': [
+          { q: "Tính giá trị của biểu thức: $5^2 - 3 \\times 4$", options: ["A. 8", "B. 13", "C. 88", "D. 12"], ans: 1 },
+          { q: "Tìm số nguyên $x$ thỏa mãn: $x + 7 = -3$", options: ["A. $x = 10$", "B. $x = 4$", "C. $x = -10$", "D. $x = -4$"], ans: 2 },
+          { q: "Ước chung lớn nhất của 12 và 18 là gì?", options: ["A. 2", "B. 3", "C. 6", "D. 36"], ans: 2 },
+          { q: "Số đối của số nguyên $-15$ là:", options: ["A. $-15$", "B. $15$", "C. $0$", "D. $\\frac{1}{15}$"], ans: 1 },
+          { q: "Tính chất phân phối của phép nhân đối với phép cộng: $a(b + c) = ?$", options: ["A. $ab + ac$", "B. $ab + c$", "C. $abc$", "D. $a + b + c$"], ans: 0 },
+          { q: "Bội chung nhỏ nhất của 6 và 8 là:", options: ["A. 12", "B. 48", "C. 24", "D. 14"], ans: 2 },
+          { q: "Số nguyên tố nhỏ nhất là số nào?", options: ["A. 0", "B. 1", "C. 2", "D. 3"], ans: 2 }
+        ],
+        'geometry': [
+          { q: "Chu vi của một hình vuông có cạnh $a = 5\\text{ cm}$ (như hình bên) là:", image: MathGeometrySVGs.square, options: ["A. 10 cm", "B. 20 cm", "C. 25 cm", "D. 15 cm"], ans: 1 },
+          { q: "Hình nào dưới đây có tâm đối xứng?", options: ["A. Tam giác đều", "B. Hình vuông", "C. Hình thang cân", "D. Hình tam giác vuông"], ans: 1 },
+          { q: "Diện tích hình chữ nhật có chiều dài 6 cm và chiều rộng 4 cm là:", options: ["A. $10\\text{ cm}^2$", "B. $20\\text{ cm}^2$", "C. $24\\text{ cm}^2$", "D. $12\\text{ cm}^2$"], ans: 2 },
+          { q: "Tam giác đều có mấy trục đối xứng?", options: ["A. 1 trục", "B. 2 trục", "C. 3 trục", "D. Không có"], ans: 2 },
+          { q: "Hình thoi $ABCD$ có hai đường chéo $d_1 = 6\\text{ cm}$ và $d_2 = 8\\text{ cm}$ (như hình vẽ). Diện tích là:", image: MathGeometrySVGs.rhombus, options: ["A. $48\\text{ cm}^2$", "B. $24\\text{ cm}^2$", "C. $14\\text{ cm}^2$", "D. $28\\text{ cm}^2$"], ans: 1 }
+        ]
+      },
+      '7': {
+        'algebra': [
+          { q: "Tính giá trị của đa thức: $P(x) = x^2 - 3$ khi $x = -2$", options: ["A. 1", "B. -7", "C. -1", "D. 7"], ans: 0 },
+          { q: "Tỉ lệ thức: $\\frac{x}{4} = \\frac{3}{2}$. Giá trị của $x$ là:", options: ["A. $x = 6$", "B. $x = 8$", "C. $x = 2$", "D. $x = 12$"], ans: 0 },
+          { q: "Bậc của đa thức $x^3y^2 - 5x^4 + 1$ là:", options: ["A. 3", "B. 4", "C. 5", "D. 6"], ans: 2 },
+          { q: "Tích của hai đơn thức $(2x^2y)$ và $(-3xy^3)$ là:", options: ["A. $-6x^2y^3$", "B. $-6x^3y^4$", "C. $5x^3y^4$", "D. $-6x^3y^3$"], ans: 1 },
+          { q: "Nghiệm của đa thức $2x - 6 = 0$ là:", options: ["A. $x = -3$", "B. $x = 3$", "C. $x = 0$", "D. $x = 6$"], ans: 1 },
+          { q: "Căn bậc hai số học của số 49 là:", options: ["A. $\\sqrt{49} = 7$", "B. $-7$", "C. $\\pm 7$", "D. 2401"], ans: 0 }
+        ],
+        'geometry': [
+          { q: "Quan sát hình vẽ tam giác vuông $ABC$ có hai cạnh góc vuông 3 cm và 4 cm. Độ dài cạnh huyền $BC$ là:", image: MathGeometrySVGs.rightTriangle, options: ["A. 5 cm", "B. 6 cm", "C. 7 cm", "D. 8 cm"], ans: 0 },
+          { q: "Giao điểm của ba đường trung trực của một tam giác cách đều:", options: ["A. Ba cạnh", "B. Ba đỉnh", "C. Hai đỉnh", "D. Trọng tâm"], ans: 1 },
+          { q: "Tổng ba góc trong của một tam giác bất kỳ bằng:", options: ["A. $90^\\circ$", "B. $180^\\circ$", "C. $360^\\circ$", "D. $270^\\circ$"], ans: 1 },
+          { q: "Giao điểm của ba đường cao trong một tam giác gọi là gì?", options: ["A. Trọng tâm", "B. Trực tâm", "C. Tâm ngoại tiếp", "D. Tâm nội tiếp"], ans: 1 },
+          { q: "Trọng tâm của tam giác là giao điểm của ba đường nào?", options: ["A. Ba đường trung tuyến", "B. Ba đường cao", "C. Ba đường phân giác", "D. Ba đường trung trực"], ans: 0 }
+        ]
+      },
+      '8': {
+        'algebra': [
+          { q: "Khai triển hằng đẳng thức đáng nhớ: $(x - y)^2 = ?$", options: ["A. $x^2 - y^2$", "B. $x^2 - 2xy + y^2$", "C. $x^2 + 2xy + y^2$", "D. $(x-y)(x+y)$"], ans: 1 },
+          { q: "Phân tích đa thức thành nhân tử: $x^2 - 4 = ?$", options: ["A. $(x - 2)^2$", "B. $(x - 2)(x + 2)$", "C. $(x + 2)^2$", "D. $x(x - 4)$"], ans: 1 },
+          { q: "Mẫu thức chung nhỏ nhất của hai phân thức $\\frac{1}{x-1}$ và $\\frac{1}{x+1}$ là:", options: ["A. $x - 1$", "B. $x + 1$", "C. $x^2 - 1$", "D. $x^2 + 1$"], ans: 2 },
+          { q: "Phân tích đa thức thành nhân tử: $x^2 - 2x + 1 = ?$", options: ["A. $(x + 1)^2$", "B. $(x - 1)^2$", "C. $(x - 1)(x + 1)$", "D. $x(x - 2) + 1$"], ans: 1 },
+          { q: "Phân tích đa thức thành nhân tử: $3x^2 + 6x = ?$", options: ["A. $3x(x + 2)$", "B. $3(x^2 + 2x)$", "C. $3x(x + 3)$", "D. $3(x + 2)$"], ans: 0 },
+          { q: "Khai triển hằng đẳng thức hiệu hai lập phương: $x^3 - 8 = ?$", options: ["A. $(x - 2)(x^2 + 2x + 4)$", "B. $(x - 2)(x^2 - 2x + 4)$", "C. $(x - 2)^3$", "D. $(x + 2)(x^2 - 2x + 4)$"], ans: 0 },
+          { q: "Phương trình $2x + 4 = 0$ có tập nghiệm là:", options: ["A. $S = \\{2\\}$", "B. $S = \\{-2\\}$", "C. $S = \\{4\\}$", "D. $S = \\{-4\\}$"], ans: 1 }
+        ],
+        'geometry': [
+          { q: "Hình bình hành có một góc vuông là hình gì?", options: ["A. Hình thoi", "B. Hình chữ nhật", "C. Hình vuông", "D. Hình thang cân"], ans: 1 },
+          { q: "Cho tam giác $ABC$, $MN$ là đường trung bình (như hình vẽ bên). Khẳng định nào đúng?", image: MathGeometrySVGs.midlineTriangle, options: ["A. $MN \\parallel BC$ và $MN = \\frac{1}{2}BC$", "B. $MN \\perp BC$", "C. $MN = \\frac{2}{3}BC$", "D. $MN = BC$"], ans: 0 },
+          { q: "Tứ giác có bốn cạnh bằng nhau là hình gì?", options: ["A. Hình vuông", "B. Hình chữ nhật", "C. Hình thoi", "D. Hình bình hành"], ans: 2 },
+          { q: "Hình thoi có hai đường chéo bằng nhau là hình gì?", options: ["A. Hình bình hành", "B. Hình vuông", "C. Hình chữ nhật", "D. Hình thang"], ans: 1 },
+          { q: "Tổng các góc trong của một tứ giác lồi bằng:", options: ["A. $180^\\circ$", "B. $270^\\circ$", "C. $360^\\circ$", "D. $540^\\circ$"], ans: 2 }
+        ]
+      },
+      '9': {
+        'algebra': [
+          { q: "Căn bậc hai số học của số 16 là:", options: ["A. $\\sqrt{16} = 4$", "B. $-4$", "C. $\\pm 4$", "D. $256$"], ans: 0 },
+          { q: "Hệ phương trình $\\begin{cases} x + y = 3 \\\\ x - y = 1 \\end{cases}$ có nghiệm $(x; y)$ là:", options: ["A. $(2; 1)$", "B. $(1; 2)$", "C. $(2; -1)$", "D. $(3; 0)$"], ans: 0 },
+          { q: "Biệt thức $\\Delta$ của phương trình bậc hai $ax^2 + bx + c = 0$ ($a \\ne 0$) là:", options: ["A. $\\Delta = b^2 - ac$", "B. $\\Delta = b^2 - 4ac$", "C. $\\Delta = b - 4ac$", "D. $\\Delta = b^2 + 4ac$"], ans: 1 },
+          { q: "Phương trình $x^2 - 5x + 6 = 0$ có hai nghiệm là:", options: ["A. $x_1 = 1, x_2 = 6$", "B. $x_1 = 2, x_2 = 3$", "C. $x_1 = -2, x_2 = -3$", "D. $x_1 = 1, x_2 = 5$"], ans: 1 },
+          { q: "Theo định lý Vi-ét, tổng hai nghiệm $x_1 + x_2$ của phương trình $ax^2 + bx + c = 0$ là:", options: ["A. $-\\frac{b}{a}$", "B. $\\frac{b}{a}$", "C. $\\frac{c}{a}$", "D. $-\\frac{c}{a}$"], ans: 0 },
+          { q: "Điều kiện xác định của biểu thức $\\sqrt{2x - 4}$ là:", options: ["A. $x \\ge 2$", "B. $x > 2$", "C. $x \\le 2$", "D. $x < 2$"], ans: 0 }
+        ],
+        'geometry': [
+          { q: "Cho tam giác $ABC$ vuông tại $A$, đường cao $AH$ (như hình bên). Hệ thức lượng nào đúng?", image: MathGeometrySVGs.altitudeTriangle, options: ["A. $AH^2 = HB \\times HC$", "B. $AB^2 = AH \\times BC$", "C. $AC^2 = HB \\times BC$", "D. $AH = HB \\times HC$"], ans: 0 },
+          { q: "Quan sát đường tròn $(O)$ (như hình vẽ bên). Góc nội tiếp $\\widehat{AMB}$ và góc ở tâm $\\widehat{AOB}$ có mối liên hệ gì?", image: MathGeometrySVGs.circleAngles, options: ["A. $\\widehat{AMB} = \\frac{1}{2}\\widehat{AOB}$", "B. $\\widehat{AMB} = \\widehat{AOB}$", "C. $\\widehat{AMB} = 2\\widehat{AOB}$", "D. $\\widehat{AMB} + \\widehat{AOB} = 180^\\circ$"], ans: 0 },
+          { q: "Độ dài đường tròn bán kính $R$ được tính theo công thức:", options: ["A. $C = \\pi R^2$", "B. $C = 2\\pi R$", "C. $C = \\pi R$", "D. $C = 2\\pi R^2$"], ans: 1 },
+          { q: "Tứ giác nội tiếp đường tròn có tổng hai góc đối diện bằng:", options: ["A. $90^\\circ$", "B. $180^\\circ$", "C. $360^\\circ$", "D. $270^\\circ$"], ans: 1 },
+          { q: "Góc tạo bởi tia tiếp tuyến và dây cung có số đo bằng:", options: ["A. Nửa số đo cung bị chắn", "B. Số đo cung bị chắn", "C. Nửa góc bẹt", "D. Số đo góc ở tâm"], ans: 0 }
+        ]
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       3. HỆ THỐNG TRÍCH XUẤT VĂN BẢN VÀ HÌNH ẢNH TỪ FILE PDF (PDF.JS)
+    ═══════════════════════════════════════════════════ */
+    const PdfExtractor = {
+      isInitialized: false,
+
+      async extractText(file, onProgress) {
+        if (typeof window.pdfjsLib === 'undefined') {
+          throw new Error("Thư viện PDF.js chưa sẵn sàng hoặc không thể tải từ CDN!");
+        }
+
+        if (!this.isInitialized) {
+          try {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdf.worker.min.js';
+          } catch(e) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          }
+          this.isInitialized = true;
+        }
+
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = window.pdfjsLib.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
+        let fullText = '';
+        const allImages = [];
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          if (onProgress) onProgress(i, pdf.numPages);
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+
+          // Sắp xếp các mẩu chữ: dòng trên trước (y giảm dần), từ trái qua phải (x tăng dần)
+          const items = textContent.items.map(it => ({
+            str: it.str,
+            x: it.transform[4],
+            y: it.transform[5]
+          }));
+
+          items.sort((a, b) => {
+            if (Math.abs(a.y - b.y) <= 4) {
+              return a.x - b.x;
+            }
+            return b.y - a.y;
+          });
+
+          let pageText = '';
+          let lastY = null;
+          for (const it of items) {
+            if (lastY !== null && Math.abs(it.y - lastY) > 5) {
+              pageText += '\n';
+            } else if (pageText.length > 0 && !pageText.endsWith('\n') && !pageText.endsWith(' ')) {
+              pageText += ' ';
+            }
+            pageText += it.str;
+            lastY = it.y;
+          }
+          fullText += `\n--- TRANG ${i} ---\n` + pageText + '\n';
+
+          // Trích xuất hình ảnh từ trang PDF nếu có
+          try {
+            const opList = await page.getOperatorList();
+            const fnArray = opList.fnArray;
+            const argsArray = opList.argsArray;
+            const OPS = window.pdfjsLib.OPS || {};
+
+            for (let j = 0; j < fnArray.length; j++) {
+              if (fnArray[j] === OPS.paintImageXObject || fnArray[j] === OPS.paintInlineImageXObject) {
+                const imgKey = argsArray[j][0];
+                const imgObj = await new Promise((res) => {
+                  if (page.objs && page.objs.get) {
+                    page.objs.get(imgKey, (o) => res(o));
+                  } else if (page.commonObjs && page.commonObjs.get) {
+                    page.commonObjs.get(imgKey, (o) => res(o));
+                  } else {
+                    res(null);
+                  }
+                });
+
+                if (imgObj && (imgObj.bitmap || imgObj.data)) {
+                  const canvas = document.createElement('canvas');
+                  canvas.width = imgObj.width || 300;
+                  canvas.height = imgObj.height || 200;
+                  const ctx = canvas.getContext('2d');
+                  if (imgObj.bitmap) {
+                    ctx.drawImage(imgObj.bitmap, 0, 0);
+                  } else if (imgObj.data) {
+                    const imgData = ctx.createImageData(canvas.width, canvas.height);
+                    if (imgObj.data.length === canvas.width * canvas.height * 3) {
+                      let s = 0, d = 0;
+                      while (s < imgObj.data.length) {
+                        imgData.data[d] = imgObj.data[s];
+                        imgData.data[d + 1] = imgObj.data[s + 1];
+                        imgData.data[d + 2] = imgObj.data[s + 2];
+                        imgData.data[d + 3] = 255;
+                        s += 3; d += 4;
+                      }
+                    } else {
+                      const len = Math.min(imgData.data.length, imgObj.data.length);
+                      imgData.data.set(imgObj.data.subarray(0, len));
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+                  }
+                  const dataUrl = canvas.toDataURL('image/png');
+                  if (dataUrl && dataUrl.length > 200) {
+                    allImages.push({ pageNum: i, dataUrl });
+                  }
+                }
+              }
+            }
+          } catch(e) {}
+        }
+
+        return { fullText, numPages: pdf.numPages, images: allImages };
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       4. BỘ PARSER PHÂN TÍCH CÂU HỎI TRẮC NGHIỆM THÔNG MINH
+    ═══════════════════════════════════════════════════ */
+    const SmartQuizParser = {
+      // Trích xuất Bảng đáp án cuối đề nếu có: "BẢNG ĐÁP ÁN: 1.A 2.B 3.C..."
+      extractAnswerKeys(text) {
+        const keys = {};
+        const keySectionMatch = text.match(/(?:bảng\s*đáp\s*án|dap\s*an\s*trac\s*nghiem|dap\s*an)[\s\S]*$/i);
+        const searchArea = keySectionMatch ? keySectionMatch[0] : text;
+
+        const pairRegex = /(?:Câu\s*)?(\d+)[\s.:-]*([A-D])\b/gi;
+        let m;
+        while ((m = pairRegex.exec(searchArea)) !== null) {
+          const qNum = parseInt(m[1], 10);
+          const ansLetter = m[2].toUpperCase();
+          keys[qNum] = ansLetter;
+        }
+        return keys;
+      },
+
+      parseTextToQuestions(text) {
+        if (!text || !text.trim()) return [];
+
+        // Tách riêng phần BẢNG ĐÁP ÁN ở cuối tài liệu nếu có
+        let questionsText = text;
+        const answerSectionMatch = text.match(/(?:^|\n)\s*(?:b[·ảa]ng\s*[·đd]áp\s*án|dap\s*an\s*trac\s*nghiem)[\s\S]*$/i);
+        if (answerSectionMatch) {
+          questionsText = text.substring(0, answerSectionMatch.index);
+        }
+
+        const answerKeys = this.extractAnswerKeys(text);
+        const questions = [];
+
+        // Tìm vị trí các câu hỏi: "Câu 1", "Câu 2", "Bài 1", "Question 1"
+        const qHeaderRegex = /(?:^|\n)\s*(?:Câu|Bài|Question)\s*(\d+)[\s.:-]/gi;
+        const matches = [];
+        let match;
+        while ((match = qHeaderRegex.exec(questionsText)) !== null) {
+          matches.push({
+            num: parseInt(match[1], 10),
+            startIndex: match.index,
+            headerLen: match[0].length
+          });
+        }
+
+        if (matches.length === 0) {
+          return this.fallbackLineParser(questionsText);
+        }
+
+        for (let i = 0; i < matches.length; i++) {
+          const cur = matches[i];
+          const nextIndex = (i + 1 < matches.length) ? matches[i + 1].startIndex : questionsText.length;
+          const block = questionsText.substring(cur.startIndex, nextIndex).trim();
+
+          const qObj = this.parseSingleBlock(block, cur.num, answerKeys[cur.num]);
+          if (qObj) questions.push(qObj);
+        }
+
+        return questions;
+      },
+
+      parseSingleBlock(block, qNum, externalKey) {
+        // Tìm các phương án A, B, C, D
+        const optRegex = /(?:^|\s)(#|\*)?([A-D])[\s.:\)\/]/g;
+        const optPositions = [];
+        let m;
+        while ((m = optRegex.exec(block)) !== null) {
+          // Chỉ lấy tối đa 4 phương án đầu tiên
+          if (optPositions.length < 4) {
+            optPositions.push({
+              isMarked: !!m[1],
+              letter: m[2].toUpperCase(),
+              index: m.index + (m[0].startsWith(' ') ? 1 : 0),
+              len: m[0].trim().length
+            });
+          }
+        }
+
+        if (optPositions.length < 2) return null;
+
+        const qContent = block.substring(0, optPositions[0].index)
+          .replace(/^(?:Câu|Bài|Question)\s*\d+[\s.:-]/i, '')
+          .trim();
+
+        const options = [];
+        let correctIdx = 0;
+
+        // Bắt đáp án từ dòng ghi chú đáp án trong câu (hỗ trợ nhiều font)
+        const ansLineMatch = block.match(/(?:(?:đáp|dap|[·\*\#]?áp)\s*án|chọn|key)[\s.:-]*([A-D])/i);
+        let explicitKey = ansLineMatch ? ansLineMatch[1].toUpperCase() : null;
+
+        for (let i = 0; i < optPositions.length; i++) {
+          const curOpt = optPositions[i];
+          const nextOptIndex = (i + 1 < optPositions.length) ? optPositions[i + 1].index : block.length;
+          let optText = block.substring(curOpt.index, nextOptIndex).trim();
+
+          // Cắt sạch dòng đáp án ở cuối nếu dính vào phương án D
+          optText = optText.split(/\n\s*(?:(?:đáp|dap|[·\*\#]?áp)\s*án|chọn|key)/i)[0].trim();
+
+          if (curOpt.isMarked) {
+            correctIdx = i;
+          } else if (explicitKey && explicitKey === curOpt.letter) {
+            correctIdx = i;
+          } else if (externalKey && externalKey === curOpt.letter) {
+            correctIdx = i;
+          }
+
+          options.push(optText);
+        }
+
+        while (options.length < 4) {
+          const letter = String.fromCharCode(65 + options.length);
+          options.push(`${letter}. (Không có)`);
+        }
+
+        return {
+          q: qContent || `Câu hỏi ${qNum}`,
+          options: options.slice(0, 4),
+          ans: Math.max(0, Math.min(3, correctIdx))
+        };
+      },
+
+      fallbackLineParser(text) {
+        const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(b => b.length > 0);
+        const questions = [];
+        blocks.forEach((block, idx) => {
+          const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+          if (lines.length >= 5) {
+            const q = lines[0].replace(/^(?:Câu|Bài|\d+)[\s.:-]*/i, '');
+            const options = lines.slice(1, 5);
+            let ans = 0;
+            const ansLine = lines.find(l => /đáp\s*án|dap\s*an/i.test(l));
+            if (ansLine) {
+              const m = ansLine.match(/[A-D]/i);
+              if (m) ans = m[0].toUpperCase().charCodeAt(0) - 65;
+            }
+            questions.push({ q, options, ans: Math.max(0, Math.min(3, ans)) });
+          }
+        });
+        return questions;
+      },
+
+      toStandardText(questions) {
+        return questions.map((q, idx) => {
+          const opts = q.options.map((opt, optIdx) => {
+            const cleanOpt = opt.replace(/^[#*]?[A-D][\s.:\)\/]/, '').trim();
+            const letter = String.fromCharCode(65 + optIdx);
+            const prefix = (optIdx === q.ans) ? `#${letter}.` : `${letter}.`;
+            return `${prefix} ${cleanOpt}`;
+          }).join('\n');
+          return `Câu ${idx + 1}. ${q.q}\n${opts}`;
+        }).join('\n\n');
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       5. DỊCH VỤ GOOGLE GEMINI AI (CHUẨN HÓA & TỰ GIẢI ĐỀ)
+    ═══════════════════════════════════════════════════ */
+    const GeminiQuizService = {
+      defaultModel: 'gemini-3.8-flash',
+
+      async standardizeQuestions(rawText, apiKey, modelName = 'gemini-3.8-flash') {
+        if (!apiKey || !apiKey.trim()) {
+          throw new Error("Vui lòng nhập Google Gemini API Key để kích hoạt chuẩn hóa AI!");
+        }
+
+        if (!rawText || !rawText.trim()) {
+          throw new Error("Không có nội dung văn bản đề thi để xử lý!");
+        }
+
+        const chosenModel = (modelName === 'custom') 
+          ? (document.getElementById('geminiCustomModelInput')?.value.trim() || 'gemini-3.8-flash') 
+          : modelName;
+
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(chosenModel)}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
+
+        const systemInstruction = `Bạn là chuyên gia sư phạm Toán học và cố vấn nội dung cho gameshow giáo dục Ai Là Triệu Phú.
+Nhiệm vụ: Hãy phân tích kỹ đoạn văn bản sau đây (trích xuất từ file PDF hoặc tài liệu đề thi), nhận diện toàn bộ các câu hỏi trắc nghiệm, làm sạch văn bản, chuẩn hóa công thức toán học và xác định đáp án đúng cho từng câu.
+
+Quy tắc bắt buộc:
+1. Mỗi câu hỏi phải có nội dung câu hỏi rõ ràng (q), đúng 4 phương án lựa chọn (options) có tiền tố "A. ", "B. ", "C. ", "D. ".
+2. Xác định chính xác chỉ số đáp án đúng (ans): 0 cho A, 1 cho B, 2 cho C, 3 cho D.
+3. Nếu đề bài chưa ghi đáp án, bạn hãy tự giải bài toán đó để chọn ra đáp án chính xác nhất.
+4. Chuẩn hóa các ký tự công thức toán học bị lỗi font khi scan/OCR (ví dụ: x^2 thành x², căn bậc hai, phân số...).
+5. Trả về DUY NHẤT định dạng JSON tuân thủ schema sau (không thêm văn bản dẫn dắt, không bọc markdown):
+[
+  {
+    "q": "Nội dung câu hỏi",
+    "options": ["A. Lựa chọn 1", "B. Lựa chọn 2", "C. Lựa chọn 3", "D. Lựa chọn 4"],
+    "ans": 0
+  }
+]`;
+
+        const requestPayload = {
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: `${systemInstruction}\n\nĐÂY LÀ VĂN BẢN ĐỀ THI CẦN XỬ LÝ:\n${rawText.slice(0, 30000)}`
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 8192,
+            responseMimeType: "application/json"
+          }
+        };
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(requestPayload)
+        });
+
+        if (!response.ok) {
+          let errDetail = "";
+          try {
+            const errJson = await response.json();
+            errDetail = errJson.error?.message || response.statusText;
+          } catch(e) {
+            errDetail = response.statusText;
+          }
+          throw new Error(`Gemini API Error (${response.status}): ${errDetail}`);
+        }
+
+        const data = await response.json();
+        const candidate = data.candidates?.[0];
+        if (!candidate || !candidate.content?.parts?.[0]?.text) {
+          throw new Error("Không nhận được phản hồi hợp lệ từ Gemini API.");
+        }
+
+        let jsonText = candidate.content.parts[0].text.trim();
+        if (jsonText.startsWith("```")) {
+          jsonText = jsonText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+        }
+
+        const parsed = JSON.parse(jsonText);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          throw new Error("Dữ liệu trả về từ Gemini không phải là danh sách câu hỏi hợp lệ!");
+        }
+
+        return parsed.map((item, idx) => {
+          let ans = typeof item.ans === 'number' ? item.ans : 0;
+          if (typeof item.ans === 'string') {
+            const m = item.ans.trim().toUpperCase();
+            if (m === 'A') ans = 0;
+            else if (m === 'B') ans = 1;
+            else if (m === 'C') ans = 2;
+            else if (m === 'D') ans = 3;
+          }
+
+          let opts = Array.isArray(item.options) ? item.options : [];
+          opts = opts.map((opt, oIdx) => {
+            const letter = String.fromCharCode(65 + oIdx);
+            let clean = opt.replace(/^[A-D][.:)\/]\s*/i, '').trim();
+            return `${letter}. ${clean}`;
+          });
+
+          while (opts.length < 4) {
+            const letter = String.fromCharCode(65 + opts.length);
+            opts.push(`${letter}. (Không có)`);
+          }
+
+          return {
+            q: item.q || `Câu hỏi ${idx + 1}`,
+            options: opts.slice(0, 4),
+            ans: Math.max(0, Math.min(3, ans))
+          };
+        });
+      },
+
+      async testConnection(apiKey, modelName = 'gemini-3.8-flash') {
+        if (!apiKey) throw new Error("Chưa nhập API Key!");
+        const chosenModel = (modelName === 'custom') 
+          ? (document.getElementById('geminiCustomModelInput')?.value.trim() || 'gemini-3.8-flash') 
+          : modelName;
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(chosenModel)}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: "Hãy trả lời đúng một từ: OK" }] }]
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error?.message || `HTTP ${res.status}`);
+        }
+        return true;
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       6. QUẢN LÝ GIAO DIỆN NẠP ĐỀ (MODAL CONTROLLER)
+    ═══════════════════════════════════════════════════ */
+    const CustomQuestionManager = {
+      parsedQuestions: [],
+
+      init() {
+        this.bindModalEvents();
+        this.loadGeminiSettings();
+      },
+
+      loadGeminiSettings() {
+        const savedKey = localStorage.getItem('toan_ai_gemini_api_key') || '';
+        const savedModel = localStorage.getItem('toan_ai_gemini_model') || 'gemini-3.8-flash';
+        const useGemini = localStorage.getItem('toan_ai_use_gemini') === 'true';
+
+        const keyInput = document.getElementById('geminiApiKey');
+        const modelSelect = document.getElementById('geminiModelSelect');
+        const chkGemini = document.getElementById('chkUseGemini');
+        const customModelInput = document.getElementById('geminiCustomModelInput');
+
+        if (keyInput) keyInput.value = savedKey;
+        if (modelSelect) {
+          if (['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'].includes(savedModel)) {
+            modelSelect.value = savedModel;
+          } else if (savedModel) {
+            modelSelect.value = 'custom';
+            if (customModelInput) {
+              customModelInput.style.display = 'block';
+              customModelInput.value = savedModel;
+            }
+          }
+        }
+        if (chkGemini) {
+          chkGemini.checked = useGemini;
+          this.toggleGeminiPanel(useGemini);
+        }
+      },
+
+      toggleGeminiPanel(isOpen) {
+        const panel = document.getElementById('geminiInputsPanel');
+        const box = document.getElementById('geminiConfigBox');
+        const label = document.getElementById('geminiStatusLabel');
+        if (panel) panel.style.display = isOpen ? 'grid' : 'none';
+        if (box) box.classList.toggle('active', isOpen);
+        if (label) {
+          label.innerText = isOpen ? 'Đang bật AI' : 'Chưa bật';
+          label.style.color = isOpen ? '#c084fc' : '#94a3b8';
+        }
+      },
+
+      bindModalEvents() {
+        const modal = document.getElementById('modalCustomQ');
+        const dropzone = document.getElementById('pdfDropzone');
+        const fileInput = document.getElementById('pdfFileInput');
+        const btnSelectPdf = document.getElementById('btnSelectPdf');
+        const txtArea = document.getElementById('txtCustomQuestions');
+
+        // Gemini AI Controls
+        const chkGemini = document.getElementById('chkUseGemini');
+        const keyInput = document.getElementById('geminiApiKey');
+        const modelSelect = document.getElementById('geminiModelSelect');
+        const customModelInput = document.getElementById('geminiCustomModelInput');
+        const btnToggleKey = document.getElementById('btnToggleApiKey');
+        const btnTestKey = document.getElementById('btnTestGeminiKey');
+        const btnRunAI = document.getElementById('btnRunGeminiAI');
+
+        chkGemini.addEventListener('change', (e) => {
+          const isOpen = e.target.checked;
+          localStorage.setItem('toan_ai_use_gemini', isOpen ? 'true' : 'false');
+          this.toggleGeminiPanel(isOpen);
+        });
+
+        keyInput.addEventListener('change', () => {
+          localStorage.setItem('toan_ai_gemini_api_key', keyInput.value.trim());
+        });
+
+        modelSelect.addEventListener('change', () => {
+          if (modelSelect.value === 'custom') {
+            customModelInput.style.display = 'block';
+            customModelInput.focus();
+          } else {
+            customModelInput.style.display = 'none';
+            localStorage.setItem('toan_ai_gemini_model', modelSelect.value);
+          }
+        });
+
+        customModelInput.addEventListener('change', () => {
+          localStorage.setItem('toan_ai_gemini_model', customModelInput.value.trim());
+        });
+
+        btnToggleKey.addEventListener('click', () => {
+          keyInput.type = (keyInput.type === 'password') ? 'text' : 'password';
+          btnToggleKey.innerText = (keyInput.type === 'password') ? '👁' : '🔒';
+        });
+
+        btnTestKey.addEventListener('click', async () => {
+          const key = keyInput.value.trim();
+          if (!key) {
+            alert("Vui lòng nhập API Key để kiểm tra!");
+            return;
+          }
+          btnTestKey.innerText = 'Đang test...';
+          btnTestKey.disabled = true;
+          try {
+            await GeminiQuizService.testConnection(key, modelSelect.value);
+            alert("✓ Kết nối Google Gemini API thành công! API Key của bạn hoàn toàn hợp lệ.");
+          } catch(err) {
+            alert(`✕ Lỗi kết nối Gemini API: ${err.message}`);
+          } finally {
+            btnTestKey.innerText = 'Test Key';
+            btnTestKey.disabled = false;
+          }
+        });
+
+        btnRunAI.addEventListener('click', async () => {
+          const rawText = txtArea.value.trim();
+          if (!rawText) {
+            alert("Vui lòng dán văn bản đề thi vào ô văn bản hoặc tải file PDF trước khi bấm chuẩn hóa!");
+            return;
+          }
+          const key = keyInput.value.trim();
+          if (!key) {
+            alert("Vui lòng nhập Gemini API Key để thực hiện chuẩn hóa AI!");
+            keyInput.focus();
+            return;
+          }
+
+          btnRunAI.innerText = '⏳ AI đang xử lý...';
+          btnRunAI.disabled = true;
+          const banner = document.getElementById('pdfStatusBanner');
+          const statusText = document.getElementById('pdfStatusText');
+          banner.style.display = 'flex';
+          banner.style.borderColor = '#a855f7';
+          banner.style.color = '#e9d5ff';
+          statusText.innerText = '✨ Gemini AI đang phân tích ngữ nghĩa, làm sạch công thức và giải tìm đáp án...';
+
+          try {
+            const aiQuestions = await GeminiQuizService.standardizeQuestions(rawText, key, modelSelect.value);
+            this.parsedQuestions = aiQuestions;
+            txtArea.value = SmartQuizParser.toStandardText(aiQuestions);
+            this.renderPreview();
+            document.getElementById('tabBtnPreview').click();
+
+            banner.style.borderColor = '#10b981';
+            banner.style.color = '#6ee7b7';
+            statusText.innerText = `✓ Gemini AI đã chuẩn hóa thành công ${aiQuestions.length} câu hỏi trắc nghiệm!`;
+            SoundEngine.playReveal();
+          } catch(err) {
+            alert(`Lỗi chuẩn hóa Gemini AI: ${err.message}`);
+            banner.style.borderColor = '#ef4444';
+            banner.style.color = '#fca5a5';
+            statusText.innerText = `Lỗi AI: ${err.message}`;
+          } finally {
+            btnRunAI.innerText = '✨ Chuẩn Hóa Văn Bản Bằng Gemini AI';
+            btnRunAI.disabled = false;
+          }
+        });
+
+        // Mở modal
+        document.getElementById('btnCustomQuestions').addEventListener('click', () => {
+          const saved = localStorage.getItem('toan_ai_custom_questions_text') || '';
+          txtArea.value = saved;
+          if (saved.trim()) {
+            this.parsedQuestions = SmartQuizParser.parseTextToQuestions(saved);
+          } else {
+            this.parsedQuestions = [];
+          }
+          this.renderPreview();
+          modal.style.display = 'flex';
+        });
+
+        // Đóng modal
+        document.getElementById('btnCloseModalQ').addEventListener('click', () => {
+          modal.style.display = 'none';
+        });
+
+        // Chọn file PDF
+        btnSelectPdf.addEventListener('click', (e) => {
+          e.stopPropagation();
+          fileInput.click();
+        });
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        // Kéo thả file PDF
+        dropzone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dropzone.classList.add('dragover');
+        });
+        dropzone.addEventListener('dragleave', () => {
+          dropzone.classList.remove('dragover');
+        });
+        dropzone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dropzone.classList.remove('dragover');
+          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            this.handlePdfFile(e.dataTransfer.files[0]);
+          }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+          if (e.target.files && e.target.files[0]) {
+            this.handlePdfFile(e.target.files[0]);
+          }
+        });
+
+        // Tab chuyển đổi
+        const tabBtnPrev = document.getElementById('tabBtnPreview');
+        const tabBtnCode = document.getElementById('tabBtnCode');
+        const tabContentPrev = document.getElementById('tabContentPreview');
+        const tabContentCode = document.getElementById('tabContentCode');
+
+        tabBtnPrev.addEventListener('click', () => {
+          tabBtnPrev.classList.add('active');
+          tabBtnCode.classList.remove('active');
+          tabContentPrev.style.display = 'block';
+          tabContentCode.style.display = 'none';
+        });
+
+        tabBtnCode.addEventListener('click', () => {
+          tabBtnCode.classList.add('active');
+          tabBtnPrev.classList.remove('active');
+          tabContentPrev.style.display = 'none';
+          tabContentCode.style.display = 'block';
+        });
+
+        // Khi gõ tay vào ô textarea
+        txtArea.addEventListener('input', () => {
+          this.parsedQuestions = SmartQuizParser.parseTextToQuestions(txtArea.value);
+          this.renderPreview();
+        });
+
+        // Nút Lưu và áp dụng
+        document.getElementById('btnSaveCustom').addEventListener('click', () => {
+          if (this.parsedQuestions.length === 0 && !txtArea.value.trim()) {
+            alert("Vui lòng tải lên file PDF hoặc nhập câu hỏi trước khi áp dụng!");
+            return;
+          }
+
+          const standardText = SmartQuizParser.toStandardText(this.parsedQuestions);
+          localStorage.setItem('toan_ai_custom_questions_text', standardText);
+          localStorage.setItem('toan_ai_custom_questions_json', JSON.stringify(this.parsedQuestions));
+
+          modal.style.display = 'none';
+          MillionaireGame.startGame();
+          SoundEngine.playEnding();
+          alert(`Đã nạp và áp dụng thành công ${this.parsedQuestions.length} câu hỏi vào trò chơi!`);
+        });
+
+        // Nút Xóa đề
+        document.getElementById('btnClearCustom').addEventListener('click', () => {
+          localStorage.removeItem('toan_ai_custom_questions_text');
+          localStorage.removeItem('toan_ai_custom_questions_json');
+          this.parsedQuestions = [];
+          txtArea.value = '';
+          this.renderPreview();
+          document.getElementById('pdfStatusBanner').style.display = 'none';
+          alert('Đã xóa bộ đề tùy chỉnh. Hệ thống sẽ quay về ngân hàng câu hỏi chuẩn.');
+          modal.style.display = 'none';
+          MillionaireGame.startGame();
+        });
+      },
+
+      async handlePdfFile(file) {
+        if (!file.name.toLowerCase().endsWith('.pdf')) {
+          alert('Vui lòng chọn tệp có định dạng .pdf!');
+          return;
+        }
+
+        const banner = document.getElementById('pdfStatusBanner');
+        const statusText = document.getElementById('pdfStatusText');
+        const pageInfo = document.getElementById('pdfPageInfo');
+        const chkGemini = document.getElementById('chkUseGemini');
+        const keyInput = document.getElementById('geminiApiKey');
+        const modelSelect = document.getElementById('geminiModelSelect');
+
+        banner.style.display = 'flex';
+        statusText.innerText = `Đang đọc file PDF: ${file.name}...`;
+        pageInfo.innerText = '';
+
+        try {
+          const res = await PdfExtractor.extractText(file, (cur, total) => {
+            statusText.innerText = `Đang giải mã trang ${cur}/${total} của file PDF...`;
+          });
+
+          // Nếu bật Gemini AI và có API Key: Dùng AI chuẩn hóa và tự giải đề
+          const useAI = chkGemini && chkGemini.checked && keyInput.value.trim();
+          let questions = [];
+
+          if (useAI) {
+            statusText.innerText = `✨ Đang kết nối Gemini Flash AI (${modelSelect.value}) để phân tích ngữ nghĩa & chuẩn hóa...`;
+            banner.style.borderColor = '#a855f7';
+            banner.style.color = '#e9d5ff';
+            try {
+              questions = await GeminiQuizService.standardizeQuestions(res.fullText, keyInput.value.trim(), modelSelect.value);
+            } catch(aiErr) {
+              console.warn("Gemini AI failed, fallback to local parser:", aiErr);
+              alert(`Cảnh báo Gemini AI: ${aiErr.message}\nHệ thống sẽ tự động chuyển sang chế độ bóc tách Offline.`);
+              questions = SmartQuizParser.parseTextToQuestions(res.fullText);
+            }
+          } else {
+            // Chế độ Offline bóc tách bằng Regex
+            questions = SmartQuizParser.parseTextToQuestions(res.fullText);
+          }
+
+          if (questions.length === 0) {
+            statusText.innerText = `Không tìm thấy câu hỏi trắc nghiệm nào trong file "${file.name}"!`;
+            banner.style.borderColor = '#ef4444';
+            banner.style.color = '#fca5a5';
+            return;
+          }
+
+          // Tự động liên kết hình ảnh trích xuất từ PDF vào câu hỏi hình học tương ứng
+          if (res.images && res.images.length > 0) {
+            let imgCursor = 0;
+            questions.forEach(q => {
+              const hasImgKeyword = /(?:hình\s*(?:vẽ|bên|sau|dưới|\d+)|đồ\s*thị|sơ\s*đồ|tam\s*giác\s*[A-D]|tứ\s*giác\s*[A-D])/i.test(q.q);
+              if (hasImgKeyword && !q.image && imgCursor < res.images.length) {
+                q.image = res.images[imgCursor].dataUrl;
+                imgCursor++;
+              }
+            });
+            // Nếu câu hỏi chưa có ảnh nào mà PDF có ảnh, gán ảnh đầu tiên vào câu hình học đầu tiên
+            if (imgCursor === 0 && res.images.length > 0) {
+              const firstGeomQ = questions.find(q => /(?:tam giác|tứ giác|hình|đoạn thẳng|góc)/i.test(q.q));
+              if (firstGeomQ) firstGeomQ.image = res.images[0].dataUrl;
+            }
+          }
+
+          this.parsedQuestions = questions;
+          const standardText = SmartQuizParser.toStandardText(questions);
+          document.getElementById('txtCustomQuestions').value = standardText;
+
+          banner.style.borderColor = '#10b981';
+          banner.style.color = '#6ee7b7';
+          const prefix = useAI ? "✨ Gemini AI đã" : "✓ Đã";
+          const imgNotice = (res.images && res.images.length > 0) ? ` & trích xuất được ${res.images.length} hình vẽ` : '';
+          statusText.innerText = `${prefix} trích xuất thành công ${questions.length} câu hỏi${imgNotice} từ file "${file.name}"!`;
+          pageInfo.innerText = `Số trang: ${res.numPages} | Dung lượng: ${(file.size / 1024).toFixed(1)} KB`;
+
+          this.renderPreview();
+          document.getElementById('tabBtnPreview').click();
+          SoundEngine.playReveal();
+
+        } catch (err) {
+          console.error(err);
+          statusText.innerText = `Lỗi đọc file PDF: ${err.message || 'Không thể bóc tách nội dung'}`;
+          banner.style.borderColor = '#ef4444';
+          banner.style.color = '#fca5a5';
+        }
+      },
+
+      renderPreview() {
+        const container = document.getElementById('pdfQuestionsPreviewList');
+        const countBadge = document.getElementById('previewCountBadge');
+        countBadge.innerText = this.parsedQuestions.length;
+
+        if (this.parsedQuestions.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; color: #64748b; padding: 30px 10px;">
+              Chưa có câu hỏi nào. Hãy tải lên file PDF đề thi hoặc dán mã vào ô văn bản!
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = '';
+        this.parsedQuestions.forEach((item, qIdx) => {
+          const card = document.createElement('div');
+          card.className = 'preview-question-card';
+
+          const titleRow = document.createElement('div');
+          titleRow.className = 'preview-q-title';
+          titleRow.innerHTML = `
+            <span><strong style="color: var(--gold-light);">Câu ${qIdx + 1}:</strong> ${item.q}</span>
+            <button type="button" class="btn-del-preview-q" title="Xóa câu này">🗑 Xóa</button>
+          `;
+
+          titleRow.querySelector('.btn-del-preview-q').onclick = () => {
+            this.parsedQuestions.splice(qIdx, 1);
+            document.getElementById('txtCustomQuestions').value = SmartQuizParser.toStandardText(this.parsedQuestions);
+            this.renderPreview();
+          };
+
+          card.appendChild(titleRow);
+
+          // Khung hiển thị / quản lý hình vẽ cho câu hỏi
+          if (item.image) {
+            const imgBox = document.createElement('div');
+            imgBox.className = 'preview-q-image-box';
+
+            const thumbImg = document.createElement('img');
+            thumbImg.className = 'preview-q-thumb';
+            thumbImg.src = item.image;
+            thumbImg.title = 'Nhấp để phóng to toàn màn hình';
+            thumbImg.onclick = () => MillionaireGame.zoomImage(item.image);
+
+            const infoSpan = document.createElement('span');
+            infoSpan.style.cssText = 'font-size: 11.5px; color: #93c5fd; font-weight: 600;';
+            infoSpan.innerText = '✓ Có hình vẽ minh họa đính kèm';
+
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'btn-attach-img';
+            delBtn.style.cssText = 'color: #fca5a5; border-color: #ef4444; margin-left: auto;';
+            delBtn.title = 'Xóa ảnh';
+            delBtn.innerText = '🗑 Xóa hình';
+            delBtn.onclick = () => {
+              delete item.image;
+              document.getElementById('txtCustomQuestions').value = SmartQuizParser.toStandardText(this.parsedQuestions);
+              this.renderPreview();
+            };
+
+            imgBox.appendChild(thumbImg);
+            imgBox.appendChild(infoSpan);
+            imgBox.appendChild(delBtn);
+            card.appendChild(imgBox);
+          } else {
+            const addImgBox = document.createElement('div');
+            addImgBox.style.margin = '6px 0 8px 0';
+            addImgBox.innerHTML = `
+              <label class="btn-attach-img" style="cursor: pointer;">
+                📷 Đính kèm hình vẽ cho câu ${qIdx + 1}
+                <input type="file" accept="image/*" style="display: none;" class="preview-img-input">
+              </label>
+            `;
+            const fileInput = addImgBox.querySelector('.preview-img-input');
+            fileInput.onchange = (e) => {
+              if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (re) => {
+                  item.image = re.target.result;
+                  document.getElementById('txtCustomQuestions').value = SmartQuizParser.toStandardText(this.parsedQuestions);
+                  this.renderPreview();
+                };
+                reader.readAsDataURL(e.target.files[0]);
+              }
+            };
+            card.appendChild(addImgBox);
+          }
+
+          const optGrid = document.createElement('div');
+          optGrid.className = 'preview-opt-grid';
+
+          item.options.forEach((optText, optIdx) => {
+            const optBtn = document.createElement('div');
+            optBtn.className = 'preview-opt-item' + (optIdx === item.ans ? ' is-correct' : '');
+            optBtn.innerHTML = `
+              <span>${optText}</span>
+              ${optIdx === item.ans ? '<span style="color:#10b981; font-weight:800;">✓ ĐÚNG</span>' : ''}
+            `;
+
+            optBtn.onclick = () => {
+              item.ans = optIdx;
+              document.getElementById('txtCustomQuestions').value = SmartQuizParser.toStandardText(this.parsedQuestions);
+              this.renderPreview();
+              SoundEngine.playClick();
+            };
+
+            optGrid.appendChild(optBtn);
+          });
+
+          card.appendChild(optGrid);
+          container.appendChild(card);
+
+          // Render công thức Toán học KaTeX trên toàn bộ thẻ xem trước
+          MathRenderer.render(card);
+        });
+      }
+    };
+
+    /* ═══════════════════════════════════════════════
+       6. LOGIC GAME AI LÀ TRIỆU PHÚ TOÁN HỌC (22 CÂU)
+    ═══════════════════════════════════════════════════ */
+    const MillionaireGame = {
+      questions: [],
+      currentIdx: 0,
+      score: 0,
+      isGameOver: false,
+      totalQuestions: 22,
+
+      init() {
+        SoundEngine.init();
+        CustomQuestionManager.init();
+        this.bindEvents();
+        this.renderInitialGrid();
+      },
+
+      bindEvents() {
+        // Nút điều khiển
+        document.getElementById('btnMilStart').addEventListener('click', () => this.startGame());
+        document.getElementById('btnMilCheck').addEventListener('click', () => this.checkAnswer());
+        document.getElementById('btnMilAnswer').addEventListener('click', () => this.revealCurrentAnswer());
+        document.getElementById('btnMilRestart').addEventListener('click', () => this.startGame());
+        document.getElementById('btnMilPrev').addEventListener('click', () => this.navigate(-1));
+        document.getElementById('btnMilNext').addEventListener('click', () => this.navigate(1));
+
+        // 4 đáp án A, B, C, D
+        document.querySelectorAll('.mil-option').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const opt = parseInt(e.currentTarget.getAttribute('data-opt'));
+            this.selectOption(opt);
+          });
+        });
+
+        // Tiện ích
+        document.getElementById('btnSoundToggle').addEventListener('click', () => {
+          const isOn = SoundEngine.toggle();
+          document.getElementById('btnSoundToggle').innerText = isOn ? '🔊 Âm thanh' : '🔇 Tắt tiếng';
+        });
+
+        const btnPlayIntro = document.getElementById('btnPlayIntro');
+        if (btnPlayIntro) {
+          btnPlayIntro.addEventListener('click', () => {
+            SoundEngine.playIntro();
+          });
+        }
+
+        document.getElementById('btnFullscreenToggle').addEventListener('click', () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
+        });
+
+        // Modal hoàn thành game
+        document.getElementById('btnWinPlayAgain').addEventListener('click', () => {
+          document.getElementById('modalEndGame').style.display = 'none';
+          this.startGame();
+        });
+
+        // Lắng nghe phím tắt thuận tiện cho giáo viên trên lớp
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            this.closeZoomImage();
+          }
+          if (document.getElementById('modalCustomQ').style.display === 'flex') return;
+          const key = e.key.toLowerCase();
+          if (key === '1' || key === 'a') this.selectOption(0);
+          else if (key === '2' || key === 'b') this.selectOption(1);
+          else if (key === '3' || key === 'c') this.selectOption(2);
+          else if (key === '4' || key === 'd') this.selectOption(3);
+          else if (key === 'enter' || key === ' ') {
+            e.preventDefault();
+            this.checkAnswer();
+          } else if (key === 'arrowleft') {
+            this.navigate(-1);
+          } else if (key === 'arrowright') {
+            this.navigate(1);
+          }
+        });
+      },
+
+      renderInitialGrid() {
+        const rawList = this.collectQuestions();
+        this.totalQuestions = (rawList && rawList.length > 0) ? rawList.length : 22;
+        this.updateHeaderAndGridLabels();
+        this.renderLadder(this.totalQuestions);
+
+        const grid = document.getElementById('milQuestionGrid');
+        grid.innerHTML = '';
+        for (let i = 0; i < this.totalQuestions; i++) {
+          const btn = document.createElement('button');
+          btn.className = 'mil-q-btn';
+          btn.innerText = i + 1;
+          btn.disabled = true;
+          grid.appendChild(btn);
+        }
+      },
+
+      updateHeaderAndGridLabels() {
+        const gridTitle = document.getElementById('milGridTitleText');
+        if (gridTitle) gridTitle.innerText = `DANH SÁCH ${this.totalQuestions} CÂU HỎI:`;
+
+        const subtitle = document.getElementById('milSubtitle');
+        if (subtitle) subtitle.innerText = `Chinh phục ${this.totalQuestions} câu hỏi trí tuệ cùng Thầy Sơn SKL`;
+
+        const welcomeHint = document.getElementById('milWelcomeHint');
+        if (welcomeHint) welcomeHint.innerHTML = `Nhấn nút <strong>"▶ BẮT ĐẦU CHƠI"</strong> ở góc trái để bắt đầu thử thách ${this.totalQuestions} câu hỏi!`;
+
+        const totalCountEl = document.getElementById('milTotalCount');
+        if (totalCountEl) totalCountEl.innerText = this.totalQuestions;
+
+        const gridCountEl = document.getElementById('milGridCount');
+        if (gridCountEl) gridCountEl.innerText = `${this.score}/${this.totalQuestions}`;
+
+        const badgeQNum = document.getElementById('milBadgeQNum');
+        if (badgeQNum) badgeQNum.innerText = `Câu ${this.currentIdx + 1}/${this.totalQuestions}`;
+
+        const winTotal = document.getElementById('winTotalCount');
+        if (winTotal) winTotal.innerText = this.totalQuestions;
+
+        const winTotalFinalScore = document.getElementById('winTotalFinalScore');
+        if (winTotalFinalScore) winTotalFinalScore.innerText = this.totalQuestions;
+      },
+
+      renderLadder(total) {
+        const container = document.getElementById('milLadderList');
+        if (!container) return;
+        container.innerHTML = '';
+
+        let steps = [];
+        if (total <= 10) {
+          for (let i = total; i >= 1; i--) {
+            let isMilestone = (i === total || i === Math.round(total / 2));
+            let tag = '';
+            if (i === total) tag = '👑 TRIỆU PHÚ TOÁN HỌC';
+            else if (i === Math.round(total / 2)) tag = '⭐ BẬC THẦY';
+            else if (i === 1) tag = 'Bắt Đầu Hành Trình';
+            else if (i % 2 === 0) tag = 'Nhà Bác Học Trẻ';
+            else tag = 'Chiến Binh Logic';
+
+            steps.push({ step: i, isMilestone, tag });
+          }
+        } else {
+          const keySet = new Set([
+            total,
+            Math.round(total * 0.9),
+            Math.round(total * 0.8),
+            Math.round(total * 0.7),
+            Math.round(total * 0.6),
+            Math.round(total * 0.5),
+            Math.round(total * 0.4),
+            Math.round(total * 0.3),
+            Math.round(total * 0.2),
+            1
+          ]);
+          const sorted = Array.from(keySet).filter(n => n >= 1 && n <= total).sort((a, b) => b - a);
+          sorted.forEach(i => {
+            let isMilestone = (i === total || i === Math.round(total * 0.7) || i === Math.round(total * 0.45) || i === Math.round(total * 0.2));
+            let tag = '';
+            if (i === total) tag = '👑 TRIỆU PHÚ TOÁN HỌC';
+            else if (i === Math.round(total * 0.7)) tag = '⭐ BẬC THẦY ĐẠI SỐ';
+            else if (i === Math.round(total * 0.45)) tag = '🎯 THÔNG THÁI TOÁN HỌC';
+            else if (i === Math.round(total * 0.2)) tag = '🚀 KHỞI ĐỘNG VỮNG VÀNG';
+            else if (i === 1) tag = 'Bắt Đầu Hành Trình';
+            else tag = 'Kỷ Lục Gia';
+
+            steps.push({ step: i, isMilestone, tag });
+          });
+        }
+
+        steps.forEach(s => {
+          const div = document.createElement('div');
+          div.className = 'mil-ladder-step' + (s.isMilestone ? ' milestone' : '');
+          div.setAttribute('data-step', s.step);
+          div.innerHTML = `
+            <span>Câu ${s.step}:</span>
+            ${s.isMilestone ? `<span class="step-tag">${s.tag}</span>` : `<span>${s.tag}</span>`}
+          `;
+          container.appendChild(div);
+        });
+      },
+
+      // Lấy câu hỏi từ ngân hàng hoặc đề tự nạp (PDF / Text)
+      collectQuestions() {
+        const customJson = localStorage.getItem('toan_ai_custom_questions_json');
+        if (customJson) {
+          try {
+            const list = JSON.parse(customJson);
+            if (Array.isArray(list) && list.length > 0) {
+              return list; // Giữ nguyên đúng số câu người dùng nạp (VD: 6 câu thì trả về đúng 6 câu)
+            }
+          } catch(e) {}
+        }
+
+        const customText = localStorage.getItem('toan_ai_custom_questions_text');
+        if (customText && customText.trim().length > 0) {
+          const parsed = SmartQuizParser.parseTextToQuestions(customText);
+          if (parsed && parsed.length > 0) {
+            return parsed; // Giữ nguyên đúng số câu
+          }
+        }
+
+        const grade = document.getElementById('selectGrade').value;
+        const topic = document.getElementById('selectTopic').value;
+
+        let pool = [];
+        const gradesToPull = (grade === 'all') ? ['6', '7', '8', '9'] : [grade];
+
+        gradesToPull.forEach(g => {
+          const dbG = MathQuestionDB[g] || {};
+          if (topic === 'all') {
+            if (dbG['algebra']) pool = pool.concat(dbG['algebra']);
+            if (dbG['geometry']) pool = pool.concat(dbG['geometry']);
+          } else if (dbG[topic]) {
+            pool = pool.concat(dbG[topic]);
+          }
+        });
+
+        // Trộn ngẫu nhiên câu hỏi
+        pool.sort(() => 0.5 - Math.random());
+        return this.expandToCount(pool, 22);
+      },
+
+      expandToCount(arr, count) {
+        if (arr.length === 0) return [];
+        let res = [...arr];
+        while (res.length < count) {
+          res = res.concat(arr);
+        }
+        return res.slice(0, count);
+      },
+
+      startGame() {
+        this.currentIdx = 0;
+        this.score = 0;
+        this.isGameOver = false;
+
+        const rawList = this.collectQuestions();
+        if (rawList.length === 0) {
+          alert("Không có câu hỏi nào thỏa mãn lựa chọn!");
+          return;
+        }
+
+        // Cập nhật tổng số câu hỏi chính xác theo bộ đề thực tế (VD: 6 câu thì totalQuestions = 6)
+        this.totalQuestions = rawList.length;
+
+        this.questions = rawList.map(item => ({
+          ...item,
+          userAns: null,
+          isChecked: false
+        }));
+
+        this.updateHeaderAndGridLabels();
+        this.renderLadder(this.totalQuestions);
+        this.renderGrid();
+        this.loadQuestion(0);
+        this.updateProgress();
+        this.updateLadder(1);
+
+        SoundEngine.playClick();
+        SoundEngine.playIntro();
+      },
+
+      renderGrid() {
+        const grid = document.getElementById('milQuestionGrid');
+        grid.innerHTML = '';
+        for (let i = 0; i < this.questions.length; i++) {
+          const btn = document.createElement('button');
+          btn.className = 'mil-q-btn';
+          btn.innerText = i + 1;
+          btn.onclick = () => {
+            SoundEngine.playNavigate();
+            this.loadQuestion(i);
+          };
+          grid.appendChild(btn);
+        }
+      },
+
+      loadQuestion(idx) {
+        if (idx < 0 || idx >= this.questions.length) return;
+        this.currentIdx = idx;
+        const q = this.questions[idx];
+
+        const qNumEl = document.getElementById('milBadgeQNum');
+        if (idx === this.totalQuestions - 1) {
+          qNumEl.innerText = `Câu ${idx + 1}/${this.totalQuestions} - CÂU CUỐI CÙNG 👑`;
+          qNumEl.style.background = '#fef08a';
+          qNumEl.style.color = '#854d0e';
+          qNumEl.style.borderColor = '#eab308';
+        } else {
+          qNumEl.innerText = `Câu ${idx + 1}/${this.totalQuestions}`;
+          qNumEl.style.background = '#fef9c3';
+          qNumEl.style.color = 'var(--gold-dark)';
+          qNumEl.style.borderColor = 'var(--gold-primary)';
+        }
+        
+        const topicVal = document.getElementById('selectTopic').value;
+        const topicText = topicVal === 'algebra' ? 'Đại Số' : (topicVal === 'geometry' ? 'Hình Học' : 'Toán Học Tổng Hợp');
+        document.getElementById('milBadgeTopic').innerText = topicText;
+
+        const qContentEl = document.getElementById('milQuestionText');
+        qContentEl.innerHTML = MathRenderer.formatRawMath(q.q);
+        MathRenderer.render(qContentEl);
+
+        // Hiển thị hình vẽ minh họa toán học nếu có
+        const qImgWrap = document.getElementById('milQImageWrap');
+        const qImg = document.getElementById('milQImage');
+        if (q.image) {
+          qImg.src = q.image;
+          qImgWrap.style.display = 'flex';
+        } else {
+          qImgWrap.style.display = 'none';
+          qImg.src = '';
+        }
+
+        // Cập nhật 4 đáp án A, B, C, D & render công thức toán học
+        document.querySelectorAll('.mil-option').forEach((btn, i) => {
+          btn.className = 'mil-option';
+          const textEl = document.getElementById(`milOpt${i}`);
+          if (textEl && q.options[i]) {
+            let optClean = q.options[i].replace(/^[A-D]\.\s*/i, '');
+            textEl.innerHTML = MathRenderer.formatRawMath(optClean);
+            MathRenderer.render(textEl);
+          }
+        });
+
+        // Nếu câu hỏi đã được chọn trước đó
+        if (q.userAns !== null) {
+          const sel = document.querySelector(`.mil-option[data-opt="${q.userAns}"]`);
+          if (sel) sel.classList.add('selected');
+        }
+
+        // Nếu câu hỏi đã được bấm kiểm tra
+        if (q.isChecked) {
+          this.revealOptionStyles(q);
+        }
+
+        this.updateGridActive();
+        this.updateLadder(idx + 1);
+      },
+
+      zoomImage(src) {
+        if (!src) return;
+        const modal = document.getElementById('modalImageZoom');
+        const target = document.getElementById('zoomImageTarget');
+        if (modal && target) {
+          target.src = src;
+          modal.style.display = 'flex';
+        }
+      },
+
+      closeZoomImage() {
+        const modal = document.getElementById('modalImageZoom');
+        if (modal) modal.style.display = 'none';
+      },
+
+      updateGridActive() {
+        const btns = document.querySelectorAll('.mil-q-btn');
+        btns.forEach((b, i) => {
+          b.classList.remove('active', 'correct', 'wrong');
+          if (i === this.currentIdx) b.classList.add('active');
+
+          const q = this.questions[i];
+          if (q.isChecked) {
+            if (q.userAns === q.ans) b.classList.add('correct');
+            else b.classList.add('wrong');
+          }
+        });
+      },
+
+      updateLadder(stepNum) {
+        document.querySelectorAll('.mil-ladder-step').forEach(step => {
+          step.classList.remove('current');
+          const stepVal = parseInt(step.getAttribute('data-step'));
+          if (stepVal === stepNum) {
+            step.classList.add('current');
+          }
+        });
+      },
+
+      selectOption(optIdx) {
+        const q = this.questions[this.currentIdx];
+        if (!q || q.isChecked) return;
+
+        SoundEngine.fadeIntroToBg();
+        q.userAns = optIdx;
+        document.querySelectorAll('.mil-option').forEach(b => b.classList.remove('selected'));
+        const sel = document.querySelector(`.mil-option[data-opt="${optIdx}"]`);
+        if (sel) sel.classList.add('selected');
+
+        SoundEngine.playLockAnswer();
+      },
+
+      checkAnswer() {
+        const q = this.questions[this.currentIdx];
+        if (!q || q.userAns === null || q.isChecked) return;
+
+        SoundEngine.fadeIntroToBg();
+        q.isChecked = true;
+        const isLastQuestion = (this.currentIdx === this.totalQuestions - 1);
+        const curStep = this.currentIdx + 1;
+        let isMilestone = false;
+        if (this.totalQuestions <= 10) {
+          isMilestone = (curStep === Math.round(this.totalQuestions / 2));
+        } else {
+          isMilestone = [5, 10, 15, 20].includes(curStep);
+        }
+
+        if (q.userAns === q.ans) {
+          this.score++;
+          if (isLastQuestion) {
+            SoundEngine.playEnding();
+          } else {
+            SoundEngine.playCorrect(isMilestone);
+          }
+        } else {
+          SoundEngine.playWrong();
+          if (isLastQuestion) {
+            setTimeout(() => SoundEngine.playEnding(), 1500);
+          }
+        }
+
+        this.revealOptionStyles(q);
+        this.updateGridActive();
+        this.updateProgress();
+
+        // Nếu đúng và chưa phải câu cuối, tự động chuyển câu tiếp sau 1.8 giây và tiếp tục nhạc nền
+        if (q.userAns === q.ans && !isLastQuestion) {
+          setTimeout(() => {
+            this.navigate(1);
+            SoundEngine.resumeBg();
+          }, isMilestone ? 2400 : 1800);
+        } else if (isLastQuestion) {
+          setTimeout(() => this.endGame(), 2000);
+        }
+      },
+
+      revealCurrentAnswer() {
+        const q = this.questions[this.currentIdx];
+        if (!q) return;
+        q.isChecked = true;
+        this.revealOptionStyles(q);
+        this.updateGridActive();
+        SoundEngine.playReveal();
+      },
+
+      revealOptionStyles(q) {
+        document.querySelectorAll('.mil-option').forEach((btn, i) => {
+          if (i === q.ans) {
+            btn.classList.add('correct');
+          } else if (i === q.userAns && q.userAns !== q.ans) {
+            btn.classList.add('wrong');
+          }
+        });
+      },
+
+      navigate(dir) {
+        const target = this.currentIdx + dir;
+        if (target >= 0 && target < this.questions.length) {
+          this.loadQuestion(target);
+          SoundEngine.playNavigate();
+        }
+      },
+
+      updateProgress() {
+        document.getElementById('milScore').innerText = this.score;
+        const totalCountEl = document.getElementById('milTotalCount');
+        if (totalCountEl) totalCountEl.innerText = this.totalQuestions;
+        document.getElementById('milGridCount').innerText = `${this.score}/${this.totalQuestions}`;
+        const pct = Math.round((this.score / (this.totalQuestions || 1)) * 100);
+        document.getElementById('milBarFill').style.width = `${pct}%`;
+      },
+
+      endGame() {
+        if (this.isGameOver) return;
+        this.isGameOver = true;
+        SoundEngine.playEnding();
+
+        let rank = "Khởi Động";
+        const ratio = this.score / (this.totalQuestions || 1);
+        if (ratio === 1) rank = "👑 TRIỆU PHÚ TOÁN HỌC";
+        else if (ratio >= 0.75) rank = "⭐ BẬC THẦY ĐẠI SỐ";
+        else if (ratio >= 0.5) rank = "🎯 THÔNG THÁI TOÁN HỌC";
+        else if (ratio >= 0.25) rank = "🚀 TIỀM NĂNG TOÁN HỌC";
+
+        document.getElementById('winFinalScore').innerText = this.score;
+        const winTotal = document.getElementById('winTotalCount');
+        if (winTotal) winTotal.innerText = this.totalQuestions;
+        const winTotalFinalScore = document.getElementById('winTotalFinalScore');
+        if (winTotalFinalScore) winTotalFinalScore.innerText = this.totalQuestions;
+
+        document.getElementById('winRankName').innerText = rank;
+        document.getElementById('modalEndGame').style.display = 'flex';
+      }
+    };
+
+    // Tự động khởi tạo khi tài liệu sẵn sàng
+    window.addEventListener('DOMContentLoaded', () => {
+      MillionaireGame.init();
+    });
+  </script>
+</body>
+</html>
+

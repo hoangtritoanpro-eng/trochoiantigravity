@@ -10,6 +10,18 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [2.0.0] - 2026-11-03
+
+### Added
+- **Đóng Gói Độc Lập Trò Chơi "AI LÀ TRIỆU PHÚ" (Standalone Game Package):**
+  - **Thư mục riêng biệt `game-ai-la-trieu-phu/`:** Tách trọn vẹn toàn bộ trò chơi Ai Là Triệu Phú thành một gói game độc lập hoàn chỉnh với trang chính `index.html`.
+  - **Tài nguyên tích hợp cục bộ:** Chứa đầy đủ bộ âm thanh MP3 (nhạc dạo đầu 15.8s, nhạc nền, đúng/sai, kết thúc), ảnh nền studio 3D, logo, thư viện KaTeX offline và bộ đọc PDF.js offline.
+  - **Khởi động 1-click `Chay_Game.bat`:** Tự động mở mini server cục bộ và khởi chạy trình duyệt chơi ngay mà không cần cài đặt phức tạp.
+  - **Tệp nén lưu trữ `tro-choi-ai-la-trieu-phu.zip` (6.8 MB):** Gói nén trọn vẹn sẵn sàng tải về, sao chép sang máy tính khác hoặc gửi cho học sinh/giáo viên.
+  - **Sẵn sàng Deploy độc lập lên Vercel:** Tích hợp sẵn `vercel.json` và `package.json` độc lập cho phép triển khai riêng trò chơi lên Vercel chỉ trong vài giây.
+
+---
+
 ## [1.9.9] - 2026-11-03
 
 ### Added & Changed
