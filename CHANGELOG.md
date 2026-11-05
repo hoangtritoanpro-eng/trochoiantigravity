@@ -10,6 +10,16 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [2.2.1] - 2026-11-05
+
+### Added
+- **Tách và triển khai game "Đọc Hiểu Cùng AI" sang GitHub Repository mới độc lập:**
+  - Repository mới: https://github.com/hoangtritoanpro-eng/doc-hieu-cung-ai
+  - GitHub Pages trực tuyến: https://hoangtritoanpro-eng.github.io/doc-hieu-cung-ai/
+  - Đã kiểm tra trên trang thật: tải đủ tài nguyên (PDF.js, âm thanh), chơi được bài mẫu, thống kê đúng/sai, xuất CSV và kết nối tới Gemini API thông suốt.
+
+---
+
 ## [2.2.0] - 2026-11-05
 
 ### Added

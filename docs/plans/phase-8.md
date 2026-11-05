@@ -53,3 +53,4 @@ Phase này xây dựng một trò chơi **riêng biệt** (thư mục `game-doc-
 3. Vòng Nối cặp và Sắp xếp: thử thao tác chuột/chạm.
 4. Kết thúc → kiểm tra Infographic, bấm **In / Xuất PDF**.
 5. Nhập API Key thật → dán một bài văn khác → **"Phân tích bằng AI"** → xóa bớt 1 câu ở màn xem trước → chơi.
+

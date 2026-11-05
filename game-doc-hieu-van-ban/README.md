@@ -2,6 +2,9 @@
 
 Game đánh giá **năng lực đọc hiểu văn bản** cho học sinh THCS (lớp 6–9). Giáo viên đưa một bài văn vào, **Gemini AI** phân tích và tạo bộ câu hỏi gồm 6 vòng chơi. Kết thúc trò chơi là một **Infographic chốt kiến thức** và **bảng thống kê câu đúng/sai** (xuất được ra Excel).
 
+🌐 **Dùng trực tuyến:** https://hoangtritoanpro-eng.github.io/doc-hieu-cung-ai/
+📦 **Mã nguồn GitHub:** https://github.com/hoangtritoanpro-eng/doc-hieu-cung-ai
+
 ---
 
 ## 🔌 Kết nối Gemini API
