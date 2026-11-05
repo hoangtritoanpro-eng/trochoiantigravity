@@ -10,6 +10,22 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [2.1.0] - 2026-11-05
+
+### Added
+- **Game mới "Đọc Hiểu Cùng AI" (`game-doc-hieu-van-ban/`)** – hệ thống đánh giá năng lực đọc hiểu văn bản cho học sinh THCS:
+  - **Nạp văn bản:** dán trực tiếp hoặc kéo thả file `.pdf` (PDF.js offline), `.docx`, `.txt`; chọn khối lớp 6–9, số câu mỗi vòng (3/5/7), bật/tắt từng vòng.
+  - **Gemini AI phân tích:** thể loại, tóm tắt, chủ đề, ý chính, nhân vật, trình tự sự việc, đặc sắc nghệ thuật, thông điệp, từ ngữ khó; sinh câu hỏi gắn mức độ Nhận biết / Thông hiểu / Vận dụng, kèm giải thích dẫn chứng từ văn bản.
+  - **Chuẩn hóa dữ liệu AI:** kiểm tra và loại câu lỗi, trộn vị trí đáp án đúng, escape toàn bộ nội dung (chống chèn mã HTML).
+  - **Giáo viên duyệt trước khi chơi:** màn xem trước, xóa từng câu / cặp / mục chưa phù hợp.
+  - **6 vòng chơi:** Trắc nghiệm A–D, Đúng/Sai, Điền từ (thẻ từ), Nối cặp (tô màu theo cặp), Sắp xếp trình tự (kéo thả + ▲▼), Tự luận ngắn (AI chấm theo tiêu chí hoặc giáo viên tự chấm).
+  - **Trải nghiệm lớp học:** giao diện chữ lớn tối ưu máy chiếu, nút "📄 Văn bản" xem lại bài đọc bất kỳ lúc nào, phím tắt, âm thanh đúng/sai/kết thúc, tổng kết sau mỗi vòng.
+  - **Infographic chốt kiến thức:** tóm tắt, chủ đề, dòng thời gian, nhân vật, nghệ thuật, ý chính, thông điệp, từ ngữ, kết quả theo vòng và theo mức độ nhận thức, danh sách nội dung cần ôn lại; in / xuất PDF khổ A4 ngang.
+  - **Chế độ bài mẫu offline** ("Thánh Gióng") chơi được ngay không cần API Key; tự lưu bộ câu hỏi gần nhất.
+  - Đóng gói `Chay_Game.bat`, `README.md`, `vercel.json`.
+
+---
+
 ## [2.0.0] - 2026-11-03
 
 ### Added

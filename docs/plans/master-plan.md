@@ -16,6 +16,7 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
 | **Phase 5** | Giao Diện Tươi Sáng & Bright Theme | `[x]` | Chuyển đổi giao diện sang tông tươi sáng và phông chữ Fredoka & Quicksand cho trẻ em. |
 | **Phase 6** | Thêm Game Mới và Phòng Pomodoro | `[x]` | Bổ sung Space Math, Math Racing và phòng học Pomodoro Lofi. |
 | **Phase 7** | Game Ai Là Triệu Phú & Đóng Gói Tệp Riêng | `[x]` | Trò chơi Ai Là Triệu Phú 22 câu, layout Dark Blue & Gold, đóng gói tệp riêng biệt standalone. |
+| **Phase 8** | Game Đọc Hiểu Văn Bản Bằng AI | `[x]` | Nạp bài văn → Gemini phân tích → 6 vòng chơi đánh giá đọc hiểu → Infographic chốt kiến thức. |
 
 ---
 
@@ -85,3 +86,14 @@ Tài liệu này vạch ra lộ trình phát triển của dự án theo mô hì
   - [x] Hiển thị chuẩn xác công thức toán học LaTeX (KaTeX offline + fallback) và hình vẽ minh họa toán học (SVG + Lightbox zoom toàn màn hình + trích xuất ảnh PDF).
   - [x] Đóng gói thành 1 trò chơi riêng biệt hoàn chỉnh (`game-ai-la-trieu-phu/` & `tro-choi-ai-la-trieu-phu.zip`) sẵn sàng triển khai độc lập hoặc chạy offline.
 - **Expected Output:** Trò chơi hoạt động độc lập với giao diện y hệt ảnh mẫu, chạy mượt mà trên trình duyệt.
+
+### Phase 8: Game Đọc Hiểu Văn Bản Bằng AI
+- **Mục tiêu:** Giáo viên đưa một bài văn vào, AI phân tích và tạo các vòng chơi đánh giá năng lực đọc hiểu; kết thúc bằng infographic chốt kiến thức. Chi tiết: `docs/plans/phase-8.md`.
+- **Các task chính:**
+  - [x] Màn hình nạp văn bản (dán / PDF / DOCX / TXT), tùy chọn khối lớp, số câu, vòng chơi, cấu hình Gemini.
+  - [x] Dịch vụ Gemini phân tích văn bản + chuẩn hóa dữ liệu + AI chấm tự luận.
+  - [x] Màn hình xem trước để giáo viên duyệt/xóa câu hỏi.
+  - [x] Engine 6 vòng: Trắc nghiệm, Đúng/Sai, Điền từ, Nối cặp, Sắp xếp, Tự luận ngắn.
+  - [x] Infographic chốt kiến thức + kết quả theo vòng và mức độ nhận thức, in/xuất PDF.
+  - [x] Đóng gói thư mục riêng `game-doc-hieu-van-ban/` (chạy offline bằng `Chay_Game.bat`, có bài mẫu không cần API Key).
+- **Expected Output:** Chơi trọn 6 vòng với bài mẫu không lỗi; có API Key thì phân tích được bài văn bất kỳ.
