@@ -16,6 +16,7 @@
   <header class="topbar">
     <div class="brand">📖 <span>ĐỌC HIỂU CÙNG AI</span></div>
     <div class="topbar-actions">
+      <span class="ai-status" id="aiStatusTop" title="Trạng thái kết nối Gemini">🤖 AI: chưa kết nối</span>
       <button class="icon-btn" id="btnShowText" title="Xem lại văn bản (phím T)" hidden>📄 Văn bản</button>
       <button class="icon-btn" id="btnSound" title="Bật/tắt âm thanh">🔊</button>
       <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình">⛶</button>
@@ -66,18 +67,18 @@
           <div class="field-label">Các vòng chơi</div>
           <div class="round-toggles" id="roundToggles"></div>
 
-          <h2 class="card-title mt">③ Kết nối Gemini AI</h2>
+          <h2 class="card-title mt">③ Kết nối Gemini AI <span class="conn-pill" id="connPill">● Chưa kết nối</span></h2>
           <div class="form-row">
             <label class="field-label" for="inpApiKey">API Key</label>
             <div class="input-group">
               <input type="password" id="inpApiKey" placeholder="Dán Gemini API Key (AIza...)" autocomplete="off">
               <button class="btn small ghost" id="btnToggleKey" title="Hiện/ẩn key">👁</button>
-              <button class="btn small" id="btnTestKey">Kiểm tra</button>
+              <button class="btn small" id="btnTestKey">🔌 Kết nối</button>
             </div>
             <div class="muted small">Key chỉ lưu trên máy này. Chưa có? <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Lấy miễn phí tại Google AI Studio ↗</a></div>
           </div>
           <div class="form-row">
-            <label class="field-label" for="selModel">Model</label>
+            <label class="field-label" for="selModel">Model <span class="muted small" id="modelHint">(bấm "Kết nối" để tải danh sách model của key)</span></label>
             <select id="selModel">
               <option value="gemini-3.8-flash">Gemini 3.8 Flash (mới nhất – khuyên dùng)</option>
               <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (nhanh, tiết kiệm)</option>
@@ -131,6 +132,7 @@
       <div class="hud">
         <div class="hud-round" id="hudRound">Vòng 1</div>
         <div class="progress"><div class="progress-bar" id="hudProgress"></div></div>
+        <div class="hud-tally" title="Số câu đúng / sai"><span class="t-ok">✓ <b id="hudOk">0</b></span><span class="t-bad">✗ <b id="hudBad">0</b></span></div>
         <div class="hud-score">⭐ <span id="hudScore">0</span></div>
       </div>
       <div id="gameStage"></div>
@@ -140,10 +142,13 @@
     <section class="screen" id="screenResult">
       <div class="result-actions no-print">
         <button class="btn primary" id="btnPrint">🖨 In / Xuất PDF</button>
+        <button class="btn" id="btnStatsJump">📋 Thống kê đúng/sai</button>
+        <button class="btn ghost" id="btnExportCsv">⬇ Tải thống kê (Excel)</button>
         <button class="btn ghost" id="btnReplay">🔁 Chơi lại bộ câu hỏi này</button>
         <button class="btn ghost" id="btnNewText">📄 Nạp bài văn khác</button>
       </div>
       <div id="infographic"></div>
+      <div id="statsPanel"></div>
     </section>
   </main>
 
@@ -165,3 +170,4 @@
   <script src="app.js"></script>
 </body>
 </html>
+

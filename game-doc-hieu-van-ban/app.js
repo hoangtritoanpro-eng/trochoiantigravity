@@ -173,38 +173,90 @@ const FileLoader = {
 
 /* ───────── DỊCH VỤ GEMINI AI ───────── */
 const AIService = {
-  endpoint(model, key) {
-    return `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+  base: 'https://generativelanguage.googleapis.com/v1beta',
+  models: [], // danh sách model thực tế mà API Key được phép dùng
+
+  friendly(status, msg) {
+    if ((status === 400 || status === 403) && /api key|API_KEY|permission/i.test(msg)) return 'API Key không hợp lệ hoặc chưa bật Gemini API. Hãy kiểm tra lại key.';
+    if (status === 404) return `Không tìm thấy model "${App.model()}". Hãy bấm "Kết nối" để chọn model có sẵn.`;
+    if (status === 429) return 'Đã hết hạn mức gọi AI tạm thời. Hãy đợi khoảng 1 phút rồi thử lại.';
+    if (status >= 500) return 'Máy chủ Gemini đang bận. Hãy thử lại sau ít phút.';
+    return `Lỗi Gemini (${status}): ${msg}`;
   },
 
-  async call(prompt, { json = true, temperature = 0.5, maxTokens = 16384 } = {}) {
-    const key = App.apiKey();
-    if (!key) throw new Error('Chưa nhập Gemini API Key.');
+  async request(path, key, body) {
     let res;
     try {
-      res = await fetch(this.endpoint(App.model(), key), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: { temperature, maxOutputTokens: maxTokens, ...(json ? { responseMimeType: 'application/json' } : {}) },
-        }),
+      res = await fetch(`${this.base}/${path}`, {
+        method: body ? 'POST' : 'GET',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: body ? JSON.stringify(body) : undefined,
       });
     } catch (e) {
       throw new Error('Không kết nối được tới Gemini. Hãy kiểm tra Internet.');
     }
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      const msg = err.error?.message || res.statusText;
-      if (res.status === 400 && /api key/i.test(msg)) throw new Error('API Key không hợp lệ. Hãy kiểm tra lại.');
-      if (res.status === 404) throw new Error(`Không tìm thấy model "${App.model()}". Hãy chọn model khác.`);
-      if (res.status === 429) throw new Error('Đã hết hạn mức gọi AI tạm thời. Hãy đợi 1 phút rồi thử lại.');
-      throw new Error(`Lỗi Gemini (${res.status}): ${msg}`);
+      const e = new Error(this.friendly(res.status, err.error?.message || res.statusText));
+      e.status = res.status;
+      throw e;
     }
-    const data = await res.json();
-    const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
+    return res.json();
+  },
+
+  /* Lấy danh sách model hỗ trợ sinh nội dung, sắp xếp: phiên bản mới → Flash → Pro */
+  async listModels(key) {
+    const data = await this.request('models?pageSize=200', key);
+    const score = (id) => {
+      const v = parseFloat((id.match(/gemini-(\d+(?:\.\d+)?)/) || [])[1] || '0');
+      let s = v * 10;
+      if (/flash/.test(id)) s += 3; else if (/pro/.test(id)) s += 2;
+      if (/lite/.test(id)) s -= 1;
+      if (/preview|exp|\d{2}-\d{2}|latest/.test(id)) s -= 0.5;
+      return s;
+    };
+    this.models = arr(data.models)
+      .filter((m) => arr(m.supportedGenerationMethods).includes('generateContent'))
+      .map((m) => ({ id: str(m.name).replace(/^models\//, ''), label: str(m.displayName) }))
+      .filter((m) => /^gemini-/.test(m.id) && !/(embedding|image|tts|audio|live|vision|aqa|robotics|computer-use|nano)/i.test(m.id))
+      .sort((a, b) => score(b.id) - score(a.id));
+    return this.models;
+  },
+
+  async call(prompt, { json = true, temperature = 0.5, maxTokens = 16384, model } = {}) {
+    const key = App.apiKey();
+    if (!key) throw new Error('Chưa nhập Gemini API Key.');
+    const useModel = model || App.model();
+    const data = await this.request(`models/${encodeURIComponent(useModel)}:generateContent`, key, {
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: { temperature, maxOutputTokens: maxTokens, ...(json ? { responseMimeType: 'application/json' } : {}) },
+    });
+    if (data.promptFeedback?.blockReason) throw new Error(`Gemini từ chối xử lý nội dung này (${data.promptFeedback.blockReason}).`);
+    const cand = data.candidates?.[0];
+    const text = cand?.content?.parts?.map((p) => p.text || '').join('') || '';
     if (!text) throw new Error('Gemini không trả về nội dung. Hãy thử lại.');
-    return json ? this.parseJSON(text) : text;
+    if (!json) return text;
+    try {
+      return this.parseJSON(text);
+    } catch (e) {
+      if (cand.finishReason === 'MAX_TOKENS') throw new Error('Câu trả lời của AI bị cắt ngắn vì quá dài. Hãy giảm "Số câu mỗi vòng" rồi thử lại.');
+      throw e;
+    }
+  },
+
+  /* Gọi AI; nếu model không tồn tại (404) thì tự chuyển sang model khả dụng khác */
+  async callWithFallback(prompt, opts) {
+    try {
+      return await this.call(prompt, opts);
+    } catch (e) {
+      if (e.status !== 404) throw e;
+      if (!this.models.length) await this.listModels(App.apiKey()).catch(() => {});
+      const alt = this.models.find((m) => m.id !== App.model() && /flash/.test(m.id)) || this.models.find((m) => m.id !== App.model());
+      if (!alt) throw e;
+      Connection.fillModels(alt.id);
+      toast(`Model cũ không khả dụng – đã tự chuyển sang ${alt.id}`);
+      return this.call(prompt, opts);
+    }
   },
 
   parseJSON(text) {
@@ -219,7 +271,7 @@ const AIService = {
   },
 
   async test() {
-    await this.call('Trả lời đúng một từ: OK', { json: false, maxTokens: 20 });
+    await this.callWithFallback('Trả lời đúng một từ: OK', { json: false, maxTokens: 50 });
   },
 
   buildPrompt(text, grade, n, rounds) {
@@ -274,7 +326,7 @@ ${text.slice(0, 25000)}
   },
 
   async analyze(text, grade, n, rounds) {
-    const raw = await this.call(this.buildPrompt(text, grade, n, rounds));
+    const raw = await this.callWithFallback(this.buildPrompt(text, grade, n, rounds));
     return Normalizer.analysis(raw, text);
   },
 
@@ -285,7 +337,7 @@ CÂU HỎI: ${q}
 TIÊU CHÍ CHẤM: ${rubric}
 CÂU TRẢ LỜI CỦA HỌC SINH: """${answer.slice(0, 2000)}"""
 Chấm thang 0–10. Chỉ trả về JSON: {"score": 0, "verdict": "Nhận xét chung 1 câu", "strengths": "Điểm tốt", "improve": "Cần bổ sung"}`;
-    const r = await this.call(prompt, { temperature: 0.2, maxTokens: 1024 });
+    const r = await this.callWithFallback(prompt, { temperature: 0.2, maxTokens: 2048 });
     return {
       score: clamp(Math.round(Number(r.score) || 0), 0, 10),
       verdict: str(r.verdict), strengths: str(r.strengths), improve: str(r.improve),
@@ -385,6 +437,62 @@ const Normalizer = {
   },
 };
 
+/* ───────── QUẢN LÝ KẾT NỐI GEMINI ───────── */
+const Connection = {
+  state: 'none',
+
+  set(state, text) {
+    this.state = state;
+    const pill = $('connPill'), top = $('aiStatusTop');
+    [pill, top].forEach((el) => { el.classList.remove('ok', 'error', 'checking'); if (state !== 'none') el.classList.add(state); });
+    pill.textContent = `● ${text}`;
+    top.textContent = { none: '🤖 AI: chưa kết nối', checking: '🤖 AI: đang kết nối…', ok: `🤖 AI: ${App.model()}`, error: '🤖 AI: lỗi kết nối' }[state];
+    top.title = text;
+  },
+
+  /* Đổ danh sách model của key vào ô chọn, giữ lựa chọn cũ nếu còn hợp lệ */
+  fillModels(preferId) {
+    const list = AIService.models;
+    if (!list.length) return;
+    const sel = $('selModel');
+    const current = preferId || (sel.value !== 'custom' ? sel.value : '') || localStorage.getItem('dh_model');
+    sel.innerHTML = list.map((m, i) => `<option value="${esc(m.id)}">${esc(m.label || m.id)}${i === 0 ? ' – khuyên dùng' : ''} (${esc(m.id)})</option>`).join('')
+      + '<option value="custom">Model tùy chỉnh…</option>';
+    sel.value = list.some((m) => m.id === current) ? current : list[0].id;
+    $('inpCustomModel').hidden = true;
+    localStorage.setItem('dh_model', sel.value);
+    $('modelHint').textContent = `(${list.length} model khả dụng với key này)`;
+  },
+
+  async connect({ silent = false } = {}) {
+    const key = App.apiKey();
+    if (!key) {
+      this.set('none', 'Chưa kết nối');
+      if (!silent) toast('Hãy dán Gemini API Key trước.', true);
+      return false;
+    }
+    localStorage.setItem('dh_api_key', key);
+    const b = $('btnTestKey');
+    b.disabled = true;
+    this.set('checking', 'Đang kết nối…');
+    try {
+      await AIService.listModels(key);
+      if (!AIService.models.length) throw new Error('Key hợp lệ nhưng không có model Gemini nào khả dụng.');
+      this.fillModels();
+      await AIService.test();
+      this.set('ok', `Đã kết nối · ${App.model()}`);
+      if (!silent) toast(`✅ Kết nối Gemini thành công (${App.model()})`);
+      return true;
+    } catch (e) {
+      this.set('error', 'Lỗi kết nối');
+      if (!silent) toast(e.message, true);
+      return false;
+    } finally {
+      b.disabled = false;
+    }
+  },
+};
+
 /* ───────── MÀN NẠP VĂN BẢN ───────── */
 const Setup = {
   init() {
@@ -404,6 +512,7 @@ const Setup = {
 
     this.bind();
     this.updateCount();
+    if (App.apiKey()) Connection.connect({ silent: true });
   },
 
   bind() {
@@ -430,18 +539,15 @@ const Setup = {
       localStorage.setItem('dh_rounds', JSON.stringify(App.settings.rounds));
     };
 
-    $('inpApiKey').onchange = (e) => localStorage.setItem('dh_api_key', e.target.value.trim());
+    $('inpApiKey').onchange = () => Connection.connect({ silent: true });
     $('btnToggleKey').onclick = () => { const i = $('inpApiKey'); i.type = i.type === 'password' ? 'text' : 'password'; };
-    $('selModel').onchange = (e) => { localStorage.setItem('dh_model', e.target.value); $('inpCustomModel').hidden = e.target.value !== 'custom'; };
-    $('inpCustomModel').onchange = (e) => localStorage.setItem('dh_custom_model', e.target.value.trim());
-
-    $('btnTestKey').onclick = async () => {
-      const b = $('btnTestKey');
-      b.disabled = true; b.textContent = '…';
-      try { await AIService.test(); toast(`✅ Kết nối thành công với ${App.model()}`); }
-      catch (e) { toast(e.message, true); }
-      finally { b.disabled = false; b.textContent = 'Kiểm tra'; }
+    $('selModel').onchange = (e) => {
+      localStorage.setItem('dh_model', e.target.value);
+      $('inpCustomModel').hidden = e.target.value !== 'custom';
+      if (Connection.state === 'ok') Connection.set('ok', `Đã kết nối · ${App.model()}`);
     };
+    $('inpCustomModel').onchange = (e) => localStorage.setItem('dh_custom_model', e.target.value.trim());
+    $('btnTestKey').onclick = () => Connection.connect();
 
     $('btnAnalyze').onclick = () => this.analyze();
     $('btnSample').onclick = () => this.useSample();
@@ -484,9 +590,11 @@ const Setup = {
       App.sourceText = text;
       App.isDemo = false;
       App.saveSession();
+      Connection.set('ok', `Đã kết nối · ${App.model()}`);
       Preview.render();
     } catch (e) {
       showScreen('screenSetup');
+      if (e.status) Connection.set('error', 'Lỗi kết nối');
       toast(e.message, true);
     } finally {
       clearInterval(timer);
@@ -593,7 +701,7 @@ const Game = {
     if (!this.rounds.length) return toast('Không còn câu hỏi nào để chơi. Hãy nạp lại bài văn.', true);
 
     Sound.stopAll();
-    this.rIdx = 0; this.iIdx = 0; this.done = 0; this.score = 0; this.review = [];
+    this.rIdx = 0; this.iIdx = 0; this.done = 0; this.score = 0; this.review = []; this.log = [];
     this.totalSteps = this.rounds.reduce((s, r) => s + r.items.length, 0);
     this.stats = {};
     this.rounds.forEach((r) => { this.stats[r.type] = { points: 0, max: 0, correct: 0, total: 0 }; });
@@ -613,6 +721,9 @@ const Game = {
     $('hudRound').textContent = r ? `Vòng ${this.rIdx + 1}/${this.rounds.length} · ${ROUNDS[r.type].title}` : 'Hoàn thành';
     $('hudProgress').style.width = `${(this.done / this.totalSteps) * 100}%`;
     $('hudScore').textContent = this.score;
+    const ok = this.log.filter((x) => x.ok).length;
+    $('hudOk').textContent = ok;
+    $('hudBad').textContent = this.log.length - ok;
   },
 
   roundIntro() {
@@ -647,14 +758,15 @@ const Game = {
     return `<div class="q-meta">Câu ${this.iIdx + 1}/${r.items.length} ${extra}</div>`;
   },
 
-  /* Ghi nhận kết quả 1 lượt */
-  record(points, max, correct, total, level, reviewText) {
+  /* Ghi nhận kết quả 1 lượt. entries: [{ q, chosen, correct, ok }] – dùng cho bảng thống kê đúng/sai */
+  record(points, max, correct, total, level, reviewText, entries = []) {
     const s = this.stats[this.round.type];
     s.points += points; s.max += max; s.correct += correct; s.total += total;
     const L = this.levels[levelKey(level)];
     L.c += correct; L.t += total;
     this.score += points;
     if (reviewText && correct < total) this.review.push(reviewText);
+    entries.forEach((e) => this.log.push({ ...e, type: this.round.type, level: LEVEL_NAMES[levelKey(level)] }));
     this.done++;
     this.updateHud();
   },
@@ -748,7 +860,9 @@ const Game = {
       $('btnConfirm').parentElement.remove();
       Sound.play(ok ? 'correct' : 'wrong');
       const ansText = isFill ? it.answer : `${'ABCD'[it.ans]}. ${it.options[it.ans]}`;
-      this.record(ok ? 10 : 0, 10, ok ? 1 : 0, 1, it.level, `${isFill ? it.sentence.replace('____', `[${it.answer}]`) : it.q} → ${isFill ? '' : ansText}`.replace(/ → $/, ''));
+      const chosenText = isFill ? it.options[sel] : `${'ABCD'[sel]}. ${it.options[sel]}`;
+      this.record(ok ? 10 : 0, 10, ok ? 1 : 0, 1, it.level, `${isFill ? it.sentence.replace('____', `[${it.answer}]`) : it.q} → ${isFill ? '' : ansText}`.replace(/ → $/, ''),
+        [{ q: isFill ? it.sentence : it.q, chosen: chosenText, correct: ansText, ok }]);
       this.showNext(this.feedback(ok ? 'ok' : 'bad', ok ? 'Chính xác! +10 điểm' : `Chưa đúng. Đáp án: ${esc(ansText)}`, esc(it.explain)));
     };
     btns.forEach((b) => (b.onclick = () => select(+b.dataset.i)));
@@ -787,7 +901,8 @@ const Game = {
       });
       $('btnConfirm').parentElement.remove();
       Sound.play(ok ? 'correct' : 'wrong');
-      this.record(ok ? 10 : 0, 10, ok ? 1 : 0, 1, it.level, `“${it.statement}” → ${it.answer ? 'ĐÚNG' : 'SAI'}`);
+      this.record(ok ? 10 : 0, 10, ok ? 1 : 0, 1, it.level, `“${it.statement}” → ${it.answer ? 'ĐÚNG' : 'SAI'}`,
+        [{ q: it.statement, chosen: sel === 0 ? 'ĐÚNG' : 'SAI', correct: it.answer ? 'ĐÚNG' : 'SAI', ok }]);
       this.showNext(this.feedback(ok ? 'ok' : 'bad', ok ? 'Chính xác! +10 điểm' : `Chưa đúng. Nhận định này ${it.answer ? 'ĐÚNG' : 'SAI'}.`, esc(it.explain)));
     };
     btns.forEach((b) => (b.onclick = () => select(+b.dataset.i)));
@@ -869,7 +984,8 @@ const Game = {
       $('btnConfirm').parentElement.remove();
       const all = correct === n;
       Sound.play(correct >= n / 2 ? 'correct' : 'wrong');
-      this.record(correct * 5, n * 5, correct, n, 'Thông hiểu', null);
+      this.record(correct * 5, n * 5, correct, n, 'Thông hiểu', null,
+        m.pairs.map((p, i) => ({ q: `Nối: ${p.left}`, chosen: m.pairs[links[i]].right, correct: p.right, ok: links[i] === i })));
       this.showNext(this.feedback(all ? 'ok' : 'bad', `Nối đúng ${correct}/${n} cặp · +${correct * 5} điểm`, all ? 'Tuyệt vời, nối đúng tất cả!' : 'Xem các cặp đúng được ghi dưới mỗi ô màu đỏ.'));
     };
     $('btnConfirm').onclick = confirm;
@@ -935,7 +1051,8 @@ const Game = {
       $('btnConfirm').parentElement.remove();
       const all = correct === n;
       Sound.play(correct >= n / 2 ? 'correct' : 'wrong');
-      this.record(correct * 4, n * 4, correct, n, 'Thông hiểu', all ? null : `Trình tự đúng: ${o.items.map((s, i) => `(${i + 1}) ${s}`).join(' → ')}`);
+      this.record(correct * 4, n * 4, correct, n, 'Thông hiểu', all ? null : `Trình tự đúng: ${o.items.map((s, i) => `(${i + 1}) ${s}`).join(' → ')}`,
+        order.map((v, p) => ({ q: `Sắp xếp: ${o.items[v]}`, chosen: `Vị trí ${p + 1}`, correct: `Vị trí ${v + 1}`, ok: v === p })));
       this.showNext(this.feedback(all ? 'ok' : 'bad', `Đúng vị trí ${correct}/${n} mục · +${correct * 4} điểm`, all ? 'Hoàn hảo! Nắm rất chắc diễn biến văn bản.' : 'Các mục màu đỏ có ghi vị trí đúng bên dưới.'));
     };
     $('btnConfirm').onclick = confirm;
@@ -958,13 +1075,15 @@ const Game = {
       </div>
       <div id="fbArea"></div>`);
 
-    const finish = (score, title, body) => {
+    const finish = (score, title, body, grader) => {
       if (this.locked) return;
       this.locked = true;
+      const ans = $('openAns').value.trim();
       $('openAns').disabled = true;
       document.querySelectorAll('#btnAIGrade, #btnSelfGrade, .grade-row button').forEach((b) => (b.disabled = true));
       Sound.play(score >= 5 ? 'correct' : 'wrong');
-      this.record(score * 2, 20, score / 10, 1, 'Vận dụng', score >= 5 ? null : `Tự luận: ${it.q}`);
+      this.record(score * 2, 20, score / 10, 1, 'Vận dụng', score >= 5 ? null : `Tự luận: ${it.q}`,
+        [{ q: it.q, chosen: ans || '(không ghi câu trả lời)', correct: `${grader} chấm ${score}/10 (đạt từ 5)`, ok: score >= 5 }]);
       this.showNext(this.feedback(score >= 5 ? 'ok' : 'info', title, body));
     };
 
@@ -980,7 +1099,7 @@ const Game = {
           <button class="btn" data-s="10">Tốt (10)</button>
         </div>`;
       $('gradeArea').querySelectorAll('[data-s]').forEach((b) => {
-        b.onclick = () => finish(+b.dataset.s, `Giáo viên chấm: ${b.dataset.s}/10 · +${b.dataset.s * 2} điểm`, '');
+        b.onclick = () => finish(+b.dataset.s, `Giáo viên chấm: ${b.dataset.s}/10 · +${b.dataset.s * 2} điểm`, '', 'Giáo viên');
       });
     };
 
@@ -994,7 +1113,7 @@ const Game = {
           const g = await AIService.grade(App.sourceText, it.q, it.rubric, ans);
           $('gradeArea').innerHTML = sampleHtml();
           finish(g.score, `AI chấm: ${g.score}/10 · +${g.score * 2} điểm`,
-            `${esc(g.verdict)}${g.strengths ? `<br>👍 <strong>Điểm tốt:</strong> ${esc(g.strengths)}` : ''}${g.improve ? `<br>🔧 <strong>Cần bổ sung:</strong> ${esc(g.improve)}` : ''}<br><span class="small">Giáo viên có thể điều chỉnh nhận xét nếu cần.</span>`);
+            `${esc(g.verdict)}${g.strengths ? `<br>👍 <strong>Điểm tốt:</strong> ${esc(g.strengths)}` : ''}${g.improve ? `<br>🔧 <strong>Cần bổ sung:</strong> ${esc(g.improve)}` : ''}<br><span class="small">Giáo viên có thể điều chỉnh nhận xét nếu cần.</span>`, 'AI');
         } catch (e) {
           toast(`${e.message} – Chuyển sang giáo viên tự chấm.`, true);
           b.disabled = false; b.textContent = '🤖 AI chấm điểm';
@@ -1062,12 +1181,95 @@ const Result = {
         ${box('blue', a.message ? 7 : 12, '🗂 Ý chính / Bố cục', ideas)}
         ${box('amber', ideas ? 5 : 12, '💡 Thông điệp – Bài học', a.message ? `<p class="ig-message">${esc(a.message)}</p>` : '')}
         ${box('blue', 5, '📚 Từ ngữ cần nhớ', vocab)}
-        ${box('', vocab ? 7 : 12, '📊 Kết quả đọc hiểu của lớp', `${roundBars}${levelBars ? `<div style="margin-top:10px;font-weight:800;font-size:13px;color:#64748b">THEO MỨC ĐỘ NHẬN THỨC</div>${levelBars}` : ''}`)}
+        ${box('', vocab ? 7 : 12, '📊 Kết quả đọc hiểu của lớp', `${this.tallyLine()}${roundBars}${levelBars ? `<div style="margin-top:10px;font-weight:800;font-size:13px;color:#64748b">THEO MỨC ĐỘ NHẬN THỨC</div>${levelBars}` : ''}`)}
         ${box('pink', 12, '🔁 Nội dung cần ôn lại', review)}
       </div>
       <div class="ig-foot">Tạo bởi “Đọc Hiểu Cùng AI” · Gemini + Antigravity · ${new Date().toLocaleDateString('vi-VN')}${App.isDemo ? ' · Bài mẫu' : ''}</div>
     </div>`;
+    this.renderStats();
     showScreen('screenResult');
+  },
+
+  counts(list) {
+    const ok = list.filter((x) => x.ok).length;
+    return { total: list.length, ok, bad: list.length - ok, pct: list.length ? Math.round((ok / list.length) * 100) : 0 };
+  },
+
+  tallyLine() {
+    const c = this.counts(Game.log);
+    return `<div class="tally-line"><span class="t-ok">✓ Đúng ${c.ok}</span><span class="t-bad">✗ Sai ${c.bad}</span><span>/ ${c.total} câu</span></div>`;
+  },
+
+  /* ── BẢNG THỐNG KÊ CÂU ĐÚNG / SAI ── */
+  renderStats(filter = 'all') {
+    const log = Game.log;
+    const c = this.counts(log);
+    const byRound = Game.rounds.map((r) => ({ r, ...this.counts(log.filter((x) => x.type === r.type)) }));
+    const byLevel = ['Nhận biết', 'Thông hiểu', 'Vận dụng'].map((lv) => ({ lv, ...this.counts(log.filter((x) => x.level === lv)) })).filter((x) => x.total);
+    const rows = log.map((x, i) => ({ ...x, n: i + 1 })).filter((x) => filter === 'all' || (filter === 'bad' ? !x.ok : x.ok));
+
+    $('statsPanel').innerHTML = `<div class="stats" id="statsSection">
+      <h2 class="stats-title">📋 Thống kê câu đúng / sai</h2>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="sc-num">${c.total}</div><div class="sc-lbl">Tổng số câu</div></div>
+        <div class="stat-card ok"><div class="sc-num">${c.ok}</div><div class="sc-lbl">✓ Câu đúng</div></div>
+        <div class="stat-card bad"><div class="sc-num">${c.bad}</div><div class="sc-lbl">✗ Câu sai</div></div>
+        <div class="stat-card rate"><div class="sc-num">${c.pct}%</div><div class="sc-lbl">Tỉ lệ đúng</div></div>
+      </div>
+
+      <div class="stats-grid">
+        <table class="stbl">
+          <thead><tr><th>Vòng chơi</th><th>Số câu</th><th>Đúng</th><th>Sai</th><th>Tỉ lệ đúng</th></tr></thead>
+          <tbody>${byRound.map((x) => `<tr><td>${ROUNDS[x.r.type].icon} ${ROUNDS[x.r.type].title}</td><td>${x.total}</td><td class="c-ok">${x.ok}</td><td class="c-bad">${x.bad}</td>
+            <td class="rate-cell"><div class="mini-bar"><div style="width:${x.pct}%"></div></div> ${x.pct}%</td></tr>`).join('')}</tbody>
+        </table>
+        <table class="stbl">
+          <thead><tr><th>Mức độ</th><th>Số câu</th><th>Đúng</th><th>Sai</th><th>Tỉ lệ đúng</th></tr></thead>
+          <tbody>${byLevel.map((x) => `<tr><td>${x.lv}</td><td>${x.total}</td><td class="c-ok">${x.ok}</td><td class="c-bad">${x.bad}</td>
+            <td class="rate-cell"><div class="mini-bar"><div style="width:${x.pct}%"></div></div> ${x.pct}%</td></tr>`).join('')}</tbody>
+        </table>
+      </div>
+
+      <div class="stats-filter no-print">
+        <span>Chi tiết từng câu:</span>
+        <button class="btn small ${filter === 'all' ? '' : 'ghost'}" data-f="all">Tất cả (${c.total})</button>
+        <button class="btn small ${filter === 'ok' ? '' : 'ghost'}" data-f="ok">✓ Câu đúng (${c.ok})</button>
+        <button class="btn small ${filter === 'bad' ? '' : 'ghost'}" data-f="bad">✗ Câu sai (${c.bad})</button>
+      </div>
+      <table class="stbl detail">
+        <thead><tr><th>#</th><th>Vòng</th><th>Câu hỏi</th><th>Lớp trả lời</th><th>Đáp án đúng</th><th>Kết quả</th></tr></thead>
+        <tbody>${rows.length ? rows.map((x) => `<tr class="${x.ok ? 'r-ok' : 'r-bad'}">
+          <td>${x.n}</td><td class="nowrap">${ROUNDS[x.type].icon} ${ROUNDS[x.type].title}<br><span class="muted small">${x.level}</span></td>
+          <td>${esc(x.q)}</td><td>${esc(x.chosen)}</td><td>${esc(x.correct)}</td>
+          <td class="res">${x.ok ? '<span class="badge-ok">✓ Đúng</span>' : '<span class="badge-bad">✗ Sai</span>'}</td></tr>`).join('')
+          : '<tr><td colspan="6" class="muted" style="text-align:center">Không có câu nào.</td></tr>'}</tbody>
+      </table>
+    </div>`;
+    $('statsPanel').querySelectorAll('[data-f]').forEach((b) => (b.onclick = () => this.renderStats(b.dataset.f)));
+  },
+
+  /* Xuất thống kê ra file CSV (mở được bằng Excel, giữ dấu tiếng Việt) */
+  exportCsv() {
+    const log = Game.log;
+    if (!log.length) return toast('Chưa có dữ liệu thống kê.', true);
+    const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const c = this.counts(log);
+    const lines = [
+      ['Văn bản', App.analysis.title], ['Ngày', new Date().toLocaleString('vi-VN')],
+      ['Tổng số câu', c.total], ['Câu đúng', c.ok], ['Câu sai', c.bad], ['Tỉ lệ đúng (%)', c.pct], [],
+      ['STT', 'Vòng', 'Mức độ', 'Câu hỏi', 'Lớp trả lời', 'Đáp án đúng', 'Kết quả'],
+      ...log.map((x, i) => [i + 1, ROUNDS[x.type].title, x.level, x.q, x.chosen, x.correct, x.ok ? 'Đúng' : 'Sai']),
+    ];
+    const csv = '\uFEFF' + lines.map((r) => r.map(cell).join(',')).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const slug = App.analysis.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').replace(/[^a-z0-9]+/gi, '-').toLowerCase().replace(/^-|-$/g, '');
+    a.download = `thong-ke-doc-hieu-${slug || 'van-ban'}-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast('✅ Đã tải file thống kê (mở bằng Excel)');
   },
 };
 
@@ -1093,6 +1295,8 @@ function bindGlobal() {
   $('btnBackSetup').onclick = () => showScreen('screenSetup');
   $('btnStart').onclick = () => Game.start();
   $('btnPrint').onclick = () => window.print();
+  $('btnStatsJump').onclick = () => $('statsSection')?.scrollIntoView({ behavior: 'smooth' });
+  $('btnExportCsv').onclick = () => Result.exportCsv();
   $('btnReplay').onclick = () => Game.start();
   $('btnNewText').onclick = () => { Sound.stopAll(); showScreen('screenSetup'); };
 
@@ -1118,3 +1322,4 @@ document.addEventListener('DOMContentLoaded', () => {
   Setup.init();
   bindGlobal();
 });
+

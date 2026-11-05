@@ -10,6 +10,22 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [2.2.0] - 2026-11-05
+
+### Added
+- **Thống kê câu đúng / sai (game Đọc Hiểu Cùng AI):**
+  - Bộ đếm `✓ đúng / ✗ sai` trực tiếp trên thanh trạng thái trong lúc chơi.
+  - Bảng thống kê sau trò chơi: tổng số câu, số câu đúng, số câu sai, tỉ lệ đúng; thống kê theo từng vòng và theo mức độ Nhận biết / Thông hiểu / Vận dụng.
+  - Bảng chi tiết từng câu (câu hỏi, lớp trả lời, đáp án đúng, kết quả) có bộ lọc Tất cả / Câu đúng / Câu sai.
+  - Nút **"⬇ Tải thống kê (Excel)"** xuất file CSV giữ nguyên tiếng Việt; bảng thống kê được in kèm infographic (trang riêng).
+
+### Changed
+- **Kết nối Gemini API:** nút "🔌 Kết nối" tự tải danh sách model mà API Key được dùng, chọn sẵn model Flash mới nhất và gửi thử yêu cầu; hiển thị trạng thái kết nối ở góc trên và cạnh ô API Key; tự kết nối lại khi mở ứng dụng; tự chuyển sang model khả dụng khác nếu model đã chọn không tồn tại (lỗi 404).
+- Gửi API Key qua header `x-goog-api-key` thay vì đặt trên URL; thông báo lỗi rõ ràng hơn (key sai, hết hạn mức, máy chủ bận, nội dung bị chặn, câu trả lời bị cắt do quá dài).
+- Bỏ thông tin tác giả khỏi README của game.
+
+---
+
 ## [2.1.0] - 2026-11-05
 
 ### Added

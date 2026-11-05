@@ -1,9 +1,15 @@
 # 📖 ĐỌC HIỂU CÙNG AI
 
-Game đánh giá **năng lực đọc hiểu văn bản** cho học sinh THCS (lớp 6–9). Giáo viên đưa một bài văn vào, **Gemini AI** phân tích và tạo bộ câu hỏi gồm 6 vòng chơi. Kết thúc trò chơi là một **Infographic chốt kiến thức**.
+Game đánh giá **năng lực đọc hiểu văn bản** cho học sinh THCS (lớp 6–9). Giáo viên đưa một bài văn vào, **Gemini AI** phân tích và tạo bộ câu hỏi gồm 6 vòng chơi. Kết thúc trò chơi là một **Infographic chốt kiến thức** và **bảng thống kê câu đúng/sai** (xuất được ra Excel).
 
-- **Tác giả:** Nguyễn Viết Sơn – Nguyễn Thiên Ân · Nhóm Đột phá · Tổ Toán – Văn
-- **Công cụ AI:** Gemini + Antigravity
+---
+
+## 🔌 Kết nối Gemini API
+
+1. Lấy API Key miễn phí tại [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Dán key vào ô **API Key** → bấm **🔌 Kết nối**.
+3. Ứng dụng tự tải **danh sách model mà key được dùng**, chọn sẵn model Flash mới nhất và gửi thử một yêu cầu. Trạng thái hiện ở góc trên: 🟢 *AI: tên-model* là đã sẵn sàng.
+4. Lần sau mở lại, ứng dụng tự kết nối bằng key đã lưu. Nếu model đã chọn bị ngừng hỗ trợ, ứng dụng tự chuyển sang model khả dụng khác.
 
 ---
 
@@ -21,7 +27,7 @@ Game đánh giá **năng lực đọc hiểu văn bản** cho học sinh THCS (l
 | 2 | **AI phân tích** | Bấm "✨ Phân tích bằng AI" (khoảng 10–30 giây) |
 | 3 | **Xem trước & duyệt** | Đọc lướt, bấm 🗑 xóa câu chưa phù hợp |
 | 4 | **Chơi 6 vòng** | Chiếu lên màn hình, cả lớp thảo luận rồi giáo viên bấm chọn đáp án |
-| 5 | **Infographic** | Chốt kiến thức, xem kết quả của lớp, bấm "🖨 In / Xuất PDF" |
+| 5 | **Infographic + Thống kê** | Chốt kiến thức; xem bảng thống kê đúng/sai theo vòng, theo mức độ và từng câu; bấm "⬇ Tải thống kê (Excel)" hoặc "🖨 In / Xuất PDF" |
 
 ## 🎮 Sáu vòng chơi
 
@@ -55,3 +61,4 @@ app.js           Đọc file, gọi Gemini, chuẩn hóa dữ liệu, engine 6 v
 sample-data.js   Bài mẫu "Thánh Gióng" (truyền thuyết kể lại) + bộ câu hỏi dựng sẵn
 assets/          PDF.js offline, âm thanh
 ```
+
