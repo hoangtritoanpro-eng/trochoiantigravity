@@ -26,9 +26,20 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
     7. ❓ **Bài kiểm tra (`quiz`)**
     8. 📊 **Bản đồ hoạ thông tin (`infographic`)**
     9. 📋 **Bảng dữ liệu (`data_table`)**
-  - **Khung Xem & Tương tác ngay tại chỗ cả 9 tính năng Studio:** Cho phép giáo viên bấm vào từng thẻ pill để xem, tương tác và trình chiếu ngay trên lớp cả 9 định dạng (Podcast đối thoại 2 Host có đọc giọng nói tiếng Việt, Slide bài giảng, Kịch bản Explainer Video, Bản đồ tư duy phân nhánh, Báo cáo & Giáo án CV 5512, Thẻ ghi nhớ lật 2 mặt, Bài kiểm tra trắc nghiệm chấm điểm tức thì, Bản đồ hoạ thông tin tóm tắt, Bảng dữ liệu học thuật kèm nút tải `.csv`), đồng thời hỗ trợ nút **📤 Copy Nguồn & Mở NotebookLM Web** và **📥 Tải file Nguồn (.md)**.
+  - **Tự động đấu nối, chuyển dữ liệu & hiển thị kết quả trực tiếp ngay trên App khi chọn mục Studio (`execute-one` & `fetch-artifact`):**
+    - Khi giáo viên bấm chọn bất kỳ mục nào trong **9 tính năng Studio** (hoặc bấm **🚀 Tự động đấu nối, thực hiện & Hiện kết quả lên App**), ứng dụng tự động khởi tạo Notebook, đẩy gói dữ liệu nguồn sang Google NotebookLM (hoặc thực thi trực tiếp qua Gemini AI Studio trên bản Web), tự động theo dõi tiến trình (`startArtifactPoller`) và tải kết quả thực tế về hiển thị trực tiếp trong khung `#studioOutput` ngay trên App:
+      - 🎙️ **Âm thanh (`.m4a`)**: Phát trực tiếp bằng trình nghe `<audio controls>` kèm nút tải file `.m4a` hoặc nghe đọc giọng nói trực tiếp.
+      - 🎬 **Video (`.mp4`)**: Xem trực tiếp bằng trình phát `<video controls>` kèm kịch bản phân cảnh.
+      - 📊 **Bản trình bày (`.pdf`)**: Nhúng xem trực tiếp Slide PDF trong `<iframe src="...">` kèm dàn ý chi tiết.
+      - 📊 **Bản đồ hoạ thông tin (`.png`)**: Hiển thị trực tiếp ảnh Infographic kết xuất từ NotebookLM kèm nút tải ảnh.
+      - 🧠 **Bản đồ tư duy (`mind_map`)**: Vẽ cây phân nhánh trực tiếp từ dữ liệu JSON của NotebookLM (`renderNlmMindMapTree`).
+      - 📄 **Báo cáo (`report`)**: Hiển thị toàn văn bản Báo cáo Markdown từ NotebookLM ngay trên App.
+      - 🗂️ **Thẻ ghi nhớ (`flashcards`) & ❓ Bài kiểm tra (`quiz`)**: Trích xuất dữ liệu tương tác (`get_interactive_app_data`) từ NotebookLM để lật thẻ và làm bài trắc nghiệm chấm điểm trực tiếp trên App.
+      - 📋 **Bảng dữ liệu (`data_table`)**: Hiển thị bảng dữ liệu trực tiếp từ file `.csv` của NotebookLM kèm nút xuất Excel/CSV.
+  - **Khung Xem & Tương tác ngay tại chỗ cả 9 tính năng Studio:** Cho phép giáo viên bấm vào từng thẻ pill để xem, tương tác và trình chiếu ngay trên lớp cả 9 định dạng, đồng thời hỗ trợ nút **📤 Copy Nguồn & Mở NotebookLM Web** và **📥 Tải file Nguồn (.md)**.
 
 ### Fixed
+- **Sửa lỗi co hẹp nút bấm trong khung kết quả Studio (`.studio-head-row` trong [style.css](file:///c:/Users/hoang/Downloads/TOAN/duantoan/game-doc-hieu-van-ban/style.css#L573-L577)):** Bổ sung `flex-wrap: wrap` và `flex-shrink: 0; white-space: nowrap` cho các nút thao tác (`🔍 Xem Sơ đồ SVG lớn`, `📥 Tải Bảng dữ liệu (.csv)`, `🔊 Nghe đọc Podcast`, `⚡ Thực hiện mục này`) để nút luôn hiển thị cân đối trên mọi kích thước màn hình.
 - **Khắc phục triệt để lỗi `"Dữ liệu AI trả về bị lỗi định dạng. Hãy bấm phân tích lại."` khi phân tích văn bản bằng Gemini 2.5 / 3.x (`AIService` trong [app.js](file:///c:/Users/hoang/Downloads/TOAN/duantoan/game-doc-hieu-van-ban/app.js#L314-L485)):**
   - Lọc bỏ các phần suy nghĩ nội bộ (`thought: true`) của Gemini 2.5 / 3.x trước khi giải mã JSON và nâng `maxOutputTokens` lên `32768` để tránh đứt gãy JSON.
   - Xây dựng bộ **Auto-Repair JSON (`AIService.repairJSON`)** tự động sửa dấu ngoặc kép thẳng (`"..."`) chưa escape khi AI trích dẫn thơ/văn tiếng Việt, ký tự xuống dòng trực tiếp trong chuỗi, dấu phẩy thừa cuối mảng/object và tự động đóng ngoặc nếu phản hồi bị ngắt.

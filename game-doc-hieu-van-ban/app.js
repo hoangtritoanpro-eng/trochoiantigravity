@@ -2133,7 +2133,12 @@ const NotebookLM = {
   activeTab: 'report',
   lastNotebookId: '',
   lastNotebookUrl: '',
-  customCache: {},
+  sourcesUploaded: false,
+  autoExecuteOnSelect: true,
+  liveResults: {},
+  itemState: {},
+  pollTimers: {},
+  loginWatchTimer: null,
 
   buildSourcePackage() {
     const a = App.analysis;
@@ -2255,17 +2260,27 @@ const NotebookLM = {
     },
   ],
 
+  featLabel(id) {
+    return this.features.find((f) => f.id === id)?.label || id;
+  },
+
   render() {
     const a = App.analysis;
-    this.customCache = {};
+    this.liveResults = {};
+    this.itemState = {};
+    this.sourcesUploaded = false;
+    Object.values(this.pollTimers).forEach((t) => clearInterval(t));
+    this.pollTimers = {};
+
     const pillsHtml = this.features.map((f) => `
-      <div class="nlm-pill-card ${this.activeTab === f.id ? 'active-preview' : ''}" data-feat="${f.id}" title="Bấm vào thẻ để xem trước ${f.label} · Tích ô vuông để đẩy sang Google NotebookLM">
+      <div class="nlm-pill-card ${this.activeTab === f.id ? 'active-preview' : ''}" data-feat="${f.id}" title="Bấm vào mục để tự động đấu nối, chuyển dữ liệu & hiện kết quả lên App">
         <div class="nlm-pill-left">
           <span class="nlm-pill-icon">${f.svg}</span>
           <span class="nlm-pill-label">${esc(f.label)}</span>
           ${f.badge ? `<span class="nlm-new-badge">${esc(f.badge)}</span>` : ''}
+          <span class="nlm-pill-state" id="nlmPillState_${f.id}" hidden></span>
         </div>
-        <input type="checkbox" class="nlm-pill-check" value="${f.id}" ${f.checked ? 'checked' : ''} title="Chọn tạo ${esc(f.label)} trên Google NotebookLM">
+        <input type="checkbox" class="nlm-pill-check" value="${f.id}" ${f.checked ? 'checked' : ''} title="Chọn tạo ${esc(f.label)}">
       </div>`).join('');
 
     const tabsHtml = this.features.map((f) => `
@@ -2275,7 +2290,7 @@ const NotebookLM = {
       <div class="nlm-head">
         <div>
           <div class="nlm-title">🚀 <span>ĐẤU NỐI GOOGLE NOTEBOOKLM (9 TÍNH NĂNG STUDIO)</span></div>
-          <div style="font-size:14px;color:#cbd5e1;margin-top:4px">Đẩy trực tiếp dữ liệu qua Google NotebookLM để tạo đủ 9 học liệu Studio: Tổng quan bằng âm thanh, Bản trình bày, Tổng quan bằng video, Bản đồ tư duy, Báo cáo, Thẻ ghi nhớ, Bài kiểm tra, Bản đồ hoạ thông tin, Bảng dữ liệu</div>
+          <div style="font-size:14px;color:#cbd5e1;margin-top:4px">Khi chọn mục bất kỳ hoặc bấm nút thực hiện, ứng dụng tự động đấu nối, chuyển dữ liệu qua thực hiện và hiển thị kết quả trực tiếp ngay trên App</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <span class="nlm-badge" id="nlmConnBadge">⏳ Đang kiểm tra cầu nối NotebookLM…</span>
@@ -2287,7 +2302,7 @@ const NotebookLM = {
       <div class="nlm-grid">
         <!-- CỘT TRÁI: 9 TÍNH NĂNG GOOGLE NOTEBOOKLM STUDIO -->
         <div class="nlm-panel">
-          <h3>① 9 Tính năng Studio của Google NotebookLM</h3>
+          <h3>① Chọn Tính năng Studio để Thực hiện &amp; Hiện lên App</h3>
           <div class="form-row">
             <label class="field-label" for="nlmTargetNotebook">Chọn Notebook đích trên Google NotebookLM</label>
             <select id="nlmTargetNotebook">
@@ -2295,11 +2310,16 @@ const NotebookLM = {
             </select>
           </div>
 
-          <div class="row-between" style="margin-top:8px;margin-bottom:4px">
-            <label class="field-label" style="margin:0">Bấm vào từng mục để xem ngay · Tích chọn để tạo trên NotebookLM:</label>
-            <div style="display:flex;gap:6px">
-              <button type="button" class="btn small ghost" id="btnNlmCheckAll" style="padding:3px 8px;font-size:12px">☑ Chọn cả 9</button>
-              <button type="button" class="btn small ghost" id="btnNlmUncheckAll" style="padding:3px 8px;font-size:12px">☐ Bỏ chọn</button>
+          <label class="nlm-auto-bar" for="chkAutoExecuteStudio">
+            <span>⚡ Tự động đấu nối, chuyển dữ liệu &amp; thực hiện ngay khi bấm chọn mục</span>
+            <input type="checkbox" id="chkAutoExecuteStudio" ${this.autoExecuteOnSelect ? 'checked' : ''}>
+          </label>
+
+          <div class="row-between" style="margin-top:6px;margin-bottom:4px;flex-wrap:wrap;gap:8px">
+            <label class="field-label" style="margin:0">Bấm vào mục để thực hiện · Tích chọn chạy hàng loạt:</label>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <button type="button" class="btn small ghost" id="btnNlmCheckAll" style="padding:4px 9px;font-size:12px;white-space:nowrap">☑ Chọn cả 9</button>
+              <button type="button" class="btn small ghost" id="btnNlmUncheckAll" style="padding:4px 9px;font-size:12px;white-space:nowrap">☐ Bỏ chọn</button>
             </div>
           </div>
 
@@ -2308,12 +2328,12 @@ const NotebookLM = {
           </div>
 
           <div class="form-row">
-            <label class="field-label" for="nlmFocusPrompt">Yêu cầu / Định hướng sư phạm cho NotebookLM (tùy chọn)</label>
+            <label class="field-label" for="nlmFocusPrompt">Yêu cầu / Định hướng sư phạm (tùy chọn)</label>
             <input type="text" id="nlmFocusPrompt" value="Thiết kế học liệu tiếng Việt bám sát Chương trình Ngữ văn THPT 2018 (${esc(a.gradeLevel || App.settings.grade)}), nhấn mạnh các câu học sinh còn làm sai.">
           </div>
 
           <div class="nlm-actions">
-            <button type="button" class="btn primary big" id="btnPushNlm">🚀 Đẩy sang Google NotebookLM &amp; Tạo các mục đã chọn</button>
+            <button type="button" class="btn primary big" id="btnPushNlm">🚀 Tự động đấu nối, thực hiện &amp; Hiện kết quả lên App</button>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <button type="button" class="btn ghost small" id="btnOpenNlmWeb" title="Copy toàn bộ hồ sơ nguồn vào Clipboard và mở trang chủ Google NotebookLM">📤 Copy Nguồn &amp; Mở NotebookLM Web ↗</button>
               <button type="button" class="btn ghost small" id="btnDownloadNlmSource" title="Tải file Markdown chuẩn để nạp vào NotebookLM">📥 Tải file Nguồn (.md)</button>
@@ -2323,11 +2343,14 @@ const NotebookLM = {
           <div id="nlmPushResult" class="nlm-status-box" hidden></div>
         </div>
 
-        <!-- CỘT PHẢI: XEM & TRÌNH CHIẾU NHANH 9 TÍNH NĂNG STUDIO TẠI CHỖ -->
+        <!-- CỘT PHẢI: HIỂN THỊ KẾT QUẢ TRỰC TIẾP TRÊN APP -->
         <div class="nlm-panel">
-          <div class="row-between" style="margin-bottom:8px;margin-top:0">
-            <h3 style="margin:0">② Xem &amp; Tương tác tại chỗ (9 tính năng Studio)</h3>
-            <button type="button" class="btn small ghost" id="btnCopyStudioOut" title="Copy nội dung mục đang xem">📑 Copy mục này</button>
+          <div class="row-between" style="margin-bottom:8px;margin-top:0;flex-wrap:wrap;gap:8px">
+            <h3 style="margin:0">② Kết quả hiển thị trực tiếp trên App</h3>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <button type="button" class="btn small primary" id="btnExecuteActiveTab" style="white-space:nowrap" title="Đấu nối và thực hiện ngay mục đang chọn để lấy kết quả mới">⚡ Thực hiện mục này</button>
+              <button type="button" class="btn small ghost" id="btnCopyStudioOut" style="white-space:nowrap" title="Copy nội dung mục đang xem">📑 Copy</button>
+            </div>
           </div>
           <div class="studio-tabs" id="studioTabs">
             ${tabsHtml}
@@ -2338,34 +2361,62 @@ const NotebookLM = {
     </div>`;
 
     $('btnNlmRefresh').onclick = () => this.checkStatus(false);
-    $('btnNlmLogin').onclick = () => this.login();
+    $('btnNlmLogin').onclick = () => this.loginAndWatch();
     $('btnPushNlm').onclick = () => this.pushToNotebookLM();
     $('btnOpenNlmWeb').onclick = () => this.copyAndOpenWeb();
     $('btnDownloadNlmSource').onclick = () => this.downloadSourceMd();
     $('btnCopyStudioOut').onclick = () => copyToClipboard($('studioOutput')?.innerText || '', 'học liệu Studio');
+    $('btnExecuteActiveTab').onclick = () => this.executeSingle(this.activeTab, true);
+    $('chkAutoExecuteStudio').onchange = (e) => { this.autoExecuteOnSelect = e.target.checked; };
     $('btnNlmCheckAll').onclick = () => document.querySelectorAll('#nlmArtifactChecks input[type=checkbox]').forEach((c) => (c.checked = true));
     $('btnNlmUncheckAll').onclick = () => document.querySelectorAll('#nlmArtifactChecks input[type=checkbox]').forEach((c) => (c.checked = false));
 
     document.querySelectorAll('#nlmArtifactChecks .nlm-pill-card').forEach((card) => {
       card.onclick = (e) => {
         if (e.target.tagName === 'INPUT') return;
-        this.switchStudioTab(card.dataset.feat);
+        this.switchStudioTab(card.dataset.feat, true);
       };
     });
 
     $('studioTabs').querySelectorAll('.studio-tab').forEach((btn) => {
-      btn.onclick = () => this.switchStudioTab(btn.dataset.tab);
+      btn.onclick = () => this.switchStudioTab(btn.dataset.tab, true);
     });
 
-    this.switchStudioTab(this.activeTab || 'report');
+    this.switchStudioTab(this.activeTab || 'report', false);
     this.checkStatus(true);
   },
 
-  switchStudioTab(tab) {
+  updatePillBadges() {
+    this.features.forEach((f) => {
+      const el = $(`nlmPillState_${f.id}`);
+      if (!el) return;
+      const st = this.itemState[f.id];
+      if (!st || st.status === 'idle') {
+        el.hidden = true;
+      } else if (st.status === 'running') {
+        el.hidden = false;
+        el.className = 'nlm-pill-state running';
+        el.textContent = '⏳ Đang chạy';
+      } else if (st.status === 'done') {
+        el.hidden = false;
+        el.className = 'nlm-pill-state done';
+        el.textContent = '✅ Xong';
+      } else if (st.status === 'error') {
+        el.hidden = false;
+        el.className = 'nlm-pill-state error';
+        el.textContent = '⚠️ Lỗi';
+      }
+    });
+  },
+
+  switchStudioTab(tab, userClicked = false) {
     this.activeTab = tab;
     document.querySelectorAll('#studioTabs .studio-tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
     document.querySelectorAll('#nlmArtifactChecks .nlm-pill-card').forEach((c) => c.classList.toggle('active-preview', c.dataset.feat === tab));
     this.renderStudioTab(tab);
+    if (userClicked && this.autoExecuteOnSelect && !this.liveResults[tab] && this.itemState[tab]?.status !== 'running') {
+      this.executeSingle(tab, false);
+    }
   },
 
   async api(path, body = null) {
@@ -2376,6 +2427,13 @@ const NotebookLM = {
       body: body ? JSON.stringify(body) : undefined,
     });
     return res.json();
+  },
+
+  fileUrl(relPath) {
+    if (!relPath) return '';
+    if (/^https?:/i.test(relPath)) return relPath;
+    const base = window.location.port === '8899' ? '' : this.bridgeUrl;
+    return `${base}${relPath}`;
   },
 
   async checkStatus(silent = true) {
@@ -2390,8 +2448,12 @@ const NotebookLM = {
         badge.className = 'nlm-badge ok';
         badge.textContent = `🟢 Đã kết nối Google NotebookLM (${this.bridgeState.notebooks.length} notebook)`;
         const sel = $('nlmTargetNotebook');
-        const defaultOpt = `<option value="">✨ Tạo Notebook mới: “Đọc hiểu THPT – ${esc(App.analysis.title)}”</option>`;
-        sel.innerHTML = defaultOpt + this.bridgeState.notebooks.map((nb) => `<option value="${esc(nb.id)}">📒 ${esc(nb.title)} (${nb.source_count || 0} nguồn)</option>`).join('');
+        if (sel) {
+          const curVal = sel.value || this.lastNotebookId;
+          const defaultOpt = `<option value="">✨ Tạo Notebook mới: “Đọc hiểu THPT – ${esc(App.analysis.title)}”</option>`;
+          sel.innerHTML = defaultOpt + this.bridgeState.notebooks.map((nb) => `<option value="${esc(nb.id)}">📒 ${esc(nb.title)} (${nb.source_count || 0} nguồn)</option>`).join('');
+          if (curVal) sel.value = curVal;
+        }
         if (!silent) toast('✅ Đã kết nối trực tiếp với tài khoản Google NotebookLM!');
       } else {
         badge.className = 'nlm-badge warn';
@@ -2401,83 +2463,314 @@ const NotebookLM = {
     } catch (e) {
       this.bridgeState = { connected: false, authenticated: false, notebooks: [], error: e.message };
       badge.className = 'nlm-badge warn';
-      badge.textContent = '🌐 Chế độ Web (Dùng "Copy Nguồn & Mở NotebookLM" hoặc chạy Chay_Game.bat)';
-      if (!silent) toast('Chưa bật cầu nối cục bộ (Chay_Game.bat). Bạn vẫn có thể bấm "📤 Copy Nguồn & Mở NotebookLM Web"!', true);
+      badge.textContent = App.apiKey()
+        ? '🟢 Chế độ AI Studio Trực tiếp (Tự động thực hiện & hiện kết quả ngay trên App)'
+        : '🌐 Chế độ Web (Nhập Gemini API Key hoặc chạy Chay_Game.bat để đấu nối tự động)';
+      if (!silent) toast('Đang ở chế độ Web trực tiếp. Bạn có thể bấm chọn bất kỳ mục nào để thực hiện và xem kết quả ngay trên App!');
     }
   },
 
-  async login() {
+  async loginAndWatch(afterLoginCallback = null) {
     try {
       const data = await this.api('/api/notebooklm/login', {});
-      toast(data.message || 'Đã mở trình duyệt đăng nhập Google NotebookLM.');
+      toast(data.message || 'Đã mở trình duyệt đăng nhập Google NotebookLM. Đang chờ xác thực tự động…');
+      if (this.loginWatchTimer) clearInterval(this.loginWatchTimer);
+      let checks = 0;
+      this.loginWatchTimer = setInterval(async () => {
+        checks++;
+        if (checks > 60) {
+          clearInterval(this.loginWatchTimer);
+          return;
+        }
+        await this.checkStatus(true);
+        if (this.bridgeState.authenticated) {
+          clearInterval(this.loginWatchTimer);
+          toast('🎉 Đăng nhập Google NotebookLM thành công! Đang tự động đấu nối dữ liệu…');
+          if (afterLoginCallback) afterLoginCallback();
+        }
+      }, 3000);
     } catch (e) {
       window.open('https://notebooklm.google.com/', '_blank', 'noopener');
       toast('Đã mở trang Google NotebookLM. Nếu chạy trên máy tính, hãy mở bằng Chay_Game.bat để đồng bộ tự động.');
     }
   },
 
+  /* ── Thực hiện 1 mục đã chọn & tự động trả kết quả về hiển thị ngay trên App ── */
+  async executeSingle(tab, manualClick = false) {
+    const label = this.featLabel(tab);
+    this.itemState[tab] = { status: 'running', msg: `Đang đấu nối, chuyển dữ liệu & thực hiện "${label}"…` };
+    this.updatePillBadges();
+    if (this.activeTab === tab) this.renderStudioTab(tab);
+
+    // 1. Nếu chưa kiểm tra cầu nối thì kiểm tra nhanh
+    if (!this.bridgeState.connected) {
+      await this.checkStatus(true);
+    }
+
+    // 2. NHÁNH A: Đã kết nối & xác thực với Google NotebookLM Bridge -> Gửi qua Google NotebookLM thật & tải kết quả về App
+    if (this.bridgeState.connected && this.bridgeState.authenticated) {
+      try {
+        const targetNb = $('nlmTargetNotebook')?.value || this.lastNotebookId || '';
+        const res = await this.api('/api/notebooklm/execute-one', {
+          notebook_id: targetNb,
+          title: `Đọc hiểu THPT – ${App.analysis.title}`,
+          sources: this.buildSourcePackage(),
+          artifact_type: tab,
+          focus_prompt: $('nlmFocusPrompt')?.value.trim() || '',
+          sources_already_uploaded: !!(this.sourcesUploaded && targetNb && targetNb === this.lastNotebookId),
+        });
+        if (!res.ok) throw new Error(res.error || `Không khởi tạo được ${label}`);
+
+        this.lastNotebookId = res.notebook_id;
+        this.lastNotebookUrl = res.notebook_url;
+        this.sourcesUploaded = true;
+
+        if (res.status === 'completed' && res.result_data) {
+          this.liveResults[tab] = { source: 'Google NotebookLM', ...res.result_data, file_url: res.file_url };
+          this.itemState[tab] = { status: 'done', msg: `Đã nhận kết quả "${label}" trực tiếp từ Google NotebookLM!` };
+          this.updatePillBadges();
+          if (this.activeTab === tab) this.renderStudioTab(tab);
+          toast(`✅ Đã hiển thị kết quả "${label}" từ Google NotebookLM lên App!`);
+          return;
+        }
+
+        // Bắt đầu poll tự động để lấy kết quả từ Google NotebookLM ngay khi hoàn tất
+        this.itemState[tab] = {
+          status: 'running',
+          msg: `Đã chuyển dữ liệu qua Google NotebookLM · Đang tạo "${label}" và sẽ tự động hiện lên App…`,
+        };
+        if (this.activeTab === tab) this.renderStudioTab(tab);
+        this.startArtifactPoller(tab, res.notebook_id, res.artifact_id);
+        return;
+      } catch (e) {
+        console.warn('NotebookLM Bridge execute error:', e);
+        // Nếu lỗi phiên đăng nhập và có Gemini API Key thì chuyển sang thực hiện trực tiếp bằng Gemini AI
+        if (!App.apiKey()) {
+          this.itemState[tab] = { status: 'error', msg: `Chưa thực hiện được trên NotebookLM: ${e.message}` };
+          this.updatePillBadges();
+          if (this.activeTab === tab) this.renderStudioTab(tab);
+          if (manualClick) toast(e.message, true);
+          return;
+        }
+      }
+    }
+
+    // 3. NHÁNH B: Có Gemini API Key -> Thực hiện tự động bằng AI & hiện kết quả ngay trên App
+    if (App.apiKey()) {
+      await this.executeWithGeminiAI(tab);
+      return;
+    }
+
+    // 4. NHÁNH C: Cầu nối cục bộ đang bật nhưng chưa đăng nhập Google NotebookLM
+    if (this.bridgeState.connected && !this.bridgeState.authenticated) {
+      this.itemState[tab] = {
+        status: 'error',
+        msg: 'Cần đăng nhập Google NotebookLM (hoặc nhập Gemini API Key) để tự động tạo mới. Đang hiển thị bản chuẩn hóa sẵn có.',
+      };
+      this.updatePillBadges();
+      if (this.activeTab === tab) this.renderStudioTab(tab);
+      if (manualClick) {
+        toast('Đang mở cửa sổ đăng nhập Google NotebookLM – ngay khi bạn đăng nhập xong, ứng dụng sẽ tự động thực hiện!');
+        this.loginAndWatch(() => this.executeSingle(tab, false));
+      }
+      return;
+    }
+
+    // 5. NHÁNH D: Chế độ Demo Offline (hiển thị ngay kết quả chuẩn hóa từ ngữ liệu)
+    this.itemState[tab] = {
+      status: 'done',
+      msg: `Đã tổng hợp & hiển thị "${label}" trên App (Nhập Gemini API Key hoặc bật Chay_Game.bat để tạo trực tiếp từ NotebookLM).`,
+    };
+    this.updatePillBadges();
+    if (this.activeTab === tab) this.renderStudioTab(tab);
+  },
+
+  startArtifactPoller(tab, notebookId, artifactId) {
+    if (this.pollTimers[tab]) clearInterval(this.pollTimers[tab]);
+    let attempts = 0;
+    const poll = async () => {
+      attempts++;
+      if (attempts > 90) {
+        clearInterval(this.pollTimers[tab]);
+        return;
+      }
+      try {
+        const qs = `notebook_id=${encodeURIComponent(notebookId)}&artifact_type=${encodeURIComponent(tab)}&artifact_id=${encodeURIComponent(artifactId || '')}`;
+        const res = await this.api(`/api/notebooklm/fetch-artifact?${qs}`);
+        if (res.status === 'completed' && res.result_data) {
+          clearInterval(this.pollTimers[tab]);
+          this.liveResults[tab] = { source: 'Google NotebookLM', ...res.result_data, file_url: res.file_url };
+          this.itemState[tab] = {
+            status: 'done',
+            msg: `🎉 Đã tải & hiển thị kết quả "${this.featLabel(tab)}" trực tiếp từ Google NotebookLM!`,
+          };
+          this.updatePillBadges();
+          if (this.activeTab === tab) this.renderStudioTab(tab);
+          toast(`🎉 Kết quả "${this.featLabel(tab)}" từ Google NotebookLM đã hiện lên App!`);
+        } else if (res.status === 'failed' || res.ok === false) {
+          clearInterval(this.pollTimers[tab]);
+          this.itemState[tab] = { status: 'error', msg: res.error || 'Google NotebookLM báo lỗi khi tạo mục này.' };
+          this.updatePillBadges();
+          if (this.activeTab === tab) this.renderStudioTab(tab);
+        }
+      } catch (_) {}
+    };
+    setTimeout(poll, 2500);
+    this.pollTimers[tab] = setInterval(poll, 4500);
+  },
+
+  /* ── Thực hiện chuyên sâu bằng Gemini AI & hiện trực tiếp lên App ── */
+  async executeWithGeminiAI(tab) {
+    const label = this.featLabel(tab);
+    this.itemState[tab] = { status: 'running', msg: `⚡ Đang chuyển dữ liệu qua AI Studio để thực hiện "${label}"…` };
+    this.updatePillBadges();
+    if (this.activeTab === tab) this.renderStudioTab(tab);
+
+    const pkg = this.buildSourcePackage();
+    const focus = $('nlmFocusPrompt')?.value.trim() || '';
+    const contextText = `${pkg[0].text}\n\n${pkg[1].text}\n\nĐịnh hướng sư phạm: ${focus}`;
+
+    const schemas = {
+      audio: `Hãy tạo kịch bản "Tổng quan bằng âm thanh" (Podcast đối thoại chuyên sâu 6–8 lượt lời giữa 2 Host: Minh Anh và Hoàng Nam) phân tích sâu sắc ngữ liệu, thi pháp và giải đáp các câu học sinh làm sai.
+CHỈ TRẢ VỀ JSON: {"lines": [{"host": "A", "name": "Minh Anh (Host 1)", "text": "..."}, {"host": "B", "name": "Hoàng Nam (Host 2)", "text": "..."}]}`,
+      slide_deck: `Hãy thiết kế "Bản trình bày" bài giảng Ngữ văn THPT chuyên sâu gồm 6–7 Slide.
+CHỈ TRẢ VỀ JSON: {"slides": [{"title": "Slide 1: ...", "body": "• Ý 1\\n• Ý 2\\n• Ý 3"}]}`,
+      video: `Hãy thiết kế kịch bản "Tổng quan bằng video" (Explainer Video 5–6 phân cảnh) có thời lượng, hình ảnh minh họa trên màn hình và lời bình chi tiết.
+CHỈ TRẢ VỀ JSON: {"scenes": [{"time": "0:00 - 0:35", "title": "Cảnh 1: ...", "visual": "Mô tả hình ảnh hiển thị", "narration": "Lời giảng chi tiết"}]}`,
+      mind_map: `Hãy thiết kế "Bản đồ tư duy" phân nhánh đa tầng tổng hợp toàn bộ kiến thức trọng tâm của tác phẩm.
+CHỈ TRẢ VỀ JSON: {"tree": {"name": "Tên tác phẩm", "children": [{"name": "Nhánh 1: ...", "children": [{"name": "Ý nhỏ 1"}, {"name": "Ý nhỏ 2"}]}]}}`,
+      report: `Hãy biên soạn "Báo cáo & Kế hoạch bài dạy" (Study Guide & Giáo án Công văn 5512 chuẩn CT GDPT 2018) thật chi tiết.
+CHỈ TRẢ VỀ JSON: {"title": "Tiêu đề báo cáo", "sections": [{"heading": "1. ...", "bullets": ["Ý chi tiết 1", "Ý chi tiết 2"]}]}`,
+      flashcards: `Hãy tạo bộ 10 "Thẻ ghi nhớ" (Flashcards) ôn tập thuật ngữ, hình tượng, biện pháp nghệ thuật và thông điệp của văn bản.
+CHỈ TRẢ VỀ JSON: {"cards": [{"f": "Mặt trước (Câu hỏi / Khái niệm)", "b": "Mặt sau (Giải nghĩa / Đáp án chi tiết)"}]}`,
+      quiz: `Hãy tạo "Bài kiểm tra" đọc hiểu gồm 8 câu hỏi trắc nghiệm 4 lựa chọn (gắn mức độ Nhận biết, Thông hiểu, Vận dụng) kèm lời giải thích sâu sắc.
+CHỈ TRẢ VỀ JSON: {"questions": [{"question": "Nội dung câu hỏi?", "level": "Thông hiểu", "options": ["A", "B", "C", "D"], "ans": 0, "explain": "Giải thích chi tiết"}]}`,
+      infographic: `Hãy thiết kế "Bản đồ hoạ thông tin" (Infographic) gồm 5 khối thông tin trực quan cô đọng nhất về tác phẩm.
+CHỈ TRẢ VỀ JSON: {"blocks": [{"title": "1. ...", "color": "#0d9488", "items": ["Điểm 1", "Điểm 2"]}]}`,
+      data_table: `Hãy lập "Bảng dữ liệu" tổng hợp chi tiết các tín hiệu nghệ thuật, hình tượng, dẫn chứng và giá trị biểu đạt trong văn bản.
+CHỈ TRẢ VỀ JSON: {"headers": ["STT", "Yếu tố / Hình tượng / Nghệ thuật", "Dẫn chứng tiêu biểu", "Giá trị nội dung & Tác dụng nghệ thuật", "Mức độ nhận thức"], "rows": [["1", "...", "...", "...", "Thông hiểu"]]}`,
+    };
+
+    try {
+      const prompt = `Bạn là hệ thống NotebookLM Studio chuyên gia Ngữ văn THPT.\n${schemas[tab]}\nLƯU Ý: Dùng dấu nháy đơn ('...') khi trích dẫn bên trong chuỗi JSON.\n\nDỮ LIỆU NGUỒN:\n${contextText.slice(0, 22000)}`;
+      const data = await AIService.callWithFallback(prompt, { temperature: 0.35, maxTokens: 16384 });
+      this.liveResults[tab] = { source: 'AI Studio (Trực tiếp)', kind: `ai_${tab}`, data };
+      this.itemState[tab] = { status: 'done', msg: `✅ Đã thực hiện "${label}" & hiển thị kết quả trực tiếp trên App!` };
+      this.updatePillBadges();
+      if (this.activeTab === tab) this.renderStudioTab(tab);
+      toast(`✅ Đã thực hiện "${label}" và hiển thị kết quả lên App!`);
+    } catch (e) {
+      this.itemState[tab] = { status: 'error', msg: `Lỗi thực hiện AI: ${e.message}` };
+      this.updatePillBadges();
+      if (this.activeTab === tab) this.renderStudioTab(tab);
+      toast(e.message, true);
+    }
+  },
+
+  /* ── Chạy hàng loạt các mục đã tích chọn & tự động trả kết quả lên App ── */
   async pushToNotebookLM() {
     const selected = [...document.querySelectorAll('#nlmArtifactChecks input:checked')].map((i) => i.value);
-    if (!selected.length) return toast('Hãy tích chọn ít nhất 1 học liệu cần tạo trên NotebookLM.', true);
+    if (!selected.length) return toast('Hãy tích chọn ít nhất 1 mục để thực hiện.', true);
 
     if (!this.bridgeState.connected) {
       await this.checkStatus(true);
     }
-    if (!this.bridgeState.connected) {
-      toast('Cầu nối cục bộ chưa bật – chuyển sang Copy trọn bộ dữ liệu & Mở Google NotebookLM Web!');
-      return this.copyAndOpenWeb();
+
+    // Nếu cầu nối cục bộ đang bật nhưng chưa đăng nhập Google NotebookLM -> Tự động mở đăng nhập & chờ thực hiện
+    if (this.bridgeState.connected && !this.bridgeState.authenticated && !App.apiKey()) {
+      toast('Đang mở cửa sổ đăng nhập Google NotebookLM – ngay khi đăng nhập xong, ứng dụng sẽ tự động đẩy dữ liệu và hiện kết quả!');
+      return this.loginAndWatch(() => this.pushToNotebookLM());
     }
-    if (!this.bridgeState.authenticated) {
-      return toast('Tài khoản Google NotebookLM chưa đăng nhập hoặc đã hết hạn. Hãy bấm nút "🔑 Đăng nhập NotebookLM" ở góc trên trước!', true);
+
+    // Nếu không có cầu nối NotebookLM đã đăng nhập nhưng có Gemini API Key -> chạy trực tiếp các mục đã chọn trên App
+    if (!this.bridgeState.authenticated && App.apiKey()) {
+      const btn = $('btnPushNlm');
+      btn.disabled = true;
+      const oldText = btn.textContent;
+      btn.textContent = `⏳ Đang thực hiện ${selected.length} mục đã chọn & hiển thị lên App…`;
+      try {
+        this.switchStudioTab(selected[0], false);
+        for (const tab of selected) {
+          await this.executeWithGeminiAI(tab);
+        }
+        toast(`🎉 Đã thực hiện xong ${selected.length} mục và hiển thị trực tiếp trên App!`);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = oldText;
+      }
+      return;
+    }
+
+    if (!this.bridgeState.connected) {
+      toast('Chưa bật cầu nối cục bộ (Chay_Game.bat) hoặc nhập Gemini API Key – chuyển sang Copy trọn bộ dữ liệu & Mở Google NotebookLM Web!');
+      return this.copyAndOpenWeb();
     }
 
     const btn = $('btnPushNlm');
     const box = $('nlmPushResult');
     btn.disabled = true;
     const oldText = btn.textContent;
-    btn.textContent = '⏳ Đang đẩy dữ liệu & khởi tạo học liệu trên Google NotebookLM…';
+    btn.textContent = '⏳ Đang đấu nối Google NotebookLM, chuyển dữ liệu & thực hiện…';
     box.hidden = false;
-    box.innerHTML = '⏳ Đang tạo Notebook, nạp 2 nguồn ngữ liệu + sơ đồ tư duy và gửi lệnh tới NotebookLM Studio… (khoảng 15–40 giây)';
+    box.innerHTML = '⏳ Đang tạo Notebook, chuyển dữ liệu ngữ liệu + sơ đồ tư duy và yêu cầu Google NotebookLM thực hiện các mục đã chọn…';
+
+    selected.forEach((tab) => {
+      this.itemState[tab] = { status: 'running', msg: `Đang chuyển dữ liệu & thực hiện "${this.featLabel(tab)}" trên Google NotebookLM…` };
+    });
+    this.updatePillBadges();
+    this.renderStudioTab(this.activeTab);
 
     try {
+      const targetNb = $('nlmTargetNotebook')?.value || this.lastNotebookId || '';
       const res = await this.api('/api/notebooklm/push', {
-        notebook_id: $('nlmTargetNotebook').value,
+        notebook_id: targetNb,
         title: `Đọc hiểu THPT – ${App.analysis.title}`,
         sources: this.buildSourcePackage(),
         artifacts: selected,
         focus_prompt: $('nlmFocusPrompt').value.trim(),
+        sources_already_uploaded: !!(this.sourcesUploaded && targetNb && targetNb === this.lastNotebookId),
       });
       if (!res.ok) throw new Error(res.error || 'Lỗi khi đẩy dữ liệu sang NotebookLM.');
 
       this.lastNotebookId = res.notebook_id;
       this.lastNotebookUrl = res.notebook_url;
-      const artNames = {
-        audio: '🎙️ Tổng quan bằng âm thanh',
-        slide_deck: '📊 Bản trình bày',
-        video: '🎬 Tổng quan bằng video',
-        mind_map: '🧠 Bản đồ tư duy',
-        report: '📄 Báo cáo (Mới!)',
-        flashcards: '🗂️ Thẻ ghi nhớ',
-        quiz: '❓ Bài kiểm tra',
-        infographic: '📊 Bản đồ hoạ thông tin',
-        data_table: '📋 Bảng dữ liệu',
-      };
-      const createdList = arr(res.created_artifacts).map((x) => `<li>✅ <strong>${artNames[x.artifact_type] || x.artifact_type}</strong>: ${esc(x.status || 'đã khởi tạo')}</li>`).join('');
-      const errList = arr(res.errors).map((x) => `<li style="color:#fca5a5">⚠️ ${artNames[x.type] || x.type}: ${esc(x.error)}</li>`).join('');
+      this.sourcesUploaded = true;
+
+      // Xử lý ngay các mục hoàn tất tức thì (như mind_map) và bật poller tự động tải kết quả về App cho các mục còn lại
+      arr(res.created_artifacts).forEach((art) => {
+        const t = art.artifact_type;
+        if (t === 'mind_map' && art.mind_map_json) {
+          try {
+            const tree = JSON.parse(art.mind_map_json);
+            this.liveResults[t] = { source: 'Google NotebookLM', kind: 'mind_map', tree };
+            this.itemState[t] = { status: 'done', msg: '🎉 Đã nhận Bản đồ tư duy trực tiếp từ Google NotebookLM!' };
+          } catch (_) {}
+        } else if (t) {
+          this.startArtifactPoller(t, res.notebook_id, art.artifact_id);
+        }
+      });
+      arr(res.errors).forEach((err) => {
+        this.itemState[err.type] = { status: 'error', msg: err.error };
+      });
+      this.updatePillBadges();
+      this.renderStudioTab(this.activeTab);
+
+      const createdList = arr(res.created_artifacts).map((x) => `<li>✅ <strong>${esc(this.featLabel(x.artifact_type))}</strong>: Đang xử lý &amp; tự động tải kết quả về khung bên phải</li>`).join('');
+      const errList = arr(res.errors).map((x) => `<li style="color:#fca5a5">⚠️ ${esc(this.featLabel(x.type))}: ${esc(x.error)}</li>`).join('');
 
       box.innerHTML = `
-        <div>🎉 <strong>Đã đẩy thành công ${res.sources_added} nguồn dữ liệu lên Google NotebookLM!</strong></div>
-        <div style="margin:6px 0">🔗 <strong>Mở trực tiếp trên Google NotebookLM:</strong> <a href="${esc(res.notebook_url)}" target="_blank" rel="noopener">${esc(res.notebook_url)} ↗</a></div>
+        <div>🎉 <strong>Đã đấu nối &amp; chuyển dữ liệu thành công lên Google NotebookLM!</strong></div>
+        <div style="margin:6px 0">✨ <strong>Kết quả đang được tự động tải về và hiển thị trực tiếp ở khung bên phải ngay khi hoàn tất!</strong></div>
         <ul style="margin-left:18px;margin-top:6px">${createdList}${errList}</ul>
         <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-          <a class="btn small primary" href="${esc(res.notebook_url)}" target="_blank" rel="noopener" style="text-decoration:none">↗ Mở NotebookLM ngay</a>
+          <a class="btn small primary" href="${esc(res.notebook_url)}" target="_blank" rel="noopener" style="text-decoration:none">↗ Mở xem trên Google NotebookLM</a>
           <button type="button" class="btn small ghost" id="btnPollNlmStudio">🔄 Kiểm tra tiến độ Studio</button>
         </div>`;
       $('btnPollNlmStudio').onclick = () => this.pollStudio();
-      toast('🎉 Đã đẩy dữ liệu và yêu cầu tạo học liệu trên Google NotebookLM thành công!');
+      toast('🎉 Đã chuyển dữ liệu qua Google NotebookLM! Kết quả sẽ tự động hiển thị lên App.');
     } catch (e) {
       box.innerHTML = `⚠️ <strong>Chưa đẩy tự động được:</strong> ${esc(e.message)}<br>
-        💡 Bạn có thể bấm <strong>"🔑 Đăng nhập NotebookLM"</strong> để làm mới phiên, hoặc bấm <strong>"📤 Copy Nguồn &amp; Mở NotebookLM Web ↗"</strong> ngay bên trên.`;
+        💡 Bạn có thể bấm <strong>"🔑 Đăng nhập NotebookLM"</strong> để làm mới phiên, hoặc bấm <strong>"⚡ Thực hiện mục này"</strong> ở cột phải.`;
       toast(e.message, true);
     } finally {
       btn.disabled = false;
@@ -2516,7 +2809,25 @@ const NotebookLM = {
     toast('✅ Đã tải file nguồn (.md) để nạp vào Google NotebookLM!');
   },
 
-  /* ── Hiển thị 9 Tính năng Studio ngay tại chỗ ── */
+  renderTreeHtml(node) {
+    if (!node || typeof node !== 'object') return '';
+    const children = arr(node.children);
+    return `<div class="nlm-tree-node">
+      <div style="font-weight:800;color:#1e293b">🔹 ${esc(node.name || node.title || 'Nhánh kiến thức')}</div>
+      ${children.length ? children.map((ch) => this.renderTreeHtml(ch)).join('') : ''}
+    </div>`;
+  },
+
+  renderSimpleMarkdown(md) {
+    return esc(md || '')
+      .replace(/^###\s+(.+)$/gm, '<h5 style="font-size:15.5px;font-weight:900;color:#1e293b;margin:10px 0 4px">$1</h5>')
+      .replace(/^##\s+(.+)$/gm, '<h4 style="font-size:17px;font-weight:900;color:#0f766e;margin:12px 0 6px">$1</h4>')
+      .replace(/^#\s+(.+)$/gm, '<h4 style="font-size:18px;font-weight:900;color:#1e1b4b;margin:12px 0 8px">$1</h4>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+  },
+
+  /* ── Hiển thị 9 Tính năng Studio ngay trên App (Ưu tiên kết quả thực tế từ Google NotebookLM / AI Studio) ── */
   renderStudioTab(tab) {
     const a = App.analysis;
     const G = Game;
@@ -2524,9 +2835,219 @@ const NotebookLM = {
     const out = $('studioOutput');
     if (!out) return;
 
+    const st = this.itemState[tab];
+    const live = this.liveResults[tab];
+    let bannerHtml = '';
+    if (st) {
+      bannerHtml = `<div class="studio-live-banner ${st.status}">
+        <span>${st.status === 'running' ? '🔄' : st.status === 'done' ? '✅' : '⚠️'} ${esc(st.msg)}</span>
+        ${live?.file_url ? `<a class="btn small primary" href="${esc(this.fileUrl(live.file_url))}" target="_blank" download style="text-decoration:none">⬇ Tải file gốc</a>` : ''}
+      </div>`;
+    }
+
+    // 1. Nếu đã có kết quả trả về từ Google NotebookLM hoặc AI Studio -> hiển thị trực tiếp kết quả đó!
+    if (live) {
+      if (live.kind === 'audio') {
+        const url = this.fileUrl(live.file_url);
+        out.innerHTML = `${bannerHtml}
+          <div class="studio-head-row">
+            <h4>🎙️ Tổng quan bằng âm thanh (Từ Google NotebookLM)</h4>
+            <a class="btn small primary" href="${esc(url)}" download style="text-decoration:none">⬇ Tải file Audio (.m4a)</a>
+          </div>
+          <div class="slide-card" style="text-align:center;padding:22px">
+            <div style="font-weight:800;margin-bottom:10px;color:#0f766e">🎧 Phát trực tiếp Podcast Audio Overview từ Google NotebookLM:</div>
+            <audio controls autoplay src="${esc(url)}" style="width:100%;max-width:540px"></audio>
+          </div>`;
+        return;
+      }
+      if (live.kind === 'video') {
+        const url = this.fileUrl(live.file_url);
+        out.innerHTML = `${bannerHtml}
+          <div class="studio-head-row">
+            <h4>🎬 Tổng quan bằng video (Từ Google NotebookLM)</h4>
+            <a class="btn small primary" href="${esc(url)}" download style="text-decoration:none">⬇ Tải Video (.mp4)</a>
+          </div>
+          <div style="background:#0f172a;border-radius:12px;padding:10px;text-align:center">
+            <video controls src="${esc(url)}" style="width:100%;max-height:420px;border-radius:8px"></video>
+          </div>`;
+        return;
+      }
+      if (live.kind === 'slide_deck') {
+        const url = this.fileUrl(live.file_url);
+        out.innerHTML = `${bannerHtml}
+          <div class="studio-head-row">
+            <h4>📊 Bản trình bày Slide Deck (Từ Google NotebookLM)</h4>
+            <a class="btn small primary" href="${esc(url)}" target="_blank" download style="text-decoration:none">⬇ Tải Slide (.pdf)</a>
+          </div>
+          <iframe src="${esc(url)}" style="width:100%;height:460px;border:2px solid #cbd5e1;border-radius:12px;background:#fff"></iframe>`;
+        return;
+      }
+      if (live.kind === 'infographic') {
+        const url = this.fileUrl(live.file_url);
+        out.innerHTML = `${bannerHtml}
+          <div class="studio-head-row">
+            <h4>📊 Bản đồ hoạ thông tin (Từ Google NotebookLM)</h4>
+            <a class="btn small primary" href="${esc(url)}" target="_blank" download style="text-decoration:none">⬇ Tải ảnh Infographic (.png)</a>
+          </div>
+          <div style="text-align:center">
+            <img src="${esc(url)}" alt="Infographic NotebookLM" style="max-width:100%;border-radius:12px;border:2px solid #cbd5e1;cursor:zoom-in" onclick="Lightbox.open('${esc(url)}')">
+          </div>`;
+        return;
+      }
+      if (live.kind === 'mind_map' || live.kind === 'ai_mind_map') {
+        const tree = live.tree || live.data?.tree || {};
+        out.innerHTML = `${bannerHtml}
+          <div class="studio-head-row">
+            <h4>🧠 Bản đồ tư duy (${esc(live.source)}): ${esc(tree.name || a.title)}</h4>
+            <button type="button" class="btn small ghost" onclick="document.getElementById('mindMapSection')?.scrollIntoView({behavior:'smooth'})">🔍 Xem Sơ đồ SVG lớn</button>
+          </div>
+          <div class="nlm-tree-box">${this.renderTreeHtml(tree)}</div>`;
+        return;
+      }
+      if (live.kind === 'report') {
+        out.innerHTML = `${bannerHtml}
+          <div class="studio-head-row">
+            <h4>📄 ${esc(live.title || 'Báo cáo & Hướng dẫn học tập')} (Google NotebookLM)</h4>
+          </div>
+          <div style="line-height:1.75">${this.renderSimpleMarkdown(live.markdown)}</div>`;
+        return;
+      }
+      if (live.kind === 'ai_report') {
+        const d = live.data || {};
+        out.innerHTML = `${bannerHtml}
+          <div class="studio-head-row">
+            <h4>📄 ${esc(d.title || `Báo cáo & Kế hoạch bài dạy: ${a.title}`)} <span class="nlm-new-badge">Mới!</span></h4>
+          </div>
+          ${arr(d.sections).map((sec) => `
+            <div class="slide-card" style="border-left-color:#c026d3">
+              <strong>${esc(sec.heading)}</strong>
+              <ul style="margin-left:18px;margin-top:6px">${arr(sec.bullets).map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
+            </div>`).join('')}`;
+        return;
+      }
+      if (live.kind === 'flashcards' || live.kind === 'ai_flashcards') {
+        const rawCards = arr(live.app_data?.cards || live.data?.cards);
+        const cards = rawCards.map((fc) => ({ q: fc.f || fc.front || fc.q || '', a: fc.b || fc.back || fc.a || '' })).filter((x) => x.q);
+        if (cards.length) {
+          out.innerHTML = `${bannerHtml}
+            <div class="studio-head-row">
+              <h4>🗂️ Thẻ ghi nhớ (${esc(live.source)} · ${cards.length} thẻ – bấm để lật)</h4>
+            </div>
+            <div class="fc-grid">${cards.map((fc, i) => `
+              <div class="fc-card" onclick="this.querySelector('.fc-a').hidden = !this.querySelector('.fc-a').hidden">
+                <div class="fc-q">📌 Thẻ #${i + 1}: ${esc(fc.q)}</div>
+                <div class="fc-a">💡 ${esc(fc.a)}</div>
+              </div>`).join('')}</div>`;
+          return;
+        }
+      }
+      if (live.kind === 'quiz' || live.kind === 'ai_quiz') {
+        const rawQs = arr(live.app_data?.questions || live.data?.questions);
+        const qList = rawQs.map((q) => {
+          if (Array.isArray(q.answerOptions)) {
+            const ansIdx = Math.max(0, q.answerOptions.findIndex((o) => o.isCorrect));
+            const rationale = q.answerOptions[ansIdx]?.rationale || q.hint || '';
+            return {
+              q: q.question || '',
+              options: q.answerOptions.map((o) => o.text || ''),
+              ans: ansIdx,
+              explain: rationale,
+              level: 'Thông hiểu',
+            };
+          }
+          return { q: q.question || q.q || '', options: arr(q.options), ans: Number(q.ans) || 0, explain: q.explain || '', level: q.level || 'Thông hiểu' };
+        }).filter((x) => x.q && x.options.length);
+        if (qList.length) {
+          out.innerHTML = `${bannerHtml}
+            <div class="studio-head-row">
+              <h4>❓ Bài kiểm tra (${esc(live.source)} · ${qList.length} câu – bấm chọn đáp án để chấm ngay)</h4>
+            </div>
+            ${qList.map((item, qIdx) => `
+              <div class="studio-quiz-item" data-qidx="${qIdx}">
+                <div style="font-weight:800;font-size:14.5px;color:#0f172a">${qIdx + 1}. ${esc(item.q)} ${lvlBadge(item.level)}</div>
+                <div class="studio-quiz-opts">
+                  ${item.options.map((opt, oIdx) => `
+                    <button type="button" class="studio-quiz-opt" data-oidx="${oIdx}"><strong>${'ABCD'[oIdx] || oIdx + 1}.</strong> ${esc(opt)}</button>
+                  `).join('')}
+                </div>
+                <div class="studio-quiz-exp" hidden style="margin-top:8px;padding:7px 10px;border-radius:8px;background:#f0fdf4;border:1px solid #86efac;font-size:13px;color:#14532d">
+                  💡 <strong>Giải thích:</strong> ${esc(item.explain || 'Đáp án chuẩn theo ngữ liệu.')}
+                </div>
+              </div>`).join('')}`;
+          this.bindQuizOptions(out, qList);
+          return;
+        }
+      }
+      if (live.kind === 'data_table' || live.kind === 'ai_data_table') {
+        const rows = live.rows || (live.data?.headers ? [live.data.headers, ...arr(live.data.rows)] : []);
+        if (rows.length >= 2) {
+          const headers = rows[0];
+          const bodyRows = rows.slice(1);
+          out.innerHTML = `${bannerHtml}
+            <div class="studio-head-row">
+              <h4>📋 Bảng dữ liệu (${esc(live.source)})</h4>
+              <button type="button" class="btn small primary" id="btnExportDataTableCsv">📥 Tải Bảng dữ liệu (.csv)</button>
+            </div>
+            <table class="studio-dt-table">
+              <thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead>
+              <tbody>${bodyRows.map((r) => `<tr>${r.map((cell) => `<td>${esc(cell)}</td>`).join('')}</tr>`).join('')}</tbody>
+            </table>`;
+          $('btnExportDataTableCsv').onclick = () => this.exportCustomRowsCsv(rows);
+          return;
+        }
+      }
+      if (live.kind === 'ai_slide_deck') {
+        const slides = arr(live.data?.slides);
+        if (slides.length) {
+          out.innerHTML = `${bannerHtml}
+            <div class="studio-head-row"><h4>📊 Bản trình bày bài giảng (${esc(live.source)} · ${slides.length} Slide)</h4></div>
+            ${slides.map((s) => `<div class="slide-card"><strong>${esc(s.title)}</strong><div style="white-space:pre-line;margin-top:4px;font-size:14px">${esc(s.body)}</div></div>`).join('')}`;
+          return;
+        }
+      }
+      if (live.kind === 'ai_video') {
+        const scenes = arr(live.data?.scenes);
+        if (scenes.length) {
+          out.innerHTML = `${bannerHtml}
+            <div class="studio-head-row"><h4>🎬 Tổng quan bằng video (${esc(live.source)} · ${scenes.length} phân cảnh)</h4></div>
+            ${scenes.map((sc) => `<div class="slide-card" style="border-left-color:#16a34a">
+              <strong>[${esc(sc.time || '')}] ${esc(sc.title)}</strong>
+              <div style="font-size:13.5px;color:#0f766e;margin-top:4px">🎥 <strong>Hình ảnh:</strong> ${esc(sc.visual)}</div>
+              <div style="margin-top:4px">🎙️ <strong>Lời bình:</strong> ${esc(sc.narration)}</div>
+            </div>`).join('')}`;
+          return;
+        }
+      }
+      if (live.kind === 'ai_audio') {
+        const lines = arr(live.data?.lines);
+        if (lines.length) {
+          this.renderPodcastLines(out, bannerHtml, lines, live.source);
+          return;
+        }
+      }
+      if (live.kind === 'ai_infographic') {
+        const blocks = arr(live.data?.blocks);
+        if (blocks.length) {
+          out.innerHTML = `${bannerHtml}
+            <div class="studio-head-row">
+              <h4>📊 Bản đồ hoạ thông tin (${esc(live.source)})</h4>
+              <button type="button" class="btn small primary" onclick="document.getElementById('infographic')?.scrollIntoView({behavior:'smooth'})">🖼️ Xem Infographic lớn</button>
+            </div>
+            ${blocks.map((b) => `<div class="slide-card" style="border-left-color:${esc(b.color || '#0d9488')}">
+              <strong>${esc(b.title)}</strong>
+              <ul style="margin-left:18px;margin-top:4px">${arr(b.items).map((it) => `<li>${esc(it)}</li>`).join('')}</ul>
+            </div>`).join('')}`;
+          return;
+        }
+      }
+    }
+
+    // 2. Bản hiển thị mặc định tức thì (hoặc trong lúc đang chờ Google NotebookLM xử lý)
     if (tab === 'report') {
-      out.innerHTML = `
-        <h4>📄 Báo cáo &amp; Hướng dẫn học tập: ${esc(a.title)} (${esc(a.gradeLevel || App.settings.grade)}) <span class="nlm-new-badge">Mới!</span></h4>
+      out.innerHTML = `${bannerHtml}
+        <div class="studio-head-row">
+          <h4>📄 Báo cáo &amp; Hướng dẫn học tập: ${esc(a.title)} (${esc(a.gradeLevel || App.settings.grade)}) <span class="nlm-new-badge">Mới!</span></h4>
+        </div>
         <p><strong>1. Mục tiêu bài học (Theo YCCĐ CT GDPT 2018):</strong></p>
         <ul style="margin-left:18px;margin-bottom:10px">
           <li><strong>Nhận biết:</strong> Xác định được thể loại (${esc(a.genre || 'văn bản đọc hiểu')}), tác giả (${esc(a.author || '—')}), chủ thể biểu đạt và các chi tiết/hình ảnh tiêu biểu.</li>
@@ -2544,9 +3065,9 @@ const NotebookLM = {
           <li><strong>Hoạt động 4 – Vận dụng &amp; Khắc phục lỗi sai (8 phút):</strong> ${G.review.length ? `Giáo viên chốt lại các câu lớp còn nhầm: <em>${G.review.slice(0, 3).map(esc).join('; ')}</em>.` : 'Lớp nắm rất vững bài, mở rộng thảo luận câu hỏi tự luận nâng cao.'}</li>
         </ol>`;
     } else if (tab === 'mind_map') {
-      out.innerHTML = `
-        <div class="row-between" style="margin-top:0;margin-bottom:10px">
-          <h4 style="margin:0">🧠 Bản đồ tư duy phân nhánh: ${esc(a.title)}</h4>
+      out.innerHTML = `${bannerHtml}
+        <div class="studio-head-row">
+          <h4>🧠 Bản đồ tư duy phân nhánh: ${esc(a.title)}</h4>
           <button type="button" class="btn small ghost" onclick="document.getElementById('mindMapSection')?.scrollIntoView({behavior:'smooth'})">🔍 Xem Sơ đồ SVG lớn</button>
         </div>
         <ul style="margin-left:16px">
@@ -2570,7 +3091,7 @@ const NotebookLM = {
         { title: 'Slide 4: Đặc sắc Nghệ thuật & Thi pháp', body: a.artTechniques.map((t) => `• ${t.name} (“${t.example}”)\n  ➜ Tác dụng: ${t.effect}`).join('\n') },
         { title: 'Slide 5: Thông điệp Tư tưởng & Tổng kết Đọc hiểu', body: `• Chủ đề: ${a.theme}\n• Thông điệp: ${a.message}\n• Kết quả đọc hiểu của lớp: ${c.ok}/${c.total} câu đúng (${c.pct}%)` },
       ];
-      out.innerHTML = `<h4>📊 Bản trình bày bài giảng (${slides.length} Slide)</h4>` + slides.map((s) => `
+      out.innerHTML = `${bannerHtml}<div class="studio-head-row"><h4>📊 Bản trình bày bài giảng (${slides.length} Slide)</h4></div>` + slides.map((s) => `
         <div class="slide-card">
           <strong>${esc(s.title)}</strong>
           <div style="white-space:pre-line;margin-top:4px;font-size:14px">${esc(s.body)}</div>
@@ -2582,15 +3103,15 @@ const NotebookLM = {
         { q: `Chủ đề chính của “${a.title}” là gì?`, a: a.theme },
         { q: `Thông điệp tư tưởng rút ra từ “${a.title}”?`, a: a.message },
       ];
-      out.innerHTML = `<h4>🗂️ Thẻ ghi nhớ ôn tập (${cards.length} thẻ – bấm vào thẻ để xem/lật)</h4>
+      out.innerHTML = `${bannerHtml}<div class="studio-head-row"><h4>🗂️ Thẻ ghi nhớ ôn tập (${cards.length} thẻ – bấm vào thẻ để xem/lật)</h4></div>
         <div class="fc-grid">${cards.map((fc, i) => `
           <div class="fc-card" onclick="this.querySelector('.fc-a').hidden = !this.querySelector('.fc-a').hidden">
             <div class="fc-q">📌 Thẻ #${i + 1}: ${esc(fc.q)}</div>
             <div class="fc-a">💡 ${esc(fc.a)}</div>
           </div>`).join('')}</div>`;
     } else if (tab === 'video') {
-      out.innerHTML = `
-        <h4>🎬 Tổng quan bằng video (Explainer Video – 5 phân cảnh)</h4>
+      out.innerHTML = `${bannerHtml}
+        <div class="studio-head-row"><h4>🎬 Tổng quan bằng video (Explainer Video – 5 phân cảnh)</h4></div>
         <div class="slide-card"><strong>Cảnh 1 (0:00 – 0:30) · Hook mở đầu:</strong> Giới thiệu nhan đề <em>“${esc(a.title)}”</em> (${esc(a.author)}) cùng câu hỏi kích thích tư duy.</div>
         <div class="slide-card"><strong>Cảnh 2 (0:30 – 1:30) · Bức tranh tổng thể &amp; Mạch văn bản:</strong> Trình chiếu sơ đồ diễn biến: ${a.timeline.slice(0, 4).map(esc).join(' → ')}.</div>
         <div class="slide-card"><strong>Cảnh 3 (1:30 – 2:45) · Giải mã Thi pháp &amp; Nghệ thuật:</strong> Phân tích trực quan các biện pháp: ${a.artTechniques.map((t) => esc(t.name)).join(', ')}.</div>
@@ -2603,33 +3124,15 @@ const NotebookLM = {
         { host: 'A', name: 'Minh Anh (Host 1)', text: `Đặc biệt, về mặt nghệ thuật và thi pháp, không thể bỏ qua ${a.artTechniques[0] ? `biện pháp ${a.artTechniques[0].name} qua chi tiết “${a.artTechniques[0].example}”, giúp ${a.artTechniques[0].effect}` : 'cách tổ chức ngôn từ giàu sức gợi'}.` },
         { host: 'B', name: 'Hoàng Nam (Host 2)', text: `${G.review.length ? `Vừa rồi khi cả lớp thử sức với 6 vòng đọc hiểu, có một điểm cần lưu ý lại là: ${G.review[0]}.` : 'Cả lớp vừa hoàn thành xuất sắc các vòng câu hỏi đọc hiểu!'} Và thông điệp đọng lại sâu sắc nhất chính là: ${a.message}` },
       ];
-      out.innerHTML = `
-        <div class="row-between" style="margin-top:0;margin-bottom:10px">
-          <h4 style="margin:0">🎙️ Tổng quan bằng âm thanh (Podcast đối thoại 2 Host)</h4>
-          <button type="button" class="btn small primary" id="btnSpeakPodcast">🔊 Nghe đọc Podcast</button>
-        </div>
-        ${lines.map((l) => `<div class="podcast-line host${l.host}"><strong>🎙️ ${esc(l.name)}:</strong> ${esc(l.text)}</div>`).join('')}`;
-      $('btnSpeakPodcast').onclick = () => {
-        if (!('speechSynthesis' in window)) return toast('Trình duyệt không hỗ trợ đọc giọng nói.', true);
-        if (window.speechSynthesis.speaking) {
-          window.speechSynthesis.cancel();
-          $('btnSpeakPodcast').textContent = '🔊 Nghe đọc Podcast';
-          return;
-        }
-        const u = new SpeechSynthesisUtterance(lines.map((l) => `${l.name} nói: ${l.text}`).join(' ... '));
-        u.lang = 'vi-VN';
-        u.onend = () => { if ($('btnSpeakPodcast')) $('btnSpeakPodcast').textContent = '🔊 Nghe đọc Podcast'; };
-        $('btnSpeakPodcast').textContent = '⏹ Dừng đọc';
-        window.speechSynthesis.speak(u);
-      };
+      this.renderPodcastLines(out, bannerHtml, lines, 'Bản chuẩn hóa');
     } else if (tab === 'quiz') {
       const Q = a.questions || {};
       const qList = [
         ...arr(Q.mcq).map((m) => ({ q: m.q, options: m.options, ans: m.ans, explain: m.explain, level: m.level })),
         ...arr(Q.trueFalse).slice(0, 3).map((t) => ({ q: `[Đúng/Sai] ${t.statement}`, options: ['Đúng', 'Sai'], ans: t.answer ? 0 : 1, explain: t.explain, level: t.level })),
       ];
-      out.innerHTML = `
-        <h4>❓ Bài kiểm tra nhanh tại chỗ (${qList.length} câu – bấm chọn đáp án để kiểm tra ngay)</h4>
+      out.innerHTML = `${bannerHtml}
+        <div class="studio-head-row"><h4>❓ Bài kiểm tra nhanh tại chỗ (${qList.length} câu – bấm chọn đáp án để kiểm tra ngay)</h4></div>
         ${qList.map((item, qIdx) => `
           <div class="studio-quiz-item" data-qidx="${qIdx}">
             <div style="font-weight:800;font-size:14.5px;color:#0f172a">${qIdx + 1}. ${esc(item.q)} ${lvlBadge(item.level)}</div>
@@ -2642,27 +3145,12 @@ const NotebookLM = {
               💡 <strong>Giải thích:</strong> ${esc(item.explain || 'Đáp án chuẩn theo ngữ liệu.')}
             </div>
           </div>`).join('')}`;
-      out.querySelectorAll('.studio-quiz-item').forEach((box) => {
-        const qIdx = +box.dataset.qidx;
-        const item = qList[qIdx];
-        box.querySelectorAll('.studio-quiz-opt').forEach((btn) => {
-          btn.onclick = () => {
-            const chosen = +btn.dataset.oidx;
-            box.querySelectorAll('.studio-quiz-opt').forEach((b, idx) => {
-              b.classList.remove('right', 'wrong');
-              if (idx === item.ans) b.classList.add('right');
-              else if (idx === chosen) b.classList.add('wrong');
-            });
-            box.querySelector('.studio-quiz-exp').hidden = false;
-            Sound.play(chosen === item.ans ? 'correct' : 'wrong');
-          };
-        });
-      });
+      this.bindQuizOptions(out, qList);
     } else if (tab === 'infographic') {
-      out.innerHTML = `
-        <div class="row-between" style="margin-top:0;margin-bottom:10px">
-          <h4 style="margin:0">📊 Bản đồ hoạ thông tin (Infographic Tóm tắt)</h4>
-          <button type="button" class="btn small primary" onclick="document.getElementById('infographic')?.scrollIntoView({behavior:'smooth'})">🖼️ Xem Infographic lớn ở đầu trang</button>
+      out.innerHTML = `${bannerHtml}
+        <div class="studio-head-row">
+          <h4>📊 Bản đồ hoạ thông tin (Infographic Tóm tắt)</h4>
+          <button type="button" class="btn small primary" onclick="document.getElementById('infographic')?.scrollIntoView({behavior:'smooth'})">🖼️ Xem Infographic lớn</button>
         </div>
         <div class="slide-card" style="border-left-color:#0d9488">
           <strong>1. Hồ sơ nhận diện tác phẩm</strong>
@@ -2683,9 +3171,9 @@ const NotebookLM = {
           <div>• <strong>Kết quả lớp học:</strong> Đúng ${c.ok}/${c.total} câu (${c.pct}%)</div>
         </div>`;
     } else if (tab === 'data_table') {
-      out.innerHTML = `
-        <div class="row-between" style="margin-top:0;margin-bottom:10px">
-          <h4 style="margin:0">📋 Bảng dữ liệu tổng hợp học thuật</h4>
+      out.innerHTML = `${bannerHtml}
+        <div class="studio-head-row">
+          <h4>📋 Bảng dữ liệu tổng hợp học thuật</h4>
           <button type="button" class="btn small primary" id="btnExportDataTableCsv">📥 Tải Bảng dữ liệu (.csv)</button>
         </div>
         <p style="font-weight:800;margin-bottom:4px">Bảng 1: Hệ thống Tín hiệu Nghệ thuật – Dẫn chứng – Tác dụng biểu đạt</p>
@@ -2707,9 +3195,62 @@ const NotebookLM = {
     }
   },
 
+  renderPodcastLines(out, bannerHtml, lines, sourceLabel) {
+    out.innerHTML = `${bannerHtml}
+      <div class="studio-head-row">
+        <h4>🎙️ Tổng quan bằng âm thanh (${esc(sourceLabel)} · ${lines.length} lượt thoại)</h4>
+        <button type="button" class="btn small primary" id="btnSpeakPodcast">🔊 Nghe đọc Podcast</button>
+      </div>
+      ${lines.map((l, idx) => `<div class="podcast-line host${l.host === 'B' || idx % 2 === 1 ? 'B' : 'A'}"><strong>🎙️ ${esc(l.name || (idx % 2 === 0 ? 'Host 1' : 'Host 2'))}:</strong> ${esc(l.text)}</div>`).join('')}`;
+    $('btnSpeakPodcast').onclick = () => {
+      if (!('speechSynthesis' in window)) return toast('Trình duyệt không hỗ trợ đọc giọng nói.', true);
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        $('btnSpeakPodcast').textContent = '🔊 Nghe đọc Podcast';
+        return;
+      }
+      const u = new SpeechSynthesisUtterance(lines.map((l) => `${l.name || ''} nói: ${l.text}`).join(' ... '));
+      u.lang = 'vi-VN';
+      u.onend = () => { if ($('btnSpeakPodcast')) $('btnSpeakPodcast').textContent = '🔊 Nghe đọc Podcast'; };
+      $('btnSpeakPodcast').textContent = '⏹ Dừng đọc';
+      window.speechSynthesis.speak(u);
+    };
+  },
+
+  bindQuizOptions(out, qList) {
+    out.querySelectorAll('.studio-quiz-item').forEach((box) => {
+      const qIdx = +box.dataset.qidx;
+      const item = qList[qIdx];
+      box.querySelectorAll('.studio-quiz-opt').forEach((btn) => {
+        btn.onclick = () => {
+          const chosen = +btn.dataset.oidx;
+          box.querySelectorAll('.studio-quiz-opt').forEach((b, idx) => {
+            b.classList.remove('right', 'wrong');
+            if (idx === item.ans) b.classList.add('right');
+            else if (idx === chosen) b.classList.add('wrong');
+          });
+          box.querySelector('.studio-quiz-exp').hidden = false;
+          Sound.play(chosen === item.ans ? 'correct' : 'wrong');
+        };
+      });
+    });
+  },
+
+  exportCustomRowsCsv(rows) {
+    const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const csv = '\uFEFF' + rows.map((r) => r.map(cell).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `bang-du-lieu-notebooklm-${(App.analysis?.title || 'van-ban').slice(0, 30)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    toast('✅ Đã tải file Bảng dữ liệu (.csv)!');
+  },
+
   exportDataTableCsv() {
     const a = App.analysis;
-    const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const rows = [
       ['BẢNG DỮ LIỆU ĐỌC HIỂU NGỮ VĂN THPT', a.title, a.author, a.genre, a.gradeLevel || App.settings.grade],
       [],
@@ -2722,15 +3263,7 @@ const NotebookLM = {
       ...a.characters.map((ch) => ['Hình tượng / Nhân vật', ch.name, ch.traits]),
       ...a.vocabulary.map((v) => ['Từ khóa / Khái niệm', v.word, v.meaning]),
     ];
-    const csv = '\uFEFF' + rows.map((r) => r.map(cell).join(',')).join('\r\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `bang-du-lieu-${(a.title || 'van-ban').slice(0, 30)}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    toast('✅ Đã tải file Bảng dữ liệu (.csv)!');
+    this.exportCustomRowsCsv(rows);
   },
 };
 

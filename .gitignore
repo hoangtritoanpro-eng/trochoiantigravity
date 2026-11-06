@@ -30,3 +30,5 @@ desktop.ini
 *.code-workspace
 __pycache__/
 gemini-notebook-mcp-cli/
+game-doc-hieu-van-ban/nlm_outputs/
+nlm_outputs/
