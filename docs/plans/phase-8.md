@@ -29,10 +29,15 @@ Phase này xây dựng một trò chơi **riêng biệt** (thư mục `game-doc-
 - [x] **Task 4: Engine game nhiều vòng**
   - Vòng 1: Trắc nghiệm A/B/C/D · Vòng 2: Đúng/Sai · Vòng 3: Điền từ (chọn thẻ từ) · Vòng 4: Nối cặp · Vòng 5: Sắp xếp trình tự sự việc · Vòng 6: Tự luận ngắn (AI chấm, hoặc giáo viên tự chấm khi offline).
   - Màn giới thiệu vòng, thanh tiến độ, điểm, giải thích sau mỗi câu, nút "Xem văn bản" bất kỳ lúc nào, âm thanh đúng/sai.
-- [x] **Task 5: Infographic chốt kiến thức**
-  - Tóm tắt, chủ đề, nhân vật, dòng thời gian sự việc, nghệ thuật, thông điệp, từ ngữ, kết quả theo vòng & theo mức độ nhận thức, các câu cần ôn lại.
+- [x] **Task 5: Infographic, Bản Sơ Đồ Tư Duy & Đấu nối Google NotebookLM**
+  - Hiển thị **Infographic chốt kiến thức** và **Bản Sơ Đồ Tư Duy (Interactive Mind Map)** trực quan hóa toàn bộ tác phẩm (Chủ đề, Bố cục, Hình tượng, Nghệ thuật, Thông điệp, Từ khóa).
+  - **Đấu nối trực tiếp với Google NotebookLM (`notebooklm_bridge.py` + `gemini-notebook-mcp-cli`):**
+    - Kiểm tra trạng thái đăng nhập NotebookLM, hỗ trợ nút **🔑 Đăng nhập Google NotebookLM (`nlm login`)** ngay từ giao diện web.
+    - Đẩy tự động gói dữ liệu (*Ngữ liệu gốc + Sơ đồ tư duy + Phân tích AI + Thống kê câu Đúng/Sai của lớp*) sang NotebookLM để tạo Notebook mới (hoặc thêm vào Notebook có sẵn).
+    - Yêu cầu Google NotebookLM Studio tạo tự động 6 loại học liệu bằng tiếng Việt (`vi`): **Bài giảng (`report`)**, **Sơ đồ tư duy (`mind_map`)**, **Bản trình bày (`slide_deck`)**, **Thẻ ghi chú (`flashcards`)**, **Video (`video`)**, **Podcast (`audio`)** và theo dõi tiến độ trực tiếp.
+    - Hỗ trợ thêm chế độ **Tạo & Xem nhanh 6 Học liệu Studio ngay trên ứng dụng** (Slide trình chiếu, Flashcards lật 2 mặt, Giáo án bài giảng, Kịch bản Video, Podcast hội thoại 2 người) và nút **Copy hồ sơ nguồn + Mở nhanh NotebookLM Web** khi dùng thuần trình duyệt.
   - In / Xuất PDF khổ ngang.
-- [x] **Task 6: Đóng gói** `Chay_Game.bat`, `README.md`, `vercel.json`.
+- [x] **Task 6: Đóng gói** `Chay_Game.bat` (chạy `notebooklm_bridge.py`), `README.md`, `vercel.json`.
 
 *File tác động:* `game-doc-hieu-van-ban/index.html`, `style.css`, `app.js`, `sample-data.js`, `assets/`.
 

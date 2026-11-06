@@ -10,6 +10,17 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [2.4.0] - 2026-11-06
+
+### Added
+- **Bản Sơ Đồ Tư Duy (Interactive SVG Mind Map) & Đấu nối trực tiếp Google NotebookLM (`gemini-notebook-mcp-cli`):**
+  - Tích hợp thư viện `notebooklm-mcp-cli` (`v0.16.0`) và xây dựng server cầu nối [`game-doc-hieu-van-ban/notebooklm_bridge.py`](file:///c:/Users/hoang/Downloads/TOAN/duantoan/game-doc-hieu-van-ban/notebooklm_bridge.py) (tự động chạy qua `Chay_Game.bat` ở cổng `8899`).
+  - Tự động vẽ **Bản Sơ Đồ Tư Duy Chốt Kiến Thức (SVG)** gồm 6 nhánh (Chủ đề & Cảm hứng, Bố cục/Mạch ý, Hình tượng/Nhân vật, Đặc sắc nghệ thuật, Thông điệp tư tưởng, Từ khóa/Khái niệm), hỗ trợ tải file `.svg` và nhảy tới ngay từ màn Xem trước (`🧠 Xem Sơ đồ tư duy & NotebookLM`).
+  - **Đấu nối 1 chạm với Google NotebookLM:** Đẩy tự động 2 gói nguồn dữ liệu (*Ngữ liệu + Phân tích học thuật THPT* và *Sơ đồ tư duy + Ngân hàng câu hỏi + Thống kê lỗi sai của lớp*) lên tài khoản Google NotebookLM của giáo viên và yêu cầu khởi tạo tự động 6 học liệu tiếng Việt: **📖 Bài giảng (`report`)**, **🧠 Sơ đồ tư duy (`mind_map`)**, **📊 Bản trình bày (`slide_deck`)**, **🗂️ Thẻ ghi chú (`flashcards`)**, **🎬 Video bài giảng (`video`)**, **🎙️ Podcast thảo luận (`audio`)**.
+  - **Khung Xem & Trình chiếu nhanh 6 học liệu Studio ngay tại chỗ:** Cho phép giáo viên xem, copy và trình chiếu ngay trên lớp cả 6 định dạng (Giáo án CV 5512, Sơ đồ phân nhánh, Slide bài giảng, Thẻ Flashcard lật 2 mặt, Kịch bản Explainer Video 5 cảnh, Podcast đối thoại 2 Host tích hợp đọc giọng nói tiếng Việt), đồng thời hỗ trợ nút **📤 Copy Nguồn & Mở NotebookLM Web** và **📥 Tải file Nguồn (.md)**.
+
+---
+
 ## [2.3.1] - 2026-11-06
 
 ### Added

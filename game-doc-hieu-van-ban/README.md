@@ -28,11 +28,18 @@ Hệ thống đánh giá **năng lực đọc hiểu văn bản Ngữ văn THPT*
 
 ---
 
-## 🚀 Cách chạy
+## 🚀 Cách chạy & Đấu nối Google NotebookLM
 
-1. Nhấp đúp `Chay_Game.bat` → trình duyệt tự mở `http://localhost:8899` (cần cài Python).
-2. Không có Python: mở trực tiếp `index.html`.
-3. Bấm **"📚 Dùng ngữ liệu mẫu THPT"** (*"Đây thôn Vĩ Dạ" – Hàn Mặc Tử*, Ngữ văn 11) để chơi thử ngay mà không cần API Key.
+1. **Chế độ Đấu nối tự động với Google NotebookLM (Khuyên dùng trên máy tính):**
+   - Nhấp đúp `Chay_Game.bat` → hệ thống khởi chạy **Cầu nối Google NotebookLM (`notebooklm_bridge.py`)** ở cổng `http://localhost:8899`.
+   - Sau khi có **Bản Sơ Đồ Tư Duy**, cuộn xuống mục **🚀 Đấu nối Google NotebookLM (Gemini Notebook Studio)**.
+   - Bấm **🔑 Đăng nhập NotebookLM** (nếu lần đầu sử dụng hoặc phiên hết hạn), chọn các học liệu cần tạo (**Bài giảng**, **Sơ đồ tư duy**, **Bản trình bày**, **Thẻ ghi chú**, **Video bài giảng**, **Podcast thảo luận**) rồi bấm **🚀 Đẩy sang Google NotebookLM & Tạo học liệu đã chọn**.
+   - Hệ thống tự động tạo Notebook mới trên tài khoản Google NotebookLM của giáo viên, nạp 2 nguồn dữ liệu (*Ngữ liệu & Phân tích học thuật THPT* + *Sơ đồ tư duy, Bộ câu hỏi & Thống kê câu đúng/sai của lớp*) và kích hoạt NotebookLM Studio sinh đủ 6 loại học liệu bằng tiếng Việt.
+2. **Chế độ Web trực tuyến (GitHub Pages / Không cần cài đặt):**
+   - Mở trực tiếp `index.html` hoặc truy cập https://hoangtritoanpro-eng.github.io/doc-hieu-cung-ai/
+   - Xem & trình chiếu ngay tại chỗ **Bản Sơ Đồ Tư Duy SVG** (tải được file `.svg`) cùng **6 tab Học liệu Studio** (Bài giảng 5512, Sơ đồ tư duy phân nhánh, Bản trình bày 5 Slide, Thẻ ghi chú lật 2 mặt, Kịch bản Video, Podcast đối thoại 2 Host có đọc giọng nói tiếng Việt).
+   - Bấm **📤 Copy Nguồn & Mở NotebookLM Web ↗** hoặc **📥 Tải file Nguồn (.md)** để dán 1 chạm vào Google NotebookLM.
+3. Bấm **"📚 Dùng ngữ liệu mẫu THPT"** (*"Đây thôn Vĩ Dạ" – Hàn Mặc Tử*, Ngữ văn 11) để trải nghiệm ngay mà không cần API Key.
 
 ## 🎮 Sáu vòng chơi chuẩn Đọc hiểu THPT
 

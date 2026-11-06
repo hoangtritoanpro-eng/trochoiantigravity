@@ -167,6 +167,7 @@
         </div>
         <div class="preview-actions">
           <button class="btn ghost" id="btnBackSetup">← Nạp bài khác</button>
+          <button class="btn violet-btn" id="btnPreviewToMindMap" title="Xem ngay Sơ đồ tư duy & đẩy dữ liệu qua Google NotebookLM">🧠 Sơ đồ tư duy &amp; NotebookLM</button>
           <button class="btn primary big" id="btnStart">▶ Bắt đầu chơi</button>
         </div>
       </div>
@@ -199,16 +200,20 @@
       <div id="gameStage"></div>
     </section>
 
-    <!-- ═════════ MÀN 5: INFOGRAPHIC ═════════ -->
+    <!-- ═════════ MÀN 5: INFOGRAPHIC, SƠ ĐỒ TƯ DUY & NOTEBOOKLM ═════════ -->
     <section class="screen" id="screenResult">
       <div class="result-actions no-print">
         <button class="btn primary" id="btnPrint">🖨 In / Xuất PDF</button>
+        <button class="btn" id="btnMindMapJump">🧠 Bản Sơ đồ tư duy</button>
+        <button class="btn violet-btn" id="btnNlmJump">🚀 Đẩy qua NotebookLM</button>
         <button class="btn" id="btnStatsJump">📋 Thống kê đúng/sai</button>
         <button class="btn ghost" id="btnExportCsv">⬇ Tải thống kê (Excel)</button>
         <button class="btn ghost" id="btnReplay">🔁 Chơi lại bộ câu hỏi này</button>
         <button class="btn ghost" id="btnNewText">📄 Nạp ngữ liệu khác</button>
       </div>
       <div id="infographic"></div>
+      <div id="mindMapPanel"></div>
+      <div id="notebooklmPanel" class="no-print"></div>
       <div id="statsPanel"></div>
     </section>
   </main>

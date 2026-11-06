@@ -28,3 +28,5 @@ solo-builder-kit/
 Thumbs.db
 desktop.ini
 *.code-workspace
+__pycache__/
+gemini-notebook-mcp-cli/
