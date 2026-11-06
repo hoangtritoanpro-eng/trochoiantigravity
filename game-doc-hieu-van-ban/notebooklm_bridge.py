@@ -2,13 +2,17 @@
 """
 Local HTTP Server & Google NotebookLM Bridge cho "Đọc Hiểu Cùng AI (THPT)".
 Đấu nối trực tiếp giao diện web với thư viện `gemini-notebook-mcp-cli` (notebooklm_tools)
-để đẩy ngữ liệu, sơ đồ tư duy, kết quả đọc hiểu sang Google NotebookLM và yêu cầu tạo:
-- Bài giảng (Study Guide / Report)
-- Sơ đồ tư duy (Mind Map)
-- Bản trình bày (Slide Deck)
-- Thẻ ghi chú (Flashcards)
-- Video bài giảng (Video Overview)
-- Podcast thảo luận (Audio Overview)
+để đẩy ngữ liệu, sơ đồ tư duy, kết quả đọc hiểu sang Google NotebookLM và yêu cầu tạo
+đầy đủ 9 tính năng của Google NotebookLM Studio:
+1. Tổng quan bằng âm thanh (Audio Overview - `audio`)
+2. Bản trình bày (Slide Deck - `slide_deck`)
+3. Tổng quan bằng video (Video Overview - `video`)
+4. Bản đồ tư duy (Mind Map - `mind_map`)
+5. Báo cáo (Report / Study Guide - `report`)
+6. Thẻ ghi nhớ (Flashcards - `flashcards`)
+7. Bài kiểm tra (Quiz - `quiz`)
+8. Bản đồ hoạ thông tin (Infographic - `infographic`)
+9. Bảng dữ liệu (Data Table - `data_table`)
 """
 
 from __future__ import annotations
@@ -215,23 +219,16 @@ class BridgeHandler(SimpleHTTPRequestHandler):
 
             for art_type in artifacts:
                 try:
-                    if art_type == "report":
+                    if art_type == "audio":
                         res = studio_service.create_artifact(
                             client,
                             notebook_id,
-                            "report",
+                            "audio",
                             source_ids=source_ids or None,
-                            report_format="Study Guide",
+                            audio_format="deep_dive",
                             language="vi",
-                            custom_prompt=focus_prompt,
-                        )
-                    elif art_type == "mind_map":
-                        res = studio_service.create_artifact(
-                            client,
-                            notebook_id,
-                            "mind_map",
-                            source_ids=source_ids or None,
-                            title=f"Sơ đồ tư duy: {title}",
+                            focus_prompt=focus_prompt
+                            or "Tổng quan bằng âm thanh (Podcast đối thoại chuyên sâu) bằng tiếng Việt phân tích tác phẩm và giải đáp các câu hỏi đọc hiểu.",
                         )
                     elif art_type == "slide_deck":
                         res = studio_service.create_artifact(
@@ -244,16 +241,6 @@ class BridgeHandler(SimpleHTTPRequestHandler):
                             focus_prompt=focus_prompt
                             or "Thiết kế bản trình bày bài giảng Ngữ văn THPT rõ ràng, giàu tính sư phạm.",
                         )
-                    elif art_type == "flashcards":
-                        res = studio_service.create_artifact(
-                            client,
-                            notebook_id,
-                            "flashcards",
-                            source_ids=source_ids or None,
-                            difficulty="medium",
-                            focus_prompt=focus_prompt
-                            or "Tạo thẻ ghi chú tiếng Việt ôn tập kiến thức trọng tâm, biện pháp nghệ thuật và thông điệp của văn bản.",
-                        )
                     elif art_type == "video":
                         res = studio_service.create_artifact(
                             client,
@@ -263,18 +250,68 @@ class BridgeHandler(SimpleHTTPRequestHandler):
                             video_format="explainer",
                             language="vi",
                             focus_prompt=focus_prompt
-                            or "Tạo video bài giảng giải thích sâu sắc giá trị nội dung và nghệ thuật của tác phẩm.",
+                            or "Tạo tổng quan bằng video giải thích sâu sắc giá trị nội dung và nghệ thuật của tác phẩm.",
                         )
-                    elif art_type == "audio":
+                    elif art_type == "mind_map":
                         res = studio_service.create_artifact(
                             client,
                             notebook_id,
-                            "audio",
+                            "mind_map",
                             source_ids=source_ids or None,
-                            audio_format="deep_dive",
+                            title=f"Bản đồ tư duy: {title}",
+                        )
+                    elif art_type == "report":
+                        res = studio_service.create_artifact(
+                            client,
+                            notebook_id,
+                            "report",
+                            source_ids=source_ids or None,
+                            report_format="Study Guide",
+                            language="vi",
+                            custom_prompt=focus_prompt,
+                        )
+                    elif art_type == "flashcards":
+                        res = studio_service.create_artifact(
+                            client,
+                            notebook_id,
+                            "flashcards",
+                            source_ids=source_ids or None,
+                            difficulty="medium",
+                            focus_prompt=focus_prompt
+                            or "Tạo thẻ ghi nhớ tiếng Việt ôn tập kiến thức trọng tâm, biện pháp nghệ thuật và thông điệp của văn bản.",
+                        )
+                    elif art_type == "quiz":
+                        res = studio_service.create_artifact(
+                            client,
+                            notebook_id,
+                            "quiz",
+                            source_ids=source_ids or None,
+                            question_count=10,
+                            difficulty="medium",
+                            focus_prompt=focus_prompt
+                            or "Tạo bài kiểm tra đọc hiểu tiếng Việt chuẩn THPT (Nhận biết, Thông hiểu, Vận dụng) bám sát văn bản.",
+                        )
+                    elif art_type == "infographic":
+                        res = studio_service.create_artifact(
+                            client,
+                            notebook_id,
+                            "infographic",
+                            source_ids=source_ids or None,
+                            orientation="landscape",
+                            detail_level="standard",
                             language="vi",
                             focus_prompt=focus_prompt
-                            or "Cuộc trò chuyện podcast chuyên sâu, sinh động bằng tiếng Việt phân tích tác phẩm và giải đáp các câu hỏi đọc hiểu.",
+                            or "Tạo bản đồ hoạ thông tin (Infographic) tổng hợp trực quan bố cục, hình tượng, nghệ thuật và thông điệp của tác phẩm.",
+                        )
+                    elif art_type == "data_table":
+                        res = studio_service.create_artifact(
+                            client,
+                            notebook_id,
+                            "data_table",
+                            source_ids=source_ids or None,
+                            description=focus_prompt
+                            or "Bảng dữ liệu tổng hợp hệ thống hình tượng, biện pháp nghệ thuật, dẫn chứng, tác dụng và kết quả đọc hiểu theo mức độ nhận thức.",
+                            language="vi",
                         )
                     else:
                         continue
@@ -314,3 +351,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

@@ -1730,6 +1730,11 @@ const Result = {
   render() {
     const a = App.analysis;
     const G = Game;
+    if (!G.stats) G.stats = {};
+    if (!G.levels || !G.levels.NB) G.levels = { NB: { c: 0, t: 0 }, TH: { c: 0, t: 0 }, VD: { c: 0, t: 0 } };
+    if (!G.log) G.log = [];
+    if (!G.review) G.review = [];
+    if (!G.rounds) G.rounds = [];
     const max = Object.values(G.stats).reduce((s, x) => s + x.max, 0);
     const pct = max ? Math.round((G.score / max) * 100) : 0;
     const rating = pct >= 85 ? 'Xuất sắc' : pct >= 70 ? 'Tốt' : pct >= 50 ? 'Đạt' : 'Cần ôn thêm';
@@ -2047,14 +2052,94 @@ const NotebookLM = {
     ];
   },
 
+  features: [
+    {
+      id: 'audio',
+      label: 'Tổng quan bằng âm thanh',
+      shortLabel: '🎙️ Âm thanh',
+      checked: true,
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="9" x2="4" y2="15"/><line x1="9" y1="5" x2="9" y2="19"/><line x1="14" y1="10" x2="14" y2="16"/><path d="M18 4l1.2 2.8L22 8l-2.8 1.2L18 12l-1.2-2.8L14 8l2.8-1.2L18 4z" fill="#2563eb" stroke="none"/></svg>',
+    },
+    {
+      id: 'slide_deck',
+      label: 'Bản trình bày',
+      shortLabel: '📊 Bản trình bày',
+      checked: true,
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#c026d3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><line x1="7" y1="5" x2="7" y2="19"/><line x1="17" y1="5" x2="17" y2="19"/></svg>',
+    },
+    {
+      id: 'video',
+      label: 'Tổng quan bằng video',
+      shortLabel: '🎬 Video',
+      checked: true,
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="M16 10l5-3v10l-5-3v-4z"/></svg>',
+    },
+    {
+      id: 'mind_map',
+      label: 'Bản đồ tư duy',
+      shortLabel: '🧠 Bản đồ tư duy',
+      checked: true,
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9.5" width="5" height="5" rx="1"/><rect x="16" y="4.5" width="5" height="5" rx="1"/><rect x="16" y="14.5" width="5" height="5" rx="1"/><path d="M8 12h4m0-5v10m0-10h4m-4 10h4"/></svg>',
+    },
+    {
+      id: 'report',
+      label: 'Báo cáo',
+      shortLabel: '📄 Báo cáo',
+      badge: 'Mới!',
+      checked: true,
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#c026d3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/><path d="M15 2v6H9"/><path d="M18 3l1.1 2.4L21.5 6.5l-2.4 1.1L18 10l-1.1-2.4L14.5 6.5l2.4-1.1L18 3z" fill="#c026d3" stroke="none"/></svg>',
+    },
+    {
+      id: 'flashcards',
+      label: 'Thẻ ghi nhớ',
+      shortLabel: '🗂️ Thẻ ghi nhớ',
+      checked: true,
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="4" width="11" height="14" rx="2.5"/><path d="M15 18v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/></svg>',
+    },
+    {
+      id: 'quiz',
+      label: 'Bài kiểm tra',
+      shortLabel: '❓ Bài kiểm tra',
+      checked: true,
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="13" height="14" rx="2"/><path d="M17 17v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1"/><path d="M11.8 8.2a1.8 1.8 0 0 1 3.4.8c0 1.2-1.7 1.5-1.7 2.5"/><circle cx="13.5" cy="14" r=".9" fill="#0d9488" stroke="none"/></svg>',
+    },
+    {
+      id: 'infographic',
+      label: 'Bản đồ hoạ thông tin',
+      shortLabel: '📊 Bản đồ hoạ TT',
+      checked: true,
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="11" x2="6" y2="19"/><circle cx="6" cy="7" r="1.6" fill="#ea580c" stroke="none"/><line x1="12" y1="13" x2="12" y2="19"/><circle cx="12" cy="9" r="1.6" fill="#ea580c" stroke="none"/><line x1="18" y1="15" x2="18" y2="19"/><circle cx="18" cy="11" r="1.6" fill="#ea580c" stroke="none"/></svg>',
+    },
+    {
+      id: 'data_table',
+      label: 'Bảng dữ liệu',
+      shortLabel: '📋 Bảng dữ liệu',
+      checked: true,
+      svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"><circle cx="5" cy="7" r="1.4" fill="#2563eb" stroke="none"/><line x1="10" y1="7" x2="19" y2="7"/><circle cx="5" cy="12" r="1.4" fill="#2563eb" stroke="none"/><line x1="10" y1="12" x2="19" y2="12"/><circle cx="5" cy="17" r="1.4" fill="#2563eb" stroke="none"/><line x1="10" y1="17" x2="19" y2="17"/></svg>',
+    },
+  ],
+
   render() {
     const a = App.analysis;
     this.customCache = {};
+    const pillsHtml = this.features.map((f) => `
+      <div class="nlm-pill-card ${this.activeTab === f.id ? 'active-preview' : ''}" data-feat="${f.id}" title="Bấm vào thẻ để xem trước ${f.label} · Tích ô vuông để đẩy sang Google NotebookLM">
+        <div class="nlm-pill-left">
+          <span class="nlm-pill-icon">${f.svg}</span>
+          <span class="nlm-pill-label">${esc(f.label)}</span>
+          ${f.badge ? `<span class="nlm-new-badge">${esc(f.badge)}</span>` : ''}
+        </div>
+        <input type="checkbox" class="nlm-pill-check" value="${f.id}" ${f.checked ? 'checked' : ''} title="Chọn tạo ${esc(f.label)} trên Google NotebookLM">
+      </div>`).join('');
+
+    const tabsHtml = this.features.map((f) => `
+      <button type="button" class="studio-tab ${this.activeTab === f.id ? 'active' : ''}" data-tab="${f.id}">${f.shortLabel}</button>`).join('');
+
     $('notebooklmPanel').innerHTML = `<div class="nlm-card" id="nlmSection">
       <div class="nlm-head">
         <div>
-          <div class="nlm-title">🚀 <span>ĐẤU NỐI GOOGLE NOTEBOOKLM (GEMINI NOTEBOOK STUDIO)</span></div>
-          <div style="font-size:14px;color:#cbd5e1;margin-top:4px">Đẩy trực tiếp ngữ liệu, sơ đồ tư duy &amp; kết quả đọc hiểu qua NotebookLM để tạo Bài giảng, Sơ đồ tư duy, Bản trình bày, Thẻ ghi chú, Video, Podcast</div>
+          <div class="nlm-title">🚀 <span>ĐẤU NỐI GOOGLE NOTEBOOKLM (9 TÍNH NĂNG STUDIO)</span></div>
+          <div style="font-size:14px;color:#cbd5e1;margin-top:4px">Đẩy trực tiếp dữ liệu qua Google NotebookLM để tạo đủ 9 học liệu Studio: Tổng quan bằng âm thanh, Bản trình bày, Tổng quan bằng video, Bản đồ tư duy, Báo cáo, Thẻ ghi nhớ, Bài kiểm tra, Bản đồ hoạ thông tin, Bảng dữ liệu</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <span class="nlm-badge" id="nlmConnBadge">⏳ Đang kiểm tra cầu nối NotebookLM…</span>
@@ -2064,9 +2149,9 @@ const NotebookLM = {
       </div>
 
       <div class="nlm-grid">
-        <!-- CỘT TRÁI: ĐẨY DỮ LIỆU QUA GOOGLE NOTEBOOKLM -->
+        <!-- CỘT TRÁI: 9 TÍNH NĂNG GOOGLE NOTEBOOKLM STUDIO -->
         <div class="nlm-panel">
-          <h3>① Đẩy dữ liệu &amp; Yêu cầu Google NotebookLM tạo học liệu</h3>
+          <h3>① 9 Tính năng Studio của Google NotebookLM</h3>
           <div class="form-row">
             <label class="field-label" for="nlmTargetNotebook">Chọn Notebook đích trên Google NotebookLM</label>
             <select id="nlmTargetNotebook">
@@ -2074,23 +2159,25 @@ const NotebookLM = {
             </select>
           </div>
 
-          <label class="field-label">Chọn các học liệu yêu cầu NotebookLM tự động khởi tạo (Tiếng Việt):</label>
+          <div class="row-between" style="margin-top:8px;margin-bottom:4px">
+            <label class="field-label" style="margin:0">Bấm vào từng mục để xem ngay · Tích chọn để tạo trên NotebookLM:</label>
+            <div style="display:flex;gap:6px">
+              <button type="button" class="btn small ghost" id="btnNlmCheckAll" style="padding:3px 8px;font-size:12px">☑ Chọn cả 9</button>
+              <button type="button" class="btn small ghost" id="btnNlmUncheckAll" style="padding:3px 8px;font-size:12px">☐ Bỏ chọn</button>
+            </div>
+          </div>
+
           <div class="nlm-artifacts-grid" id="nlmArtifactChecks">
-            <label class="nlm-art-item"><input type="checkbox" value="report" checked> 📖 Bài giảng (Study Guide)</label>
-            <label class="nlm-art-item"><input type="checkbox" value="mind_map" checked> 🧠 Sơ đồ tư duy (Mind Map)</label>
-            <label class="nlm-art-item"><input type="checkbox" value="slide_deck" checked> 📊 Bản trình bày (Slide)</label>
-            <label class="nlm-art-item"><input type="checkbox" value="flashcards" checked> 🗂️ Thẻ ghi chú (Flashcards)</label>
-            <label class="nlm-art-item"><input type="checkbox" value="video" checked> 🎬 Video bài giảng</label>
-            <label class="nlm-art-item"><input type="checkbox" value="audio" checked> 🎙️ Podcast thảo luận</label>
+            ${pillsHtml}
           </div>
 
           <div class="form-row">
             <label class="field-label" for="nlmFocusPrompt">Yêu cầu / Định hướng sư phạm cho NotebookLM (tùy chọn)</label>
-            <input type="text" id="nlmFocusPrompt" value="Thiết kế bài giảng, slide, thẻ ghi chú, video và podcast bám sát Chương trình Ngữ văn THPT 2018 (${esc(a.gradeLevel || App.settings.grade)}), nhấn mạnh các câu học sinh còn làm sai.">
+            <input type="text" id="nlmFocusPrompt" value="Thiết kế học liệu tiếng Việt bám sát Chương trình Ngữ văn THPT 2018 (${esc(a.gradeLevel || App.settings.grade)}), nhấn mạnh các câu học sinh còn làm sai.">
           </div>
 
           <div class="nlm-actions">
-            <button type="button" class="btn primary big" id="btnPushNlm">🚀 Đẩy sang Google NotebookLM &amp; Tạo học liệu đã chọn</button>
+            <button type="button" class="btn primary big" id="btnPushNlm">🚀 Đẩy sang Google NotebookLM &amp; Tạo các mục đã chọn</button>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <button type="button" class="btn ghost small" id="btnOpenNlmWeb" title="Copy toàn bộ hồ sơ nguồn vào Clipboard và mở trang chủ Google NotebookLM">📤 Copy Nguồn &amp; Mở NotebookLM Web ↗</button>
               <button type="button" class="btn ghost small" id="btnDownloadNlmSource" title="Tải file Markdown chuẩn để nạp vào NotebookLM">📥 Tải file Nguồn (.md)</button>
@@ -2100,19 +2187,14 @@ const NotebookLM = {
           <div id="nlmPushResult" class="nlm-status-box" hidden></div>
         </div>
 
-        <!-- CỘT PHẢI: XEM & TRÌNH CHIẾU NHANH 6 HỌC LIỆU STUDIO TẠI CHỖ -->
+        <!-- CỘT PHẢI: XEM & TRÌNH CHIẾU NHANH 9 TÍNH NĂNG STUDIO TẠI CHỖ -->
         <div class="nlm-panel">
           <div class="row-between" style="margin-bottom:8px;margin-top:0">
-            <h3 style="margin:0">② Xem &amp; Trình chiếu nhanh 6 học liệu Studio tại chỗ</h3>
+            <h3 style="margin:0">② Xem &amp; Tương tác tại chỗ (9 tính năng Studio)</h3>
             <button type="button" class="btn small ghost" id="btnCopyStudioOut" title="Copy nội dung mục đang xem">📑 Copy mục này</button>
           </div>
           <div class="studio-tabs" id="studioTabs">
-            <button type="button" class="studio-tab active" data-tab="report">📖 Bài giảng</button>
-            <button type="button" class="studio-tab" data-tab="mind_map">🧠 Sơ đồ tư duy</button>
-            <button type="button" class="studio-tab" data-tab="slide_deck">📊 Bản trình bày</button>
-            <button type="button" class="studio-tab" data-tab="flashcards">🗂️ Thẻ ghi chú</button>
-            <button type="button" class="studio-tab" data-tab="video">🎬 Kịch bản Video</button>
-            <button type="button" class="studio-tab" data-tab="audio">🎙️ Podcast</button>
+            ${tabsHtml}
           </div>
           <div class="studio-output selectable-text" id="studioOutput"></div>
         </div>
@@ -2125,17 +2207,29 @@ const NotebookLM = {
     $('btnOpenNlmWeb').onclick = () => this.copyAndOpenWeb();
     $('btnDownloadNlmSource').onclick = () => this.downloadSourceMd();
     $('btnCopyStudioOut').onclick = () => copyToClipboard($('studioOutput')?.innerText || '', 'học liệu Studio');
+    $('btnNlmCheckAll').onclick = () => document.querySelectorAll('#nlmArtifactChecks input[type=checkbox]').forEach((c) => (c.checked = true));
+    $('btnNlmUncheckAll').onclick = () => document.querySelectorAll('#nlmArtifactChecks input[type=checkbox]').forEach((c) => (c.checked = false));
 
-    $('studioTabs').querySelectorAll('.studio-tab').forEach((btn) => {
-      btn.onclick = () => {
-        $('studioTabs').querySelectorAll('.studio-tab').forEach((b) => b.classList.toggle('active', b === btn));
-        this.activeTab = btn.dataset.tab;
-        this.renderStudioTab(this.activeTab);
+    document.querySelectorAll('#nlmArtifactChecks .nlm-pill-card').forEach((card) => {
+      card.onclick = (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        this.switchStudioTab(card.dataset.feat);
       };
     });
 
-    this.renderStudioTab('report');
+    $('studioTabs').querySelectorAll('.studio-tab').forEach((btn) => {
+      btn.onclick = () => this.switchStudioTab(btn.dataset.tab);
+    });
+
+    this.switchStudioTab(this.activeTab || 'report');
     this.checkStatus(true);
+  },
+
+  switchStudioTab(tab) {
+    this.activeTab = tab;
+    document.querySelectorAll('#studioTabs .studio-tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('#nlmArtifactChecks .nlm-pill-card').forEach((c) => c.classList.toggle('active-preview', c.dataset.feat === tab));
+    this.renderStudioTab(tab);
   },
 
   async api(path, body = null) {
@@ -2222,12 +2316,15 @@ const NotebookLM = {
       this.lastNotebookId = res.notebook_id;
       this.lastNotebookUrl = res.notebook_url;
       const artNames = {
-        report: '📖 Bài giảng (Study Guide)',
-        mind_map: '🧠 Sơ đồ tư duy (Mind Map)',
-        slide_deck: '📊 Bản trình bày (Slide Deck)',
-        flashcards: '🗂️ Thẻ ghi chú (Flashcards)',
-        video: '🎬 Video bài giảng',
-        audio: '🎙️ Podcast thảo luận',
+        audio: '🎙️ Tổng quan bằng âm thanh',
+        slide_deck: '📊 Bản trình bày',
+        video: '🎬 Tổng quan bằng video',
+        mind_map: '🧠 Bản đồ tư duy',
+        report: '📄 Báo cáo (Mới!)',
+        flashcards: '🗂️ Thẻ ghi nhớ',
+        quiz: '❓ Bài kiểm tra',
+        infographic: '📊 Bản đồ hoạ thông tin',
+        data_table: '📋 Bảng dữ liệu',
       };
       const createdList = arr(res.created_artifacts).map((x) => `<li>✅ <strong>${artNames[x.artifact_type] || x.artifact_type}</strong>: ${esc(x.status || 'đã khởi tạo')}</li>`).join('');
       const errList = arr(res.errors).map((x) => `<li style="color:#fca5a5">⚠️ ${artNames[x.type] || x.type}: ${esc(x.error)}</li>`).join('');
@@ -2283,7 +2380,7 @@ const NotebookLM = {
     toast('✅ Đã tải file nguồn (.md) để nạp vào Google NotebookLM!');
   },
 
-  /* ── Hiển thị 6 Học liệu Studio ngay tại chỗ (Bài giảng, Sơ đồ tư duy, Bản trình bày, Thẻ ghi chú, Video, Podcast) ── */
+  /* ── Hiển thị 9 Tính năng Studio ngay tại chỗ ── */
   renderStudioTab(tab) {
     const a = App.analysis;
     const G = Game;
@@ -2293,7 +2390,7 @@ const NotebookLM = {
 
     if (tab === 'report') {
       out.innerHTML = `
-        <h4>📖 Bài giảng &amp; Hướng dẫn học tập: ${esc(a.title)} (${esc(a.gradeLevel || App.settings.grade)})</h4>
+        <h4>📄 Báo cáo &amp; Hướng dẫn học tập: ${esc(a.title)} (${esc(a.gradeLevel || App.settings.grade)}) <span class="nlm-new-badge">Mới!</span></h4>
         <p><strong>1. Mục tiêu bài học (Theo YCCĐ CT GDPT 2018):</strong></p>
         <ul style="margin-left:18px;margin-bottom:10px">
           <li><strong>Nhận biết:</strong> Xác định được thể loại (${esc(a.genre || 'văn bản đọc hiểu')}), tác giả (${esc(a.author || '—')}), chủ thể biểu đạt và các chi tiết/hình ảnh tiêu biểu.</li>
@@ -2312,7 +2409,10 @@ const NotebookLM = {
         </ol>`;
     } else if (tab === 'mind_map') {
       out.innerHTML = `
-        <h4>🧠 Cấu trúc Sơ đồ tư duy phân nhánh: ${esc(a.title)}</h4>
+        <div class="row-between" style="margin-top:0;margin-bottom:10px">
+          <h4 style="margin:0">🧠 Bản đồ tư duy phân nhánh: ${esc(a.title)}</h4>
+          <button type="button" class="btn small ghost" onclick="document.getElementById('mindMapSection')?.scrollIntoView({behavior:'smooth'})">🔍 Xem Sơ đồ SVG lớn</button>
+        </div>
         <ul style="margin-left:16px">
           <li><strong>🎯 Nhánh 1 – Chủ đề &amp; Cảm hứng:</strong> ${esc(a.theme)}</li>
           <li><strong>🗂 Nhánh 2 – Bố cục / Mạch triển khai:</strong>
@@ -2346,7 +2446,7 @@ const NotebookLM = {
         { q: `Chủ đề chính của “${a.title}” là gì?`, a: a.theme },
         { q: `Thông điệp tư tưởng rút ra từ “${a.title}”?`, a: a.message },
       ];
-      out.innerHTML = `<h4>🗂️ Thẻ ghi chú ôn tập (${cards.length} thẻ – bấm vào thẻ để xem/lật)</h4>
+      out.innerHTML = `<h4>🗂️ Thẻ ghi nhớ ôn tập (${cards.length} thẻ – bấm vào thẻ để xem/lật)</h4>
         <div class="fc-grid">${cards.map((fc, i) => `
           <div class="fc-card" onclick="this.querySelector('.fc-a').hidden = !this.querySelector('.fc-a').hidden">
             <div class="fc-q">📌 Thẻ #${i + 1}: ${esc(fc.q)}</div>
@@ -2354,7 +2454,7 @@ const NotebookLM = {
           </div>`).join('')}</div>`;
     } else if (tab === 'video') {
       out.innerHTML = `
-        <h4>🎬 Kịch bản Video bài giảng (Explainer Video – 5 phân cảnh)</h4>
+        <h4>🎬 Tổng quan bằng video (Explainer Video – 5 phân cảnh)</h4>
         <div class="slide-card"><strong>Cảnh 1 (0:00 – 0:30) · Hook mở đầu:</strong> Giới thiệu nhan đề <em>“${esc(a.title)}”</em> (${esc(a.author)}) cùng câu hỏi kích thích tư duy.</div>
         <div class="slide-card"><strong>Cảnh 2 (0:30 – 1:30) · Bức tranh tổng thể &amp; Mạch văn bản:</strong> Trình chiếu sơ đồ diễn biến: ${a.timeline.slice(0, 4).map(esc).join(' → ')}.</div>
         <div class="slide-card"><strong>Cảnh 3 (1:30 – 2:45) · Giải mã Thi pháp &amp; Nghệ thuật:</strong> Phân tích trực quan các biện pháp: ${a.artTechniques.map((t) => esc(t.name)).join(', ')}.</div>
@@ -2369,7 +2469,7 @@ const NotebookLM = {
       ];
       out.innerHTML = `
         <div class="row-between" style="margin-top:0;margin-bottom:10px">
-          <h4 style="margin:0">🎙️ Podcast đối thoại chuyên sâu (2 Host)</h4>
+          <h4 style="margin:0">🎙️ Tổng quan bằng âm thanh (Podcast đối thoại 2 Host)</h4>
           <button type="button" class="btn small primary" id="btnSpeakPodcast">🔊 Nghe đọc Podcast</button>
         </div>
         ${lines.map((l) => `<div class="podcast-line host${l.host}"><strong>🎙️ ${esc(l.name)}:</strong> ${esc(l.text)}</div>`).join('')}`;
@@ -2386,7 +2486,115 @@ const NotebookLM = {
         $('btnSpeakPodcast').textContent = '⏹ Dừng đọc';
         window.speechSynthesis.speak(u);
       };
+    } else if (tab === 'quiz') {
+      const Q = a.questions || {};
+      const qList = [
+        ...arr(Q.mcq).map((m) => ({ q: m.q, options: m.options, ans: m.ans, explain: m.explain, level: m.level })),
+        ...arr(Q.trueFalse).slice(0, 3).map((t) => ({ q: `[Đúng/Sai] ${t.statement}`, options: ['Đúng', 'Sai'], ans: t.answer ? 0 : 1, explain: t.explain, level: t.level })),
+      ];
+      out.innerHTML = `
+        <h4>❓ Bài kiểm tra nhanh tại chỗ (${qList.length} câu – bấm chọn đáp án để kiểm tra ngay)</h4>
+        ${qList.map((item, qIdx) => `
+          <div class="studio-quiz-item" data-qidx="${qIdx}">
+            <div style="font-weight:800;font-size:14.5px;color:#0f172a">${qIdx + 1}. ${esc(item.q)} ${lvlBadge(item.level)}</div>
+            <div class="studio-quiz-opts">
+              ${item.options.map((opt, oIdx) => `
+                <button type="button" class="studio-quiz-opt" data-oidx="${oIdx}">${item.options.length === 4 ? `<strong>${'ABCD'[oIdx]}.</strong> ` : ''}${esc(opt)}</button>
+              `).join('')}
+            </div>
+            <div class="studio-quiz-exp" hidden style="margin-top:8px;padding:7px 10px;border-radius:8px;background:#f0fdf4;border:1px solid #86efac;font-size:13px;color:#14532d">
+              💡 <strong>Giải thích:</strong> ${esc(item.explain || 'Đáp án chuẩn theo ngữ liệu.')}
+            </div>
+          </div>`).join('')}`;
+      out.querySelectorAll('.studio-quiz-item').forEach((box) => {
+        const qIdx = +box.dataset.qidx;
+        const item = qList[qIdx];
+        box.querySelectorAll('.studio-quiz-opt').forEach((btn) => {
+          btn.onclick = () => {
+            const chosen = +btn.dataset.oidx;
+            box.querySelectorAll('.studio-quiz-opt').forEach((b, idx) => {
+              b.classList.remove('right', 'wrong');
+              if (idx === item.ans) b.classList.add('right');
+              else if (idx === chosen) b.classList.add('wrong');
+            });
+            box.querySelector('.studio-quiz-exp').hidden = false;
+            Sound.play(chosen === item.ans ? 'correct' : 'wrong');
+          };
+        });
+      });
+    } else if (tab === 'infographic') {
+      out.innerHTML = `
+        <div class="row-between" style="margin-top:0;margin-bottom:10px">
+          <h4 style="margin:0">📊 Bản đồ hoạ thông tin (Infographic Tóm tắt)</h4>
+          <button type="button" class="btn small primary" onclick="document.getElementById('infographic')?.scrollIntoView({behavior:'smooth'})">🖼️ Xem Infographic lớn ở đầu trang</button>
+        </div>
+        <div class="slide-card" style="border-left-color:#0d9488">
+          <strong>1. Hồ sơ nhận diện tác phẩm</strong>
+          <div>• <strong>Tác phẩm:</strong> ${esc(a.title)} · <strong>Tác giả:</strong> ${esc(a.author || '—')}</div>
+          <div>• <strong>Thể loại:</strong> ${esc(a.genre || '—')} · <strong>Khối lớp:</strong> ${esc(a.gradeLevel || App.settings.grade)}</div>
+        </div>
+        <div class="slide-card" style="border-left-color:#2563eb">
+          <strong>2. Trục nội dung &amp; Mạch kết cấu (${(a.mainIdeas.length ? a.mainIdeas : a.timeline).length} chặng)</strong>
+          <div>${(a.mainIdeas.length ? a.mainIdeas : a.timeline).map((x, i) => `<div><strong>[${i + 1}]</strong> ${esc(x)}</div>`).join('')}</div>
+        </div>
+        <div class="slide-card" style="border-left-color:#db2777">
+          <strong>3. Trục Thi pháp &amp; Nghệ thuật (${a.artTechniques.length} điểm nhấn)</strong>
+          <div>${a.artTechniques.map((t) => `<div>• <strong>${esc(t.name)}</strong>: <em>“${esc(t.example)}”</em> ➜ ${esc(t.effect)}</div>`).join('')}</div>
+        </div>
+        <div class="slide-card" style="border-left-color:#d97706">
+          <strong>4. Thông điệp cốt lõi &amp; Chỉ số Đọc hiểu</strong>
+          <div>• <strong>Thông điệp:</strong> ${esc(a.message)}</div>
+          <div>• <strong>Kết quả lớp học:</strong> Đúng ${c.ok}/${c.total} câu (${c.pct}%)</div>
+        </div>`;
+    } else if (tab === 'data_table') {
+      out.innerHTML = `
+        <div class="row-between" style="margin-top:0;margin-bottom:10px">
+          <h4 style="margin:0">📋 Bảng dữ liệu tổng hợp học thuật</h4>
+          <button type="button" class="btn small primary" id="btnExportDataTableCsv">📥 Tải Bảng dữ liệu (.csv)</button>
+        </div>
+        <p style="font-weight:800;margin-bottom:4px">Bảng 1: Hệ thống Tín hiệu Nghệ thuật – Dẫn chứng – Tác dụng biểu đạt</p>
+        <table class="studio-dt-table">
+          <thead><tr><th>#</th><th>Biện pháp / Yếu tố nghệ thuật</th><th>Dẫn chứng tiêu biểu trong văn bản</th><th>Tác dụng / Giá trị biểu đạt</th></tr></thead>
+          <tbody>
+            ${a.artTechniques.map((t, i) => `<tr><td>${i + 1}</td><td><strong>${esc(t.name)}</strong></td><td><em>“${esc(t.example)}”</em></td><td>${esc(t.effect)}</td></tr>`).join('')}
+          </tbody>
+        </table>
+        <p style="font-weight:800;margin-bottom:4px">Bảng 2: Hệ thống Hình tượng / Chủ thể &amp; Từ ngữ học thuật</p>
+        <table class="studio-dt-table">
+          <thead><tr><th>Phân loại</th><th>Tên hình tượng / Thuật ngữ</th><th>Đặc điểm / Giải nghĩa học thuật</th></tr></thead>
+          <tbody>
+            ${a.characters.map((ch) => `<tr><td><span class="badge lvl-th">Hình tượng</span></td><td><strong>${esc(ch.name)}</strong></td><td>${esc(ch.traits)}</td></tr>`).join('')}
+            ${a.vocabulary.map((v) => `<tr><td><span class="badge lvl-nb">Từ khóa</span></td><td><strong>${esc(v.word)}</strong></td><td>${esc(v.meaning)}</td></tr>`).join('')}
+          </tbody>
+        </table>`;
+      $('btnExportDataTableCsv').onclick = () => this.exportDataTableCsv();
     }
+  },
+
+  exportDataTableCsv() {
+    const a = App.analysis;
+    const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const rows = [
+      ['BẢNG DỮ LIỆU ĐỌC HIỂU NGỮ VĂN THPT', a.title, a.author, a.genre, a.gradeLevel || App.settings.grade],
+      [],
+      ['BẢNG 1: ĐẶC SẮC NGHỆ THUẬT & THI PHÁP'],
+      ['STT', 'Biện pháp / Yếu tố nghệ thuật', 'Dẫn chứng', 'Tác dụng biểu đạt'],
+      ...a.artTechniques.map((t, i) => [i + 1, t.name, t.example, t.effect]),
+      [],
+      ['BẢNG 2: HÌNH TƯỢNG & TỪ KHÓA HỌC THUẬT'],
+      ['Phân loại', 'Tên hình tượng / Thuật ngữ', 'Đặc điểm / Giải nghĩa'],
+      ...a.characters.map((ch) => ['Hình tượng / Nhân vật', ch.name, ch.traits]),
+      ...a.vocabulary.map((v) => ['Từ khóa / Khái niệm', v.word, v.meaning]),
+    ];
+    const csv = '\uFEFF' + rows.map((r) => r.map(cell).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `bang-du-lieu-${(a.title || 'van-ban').slice(0, 30)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    toast('✅ Đã tải file Bảng dữ liệu (.csv)!');
   },
 };
 
