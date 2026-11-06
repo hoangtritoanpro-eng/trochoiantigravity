@@ -1,7 +1,8 @@
 /* ═══════════════════════════════════════════════════════════
-   ĐỌC HIỂU CÙNG AI – Game đánh giá năng lực đọc hiểu văn bản
-   Luồng: Nạp văn bản → Gemini phân tích → Giáo viên duyệt
-          → 6 vòng chơi → Infographic chốt kiến thức
+   ĐỌC HIỂU CÙNG AI (THPT) – Hệ thống đánh giá năng lực đọc hiểu
+   Hỗ trợ: Copy/Dán kí tự · Đẩy file PDF (chữ & scan) · Gửi ảnh vào
+   Luồng: Nạp ngữ liệu → Gemini phân tích → Giáo viên duyệt
+          → 6 vòng chơi → Infographic chốt kiến thức + Thống kê
 ═══════════════════════════════════════════════════════════ */
 
 /* ───────── TIỆN ÍCH ───────── */
@@ -31,7 +32,26 @@ function toast(msg, isError = false) {
   el.classList.toggle('error', isError);
   el.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), isError ? 6000 : 3000);
+  toastTimer = setTimeout(() => el.classList.remove('show'), isError ? 6000 : 3200);
+}
+
+async function copyToClipboard(text, label = 'văn bản') {
+  const content = String(text ?? '').trim();
+  if (!content) return toast(`Chưa có ${label} để copy.`, true);
+  try {
+    await navigator.clipboard.writeText(content);
+    toast(`✅ Đã copy ${label} (${content.length.toLocaleString('vi-VN')} ký tự) vào bộ nhớ tạm!`);
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = content;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    toast(`✅ Đã copy ${label} (${content.length.toLocaleString('vi-VN')} ký tự) vào bộ nhớ tạm!`);
+  }
 }
 
 function showScreen(id) {
@@ -106,22 +126,26 @@ const Sound = {
 
 /* ───────── ĐỊNH NGHĨA CÁC VÒNG CHƠI ───────── */
 const ROUNDS = {
-  mcq:       { icon: '🅰️', title: 'Trắc nghiệm',          desc: 'Chọn 1 đáp án đúng trong 4 phương án A, B, C, D' },
-  trueFalse: { icon: '⚖️', title: 'Đúng hay Sai?',         desc: 'Nhận định sau đây đúng hay sai so với văn bản?' },
-  fillBlank: { icon: '✍️', title: 'Điền từ còn thiếu',     desc: 'Chọn từ ngữ phù hợp để hoàn thành câu' },
-  matching:  { icon: '🔗', title: 'Nối cặp',               desc: 'Nối mỗi ý ở cột trái với ý phù hợp ở cột phải' },
-  ordering:  { icon: '🔢', title: 'Sắp xếp trình tự',      desc: 'Sắp xếp các sự việc / ý theo đúng thứ tự trong văn bản' },
-  openEnded: { icon: '💬', title: 'Suy ngẫm & Tự luận',    desc: 'Trả lời ngắn gọn bằng lời của em' },
+  mcq:       { icon: '🅰️', title: 'Trắc nghiệm đọc hiểu',  desc: 'Chọn 1 phương án đúng nhất trong 4 phương án A, B, C, D' },
+  trueFalse: { icon: '⚖️', title: 'Đúng hay Sai?',          desc: 'Xác định nhận định sau đây đúng hay sai so với ngữ liệu' },
+  fillBlank: { icon: '✍️', title: 'Điền từ / Thuật ngữ',    desc: 'Chọn từ ngữ, hình ảnh hoặc khái niệm phù hợp điền vào chỗ trống' },
+  matching:  { icon: '🔗', title: 'Nối cặp nghệ thuật – ý nghĩa', desc: 'Nối mỗi chi tiết, hình ảnh, luận điểm ở cột trái với ý nghĩa ở cột phải' },
+  ordering:  { icon: '🔢', title: 'Sắp xếp mạch văn bản',   desc: 'Sắp xếp các sự việc / khổ thơ / luận điểm theo đúng trình tự ngữ liệu' },
+  openEnded: { icon: '💬', title: 'Tự luận & Vận dụng THPT', desc: 'Phân tích, nhận xét hoặc bày tỏ quan điểm cá nhân từ ngữ liệu' },
 };
 const ROUND_ORDER = ['mcq', 'trueFalse', 'fillBlank', 'matching', 'ordering', 'openEnded'];
 
 /* ───────── TRẠNG THÁI ỨNG DỤNG ───────── */
 const App = {
   sourceText: '',
+  media: [], // [{ id, name, mimeType, dataUrl, base64 }] – ảnh chụp trang sách / trang PDF scan
   analysis: null,
   isDemo: false,
   settings: {
-    grade: localStorage.getItem('dh_grade') || 'Lớp 8',
+    grade: (() => {
+      const saved = localStorage.getItem('dh_grade');
+      return (!saved || saved === 'Lớp 8') ? 'Lớp 11' : saved;
+    })(),
     count: parseInt(localStorage.getItem('dh_count') || '5', 10),
     rounds: JSON.parse(localStorage.getItem('dh_rounds') || 'null') || ROUND_ORDER.slice(),
   },
@@ -136,45 +160,110 @@ const App = {
   },
 };
 
-/* ───────── ĐỌC FILE (PDF / DOCX / TXT) ───────── */
+/* ───────── XỬ LÝ FILE (PDF CHỮ & SCAN / DOCX / TXT / ẢNH) ───────── */
 const FileLoader = {
-  async read(file) {
-    const name = file.name.toLowerCase();
-    if (name.endsWith('.txt')) return file.text();
-    if (name.endsWith('.docx')) return this.readDocx(file);
-    if (name.endsWith('.pdf')) return this.readPdf(file);
-    throw new Error('Định dạng chưa hỗ trợ. Hãy dùng file .pdf, .docx hoặc .txt');
-  },
-
-  async readDocx(file) {
-    if (!window.mammoth) throw new Error('Chưa tải được thư viện đọc Word (cần Internet). Hãy dán nội dung trực tiếp hoặc dùng PDF.');
-    const res = await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
-    return res.value;
-  },
-
   async readPdf(file) {
     if (!window.pdfjsLib) throw new Error('Thư viện PDF.js chưa sẵn sàng.');
     window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdf.worker.min.js';
     const pdf = await window.pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
     let out = '';
     for (let i = 1; i <= pdf.numPages; i++) {
-      const content = await (await pdf.getPage(i)).getTextContent();
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
       let line = '';
+      let lastY = null;
       content.items.forEach((it) => {
+        const y = it.transform ? it.transform[5] : null;
+        if (lastY !== null && y !== null && Math.abs(y - lastY) > 5 && line.trim()) {
+          out += line.trimEnd() + '\n';
+          line = '';
+        }
         line += it.str;
-        if (it.hasEOL) { out += line.trimEnd() + '\n'; line = ''; }
+        lastY = y;
+        if (it.hasEOL) {
+          out += line.trimEnd() + '\n';
+          line = '';
+          lastY = null;
+        }
       });
-      out += line + '\n\n';
+      if (line.trim()) out += line.trimEnd();
+      out += '\n\n';
     }
-    if (!out.trim()) throw new Error('PDF không có lớp chữ (có thể là ảnh scan). Hãy dán nội dung trực tiếp.');
-    return out.replace(/\n{3,}/g, '\n\n').trim();
+    const cleanText = out.normalize('NFC').replace(/\n{3,}/g, '\n\n').trim();
+
+    // Nếu PDF là bản scan (không có lớp chữ hoặc quá ít chữ), tự động kết xuất các trang thành ảnh để gửi cho AI
+    const maxPagesToRender = Math.min(pdf.numPages, 8);
+    const renderedImages = [];
+    if (cleanText.length < 80) {
+      for (let i = 1; i <= maxPagesToRender; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.65 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        renderedImages.push({
+          id: `${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+          name: `${file.name} (Trang ${i}/${pdf.numPages})`,
+          mimeType: 'image/jpeg',
+          dataUrl,
+          base64: dataUrl.split(',')[1],
+        });
+      }
+    }
+    return { text: cleanText, images: renderedImages, numPages: pdf.numPages };
+  },
+
+  async readDocx(file) {
+    if (!window.mammoth) throw new Error('Chưa tải được thư viện đọc Word (cần Internet). Hãy copy & dán nội dung hoặc dùng file PDF.');
+    const res = await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+    return res.value.normalize('NFC').trim();
+  },
+
+  async readImage(file, customName) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error(`Không đọc được ảnh "${file.name}"`));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error(`Định dạng ảnh "${file.name}" không hợp lệ.`));
+        img.onload = () => {
+          const maxDim = 1800;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            const ratio = Math.min(maxDim / width, maxDim / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.86);
+          resolve({
+            id: `${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+            name: customName || file.name || 'Ảnh chụp ngữ liệu',
+            mimeType: 'image/jpeg',
+            dataUrl,
+            base64: dataUrl.split(',')[1],
+          });
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
   },
 };
 
-/* ───────── DỊCH VỤ GEMINI AI ───────── */
+/* ───────── DỊCH VỤ GEMINI AI (ĐA PHƯƠNG THỨC – CHƯƠNG TRÌNH THPT) ───────── */
 const AIService = {
   base: 'https://generativelanguage.googleapis.com/v1beta',
-  models: [], // danh sách model thực tế mà API Key được phép dùng
+  models: [],
 
   friendly(status, msg) {
     if ((status === 400 || status === 403) && /api key|API_KEY|permission/i.test(msg)) return 'API Key không hợp lệ hoặc chưa bật Gemini API. Hãy kiểm tra lại key.';
@@ -204,7 +293,6 @@ const AIService = {
     return res.json();
   },
 
-  /* Lấy danh sách model hỗ trợ sinh nội dung, sắp xếp: phiên bản mới → Flash → Pro */
   async listModels(key) {
     const data = await this.request('models?pageSize=200', key);
     const score = (id) => {
@@ -223,12 +311,18 @@ const AIService = {
     return this.models;
   },
 
-  async call(prompt, { json = true, temperature = 0.5, maxTokens = 16384, model } = {}) {
+  async call(prompt, { json = true, temperature = 0.45, maxTokens = 16384, model, images = [] } = {}) {
     const key = App.apiKey();
     if (!key) throw new Error('Chưa nhập Gemini API Key.');
     const useModel = model || App.model();
+    const parts = [{ text: prompt }];
+    arr(images).forEach((img) => {
+      if (img && img.base64) {
+        parts.push({ inlineData: { mimeType: img.mimeType || 'image/jpeg', data: img.base64 } });
+      }
+    });
     const data = await this.request(`models/${encodeURIComponent(useModel)}:generateContent`, key, {
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      contents: [{ role: 'user', parts }],
       generationConfig: { temperature, maxOutputTokens: maxTokens, ...(json ? { responseMimeType: 'application/json' } : {}) },
     });
     if (data.promptFeedback?.blockReason) throw new Error(`Gemini từ chối xử lý nội dung này (${data.promptFeedback.blockReason}).`);
@@ -244,8 +338,7 @@ const AIService = {
     }
   },
 
-  /* Gọi AI; nếu model không tồn tại (404) thì tự chuyển sang model khả dụng khác */
-  async callWithFallback(prompt, opts) {
+  async callWithFallback(prompt, opts = {}) {
     try {
       return await this.call(prompt, opts);
     } catch (e) {
@@ -274,7 +367,18 @@ const AIService = {
     await this.callWithFallback('Trả lời đúng một từ: OK', { json: false, maxTokens: 50 });
   },
 
-  buildPrompt(text, grade, n, rounds) {
+  /* Đọc chữ (OCR) từ danh sách ảnh / trang PDF scan */
+  async extractTextFromImages(images) {
+    const prompt = `Bạn là trợ lý số hóa ngữ liệu Ngữ văn THPT chính xác tuyệt đối.
+Hãy đọc toàn bộ chữ tiếng Việt trong các trang ảnh đính kèm và trích xuất nguyên văn.
+YÊU CẦU:
+- Giữ nguyên cấu trúc đoạn văn, khổ thơ, dấu câu, chú thích, tên tác giả và nguồn trích dẫn.
+- Không thêm lời bình luận, không tóm tắt, chỉ trả về nguyên văn văn bản đọc được.`;
+    const out = await this.callWithFallback(prompt, { json: false, temperature: 0.1, maxTokens: 8192, images });
+    return out.trim();
+  },
+
+  buildPrompt(text, grade, n, rounds, hasImages = false) {
     const on = (t) => rounds.includes(t);
     const c = {
       mcq: on('mcq') ? n : 0,
@@ -284,59 +388,64 @@ const AIService = {
       ordering: on('ordering') ? clamp(n + 1, 4, 7) : 0,
       openEnded: on('openEnded') ? (n <= 3 ? 1 : 2) : 0,
     };
-    return `Bạn là giáo viên Ngữ văn THCS giỏi, am hiểu Chương trình GDPT 2018, đang thiết kế trò chơi đánh giá NĂNG LỰC ĐỌC HIỂU cho học sinh ${grade}.
-Hãy đọc kĩ văn bản ở cuối, phân tích và tạo bộ câu hỏi.
+    return `Bạn là giáo viên Ngữ văn THPT giỏi, chuyên gia khảo thí am hiểu sâu Chương trình GDPT 2018 (cấp THPT: Lớp 10, 11, 12) và cấu trúc Đề thi Tốt nghiệp THPT môn Ngữ văn mới.
+Hãy đọc kĩ ngữ liệu ${hasImages ? '(bao gồm cả văn bản và các trang ảnh đính kèm)' : 'ở cuối'}, phân tích học thuật và thiết kế bộ câu hỏi đánh giá NĂNG LỰC ĐỌC HIỂU cho học sinh ${grade}.
 
-YÊU CẦU BẮT BUỘC:
-1. Mọi câu hỏi và đáp án phải căn cứ vào nội dung văn bản; tuyệt đối không bịa chi tiết không có trong văn bản.
-2. Tiếng Việt chuẩn mực, phù hợp lứa tuổi ${grade}; câu hỏi ngắn gọn, rõ ràng (đọc được trên màn chiếu).
-3. Gắn mức độ cho từng câu ("Nhận biết" | "Thông hiểu" | "Vận dụng"), phân bố khoảng 40% / 40% / 20%.
-4. Phương án nhiễu hợp lí, độ dài tương đương đáp án đúng; không dùng "Tất cả đều đúng/sai".
-5. Mỗi câu có "explain": giải thích ngắn 1–2 câu, nên dẫn chứng từ văn bản.
-6. Nếu văn bản là thơ, nghị luận hoặc văn bản thông tin: "timeline" và "ordering" là trình tự các ý / khổ thơ / luận điểm; "characters" là nhân vật trữ tình hoặc đối tượng được nói tới (có thể để mảng rỗng).
-7. Câu điền từ: lấy từ câu trong văn bản (có thể rút gọn), chỗ trống ghi đúng "____", đáp án là từ/cụm từ ngắn (1–4 tiếng), kèm đúng 4 lựa chọn (gồm đáp án đúng).
-8. Nối cặp: vế trái là chi tiết/từ ngữ/nhân vật, vế phải là ý nghĩa/đặc điểm tương ứng; mỗi vế dưới 12 từ.
-9. Sắp xếp: liệt kê các mục THEO ĐÚNG THỨ TỰ trong văn bản.
-10. Nếu số lượng yêu cầu là 0 thì trả về mảng rỗng cho phần đó.
+YÊU CẦU SƯ PHẠM THPT BẮT BUỘC:
+1. Mọi câu hỏi và đáp án phải bám sát ngữ liệu; khai thác sâu đặc trưng thể loại theo CT GDPT 2018 cấp THPT:
+   - Nếu là VĂN BẢN VĂN HỌC (thơ trữ tình, truyện ngắn, tiểu thuyết, kí, tùy bút, tản văn, kịch, thần thoại, sử thi): hỏi về chủ thể trữ tình, nhân vật, điểm nhìn trần thuật, ngôi kể, giọng điệu, kết cấu, hình tượng nghệ thuật, mạch cảm xúc, biện pháp tu từ, ngôn ngữ nghệ thuật và giá trị tư tưởng – triết lí nhân sinh.
+   - Nếu là VĂN BẢN NGHỊ LUẬN: hỏi về luận đề, hệ thống luận điểm, lí lẽ và bằng chứng, mạch lập luận, thao tác nghị luận, thái độ/quan điểm của người viết.
+   - Nếu là VĂN BẢN THÔNG TIN: hỏi về nhan đề, sa-pô, thông tin chính và chi tiết, dữ liệu/số liệu, cách trình bày, phương tiện phi ngôn ngữ và mục đích văn bản.
+2. Phân bổ câu hỏi theo 3 mức độ nhận thức chuẩn THPT ("Nhận biết" | "Thông hiểu" | "Vận dụng") theo tỉ lệ khoảng 35% Nhận biết / 45% Thông hiểu / 20% Vận dụng.
+3. Phương án nhiễu (distractors) phải có tính học thuật, độ dài tương đương đáp án đúng; tuyệt đối không dùng "Tất cả đều đúng/sai".
+4. Mỗi câu có "explain": giải thích tường minh 1–2 câu, trích dẫn trực tiếp từ khóa/dẫn chứng trong ngữ liệu.
+5. Câu điền từ ("fillBlank"): trích câu từ văn bản hoặc nhận định khái quát về văn bản, chỗ trống ghi đúng "____", đáp án là từ/cụm từ/thuật ngữ (1–4 tiếng), kèm đúng 4 lựa chọn (gồm đáp án đúng).
+6. Nối cặp ("matching"): vế trái là hình ảnh/chi tiết/biện pháp nghệ thuật/luận điểm, vế phải là ý nghĩa/tác dụng/đặc điểm tương ứng; mỗi vế dưới 14 từ.
+7. Sắp xếp ("ordering"): liệt kê các sự việc / khổ thơ / luận điểm THEO ĐÚNG TRÌNH TỰ triển khai trong văn bản.
+8. Câu tự luận ("openEnded"): thiết kế theo chuẩn câu hỏi Đọc hiểu nâng cao / Vận dụng THPT (phân tích hiệu quả nghệ thuật, rút ra thông điệp, hoặc bày tỏ quan điểm đồng tình/không đồng tình có lí giải 5–7 dòng).
+${hasImages ? '9. Vì có ảnh đính kèm, hãy ghi lại nguyên văn bài đọc trích xuất từ ảnh vào trường "extractedText" (giữ đúng xuống dòng, khổ thơ).' : ''}
 
-SỐ LƯỢNG: mcq ${c.mcq} câu; trueFalse ${c.trueFalse} câu; fillBlank ${c.fillBlank} câu; matching ${c.matching} cặp; ordering ${c.ordering} mục; openEnded ${c.openEnded} câu.
+SỐ LƯỢNG YÊU CẦU: mcq ${c.mcq} câu; trueFalse ${c.trueFalse} câu; fillBlank ${c.fillBlank} câu; matching ${c.matching} cặp; ordering ${c.ordering} mục; openEnded ${c.openEnded} câu. (Nếu phần nào bằng 0 thì trả về mảng rỗng).
 
 CHỈ TRẢ VỀ JSON theo đúng cấu trúc sau:
 {
-  "title": "Tên văn bản", "author": "Tác giả", "genre": "Thể loại", "gradeLevel": "${grade}",
-  "summary": "Tóm tắt 3–4 câu", "theme": "Chủ đề", "mainIdeas": ["Ý chính / bố cục"],
-  "characters": [{"name": "", "traits": "Đặc điểm ngắn"}],
-  "timeline": ["Sự việc / ý theo thứ tự"],
-  "artTechniques": [{"name": "Biện pháp / đặc sắc nghệ thuật", "example": "Dẫn chứng", "effect": "Tác dụng"}],
-  "message": "Thông điệp, bài học", "vocabulary": [{"word": "", "meaning": ""}],
+  "title": "Tên văn bản / đoạn trích", "author": "Tác giả / Nguồn", "genre": "Thể loại (VD: Thơ trữ tình hiện đại / Truyện ngắn / Văn bản nghị luận...)", "gradeLevel": "${grade}",
+  ${hasImages ? '"extractedText": "Nguyên văn bài đọc trích xuất từ ảnh (nếu có)",' : ''}
+  "summary": "Tóm tắt nội dung và giá trị nghệ thuật chính (3–4 câu)", "theme": "Chủ đề & Cảm hứng chủ đạo", "mainIdeas": ["Bố cục / Luận điểm / Mạch ý chính"],
+  "characters": [{"name": "Nhân vật / Chủ thể trữ tình / Đối tượng trung tâm", "traits": "Đặc điểm, tâm trạng, vẻ đẹp hoặc vai trò"}],
+  "timeline": ["Mạch cảm xúc / Trình tự sự việc / Hệ thống luận điểm theo thứ tự"],
+  "artTechniques": [{"name": "Biện pháp tu từ / Đặc sắc thi pháp / Nghệ thuật lập luận", "example": "Dẫn chứng trong văn bản", "effect": "Tác dụng biểu đạt"}],
+  "message": "Thông điệp tư tưởng, giá trị nhân sinh", "vocabulary": [{"word": "Từ ngữ / Khái niệm học thuật", "meaning": "Giải nghĩa ngắn gọn"}],
   "questions": {
     "mcq": [{"q": "", "options": ["", "", "", ""], "ans": 0, "level": "Nhận biết", "explain": ""}],
     "trueFalse": [{"statement": "", "answer": true, "level": "Nhận biết", "explain": ""}],
     "fillBlank": [{"sentence": "... ____ ...", "answer": "", "options": ["", "", "", ""], "level": "Nhận biết", "explain": ""}],
     "matching": {"instruction": "", "pairs": [{"left": "", "right": ""}]},
     "ordering": {"instruction": "", "items": ["mục 1", "mục 2"]},
-    "openEnded": [{"q": "", "rubric": "Tiêu chí chấm", "sampleAnswer": "Đáp án gợi ý"}]
+    "openEnded": [{"q": "", "rubric": "Tiêu chí chấm theo chuẩn Đọc hiểu THPT", "sampleAnswer": "Đáp án gợi ý hoàn chỉnh"}]
   }
 }
 
-VĂN BẢN:
-"""
-${text.slice(0, 25000)}
-"""`;
+${text.trim() ? `NGỮ LIỆU VĂN BẢN:\n"""\n${text.slice(0, 28000)}\n"""` : 'NGỮ LIỆU: Hãy đọc toàn bộ nội dung văn bản trong các trang ảnh đính kèm.'}`;
   },
 
-  async analyze(text, grade, n, rounds) {
-    const raw = await this.callWithFallback(this.buildPrompt(text, grade, n, rounds));
-    return Normalizer.analysis(raw, text);
+  async analyze(text, grade, n, rounds, images = []) {
+    const hasImages = images && images.length > 0;
+    const raw = await this.callWithFallback(this.buildPrompt(text, grade, n, rounds, hasImages), { images });
+    const fullText = str(text) || str(raw.extractedText) || '';
+    return {
+      analysis: Normalizer.analysis(raw, fullText),
+      extractedText: str(raw.extractedText),
+    };
   },
 
   async grade(text, q, rubric, answer) {
-    const prompt = `Bạn là giáo viên Ngữ văn THCS chấm câu trả lời đọc hiểu, nhận xét khích lệ, ngắn gọn.
-VĂN BẢN (trích): """${text.slice(0, 8000)}"""
+    const prompt = `Bạn là giám khảo Ngữ văn THPT chấm câu trả lời tự luận đọc hiểu theo hướng dẫn chấm của Bộ GD&ĐT, nhận xét khích lệ, chuẩn xác, ngắn gọn.
+NGỮ LIỆU (trích): """${text.slice(0, 9000)}"""
 CÂU HỎI: ${q}
-TIÊU CHÍ CHẤM: ${rubric}
-CÂU TRẢ LỜI CỦA HỌC SINH: """${answer.slice(0, 2000)}"""
-Chấm thang 0–10. Chỉ trả về JSON: {"score": 0, "verdict": "Nhận xét chung 1 câu", "strengths": "Điểm tốt", "improve": "Cần bổ sung"}`;
+HƯỚNG DẪN CHẤM (RUBRIC): ${rubric}
+BÀI LÀM CỦA HỌC SINH: """${answer.slice(0, 2500)}"""
+Chấm thang điểm 0–10. Chỉ trả về JSON: {"score": 0, "verdict": "Nhận xét chung 1 câu", "strengths": "Ý đúng, diễn đạt tốt", "improve": "Ý cần bổ sung hoặc sâu sắc hơn"}`;
     const r = await this.callWithFallback(prompt, { temperature: 0.2, maxTokens: 2048 });
     return {
       score: clamp(Math.round(Number(r.score) || 0), 0, 10),
@@ -349,7 +458,7 @@ Chấm thang 0–10. Chỉ trả về JSON: {"score": 0, "verdict": "Nhận xét
 const Normalizer = {
   analysis(raw, text) {
     const q = raw.questions || {};
-    const firstLine = str(text).split('\n').find((l) => l.trim()) || 'Văn bản đọc hiểu';
+    const firstLine = str(text).split('\n').find((l) => l.trim()) || 'Ngữ liệu đọc hiểu THPT';
     return {
       title: str(raw.title) || firstLine.slice(0, 80),
       author: str(raw.author),
@@ -423,13 +532,13 @@ const Normalizer = {
 
   matching(m) {
     const pairs = arr(m?.pairs).map((p) => ({ left: str(p.left), right: str(p.right) })).filter((p) => p.left && p.right).slice(0, 6);
-    return { instruction: str(m?.instruction) || 'Nối mỗi ý ở cột trái với ý phù hợp ở cột phải.', pairs: pairs.length >= 2 ? pairs : [] };
+    return { instruction: str(m?.instruction) || 'Nối mỗi chi tiết / hình ảnh ở cột trái với ý nghĩa phù hợp ở cột phải.', pairs: pairs.length >= 2 ? pairs : [] };
   },
 
   ordering(o, timeline) {
     let items = arr(o?.items).map(str).filter(Boolean).slice(0, 8);
     if (items.length < 3) items = arr(timeline).map(str).filter(Boolean).slice(0, 7);
-    return { instruction: str(o?.instruction) || 'Sắp xếp theo đúng trình tự trong văn bản.', items: items.length >= 3 ? items : [] };
+    return { instruction: str(o?.instruction) || 'Sắp xếp theo đúng mạch triển khai của văn bản.', items: items.length >= 3 ? items : [] };
   },
 
   openEnded(list) {
@@ -450,7 +559,6 @@ const Connection = {
     top.title = text;
   },
 
-  /* Đổ danh sách model của key vào ô chọn, giữ lựa chọn cũ nếu còn hợp lệ */
   fillModels(preferId) {
     const list = AIService.models;
     if (!list.length) return;
@@ -493,11 +601,24 @@ const Connection = {
   },
 };
 
-/* ───────── MÀN NẠP VĂN BẢN ───────── */
+/* ───────── LIGHTBOX XEM ẢNH PHÓNG TO ───────── */
+const Lightbox = {
+  open(src) {
+    if (!src) return;
+    $('imgModalTarget').src = src;
+    $('imgModal').hidden = false;
+  },
+  close() {
+    $('imgModal').hidden = true;
+    $('imgModalTarget').src = '';
+  },
+};
+
+/* ───────── MÀN NẠP NGỮ LIỆU (COPY KÍ TỰ · ĐẨY PDF · GỬI ẢNH) ───────── */
 const Setup = {
   init() {
     const s = App.settings;
-    $('selGrade').value = s.grade;
+    if ([...$('selGrade').options].some((o) => o.value === s.grade)) $('selGrade').value = s.grade;
     $('selCount').value = String(s.count);
     $('inpApiKey').value = localStorage.getItem('dh_api_key') || localStorage.getItem('toan_ai_gemini_api_key') || '';
     const savedModel = localStorage.getItem('dh_model') || 'gemini-3.8-flash';
@@ -512,6 +633,7 @@ const Setup = {
 
     this.bind();
     this.updateCount();
+    this.renderMedia();
     if (App.apiKey()) Connection.connect({ silent: true });
   },
 
@@ -520,18 +642,95 @@ const Setup = {
     txt.addEventListener('input', () => this.updateCount());
     $('btnClearText').onclick = () => { txt.value = ''; this.updateCount(); };
 
+    // Công cụ Copy / Dán / Chuẩn hóa kí tự
+    $('btnPasteText').onclick = async () => {
+      try {
+        const clip = await navigator.clipboard.readText();
+        if (!clip) return toast('Bộ nhớ tạm chưa có văn bản.', true);
+        const start = txt.selectionStart ?? txt.value.length;
+        const end = txt.selectionEnd ?? txt.value.length;
+        txt.value = txt.value.slice(0, start) + clip.normalize('NFC') + txt.value.slice(end);
+        this.updateCount();
+        txt.focus();
+        toast(`✅ Đã dán ${clip.length.toLocaleString('vi-VN')} ký tự từ Clipboard!`);
+      } catch (e) {
+        txt.focus();
+        toast('Hãy nhấn Ctrl+V trực tiếp vào ô văn bản để dán.');
+      }
+    };
+    $('btnCopyText').onclick = () => copyToClipboard(txt.value, 'ngữ liệu văn bản');
+    $('btnCleanText').onclick = () => {
+      if (!txt.value.trim()) return toast('Chưa có văn bản để chuẩn hóa.', true);
+      txt.value = this.cleanPdfLineBreaks(txt.value);
+      this.updateCount();
+      toast('✨ Đã chuẩn hóa kí tự và gộp các dòng PDF bị ngắt vụn!');
+    };
+
+    // Thanh chèn nhanh kí tự đặc biệt
+    $('symbolBar').querySelectorAll('.sym-btn').forEach((btn) => {
+      btn.onclick = () => {
+        const sym = btn.dataset.sym;
+        const start = txt.selectionStart ?? txt.value.length;
+        const end = txt.selectionEnd ?? txt.value.length;
+        const selected = txt.value.slice(start, end);
+        let insert = sym;
+        let cursorOffset = sym.length;
+        if ((sym === '“”' || sym === '‘’') && selected) {
+          insert = sym[0] + selected + sym[1];
+          cursorOffset = insert.length;
+        } else if (sym === '“”' || sym === '‘’') {
+          cursorOffset = 1;
+        }
+        txt.value = txt.value.slice(0, start) + insert + txt.value.slice(end);
+        this.updateCount();
+        txt.focus();
+        txt.setSelectionRange(start + cursorOffset, start + cursorOffset);
+      };
+    });
+
+    // Dropzone & chọn file PDF / Word / TXT / Ảnh
     const dz = $('dropzone');
     $('btnPickFile').onclick = (e) => { e.stopPropagation(); $('fileInput').click(); };
-    dz.onclick = () => $('fileInput').click();
-    $('fileInput').onchange = (e) => e.target.files[0] && this.loadFile(e.target.files[0]);
+    $('btnPickImg').onclick = (e) => { e.stopPropagation(); $('imgInput').click(); };
+    dz.onclick = (e) => {
+      if (e.target.closest('button')) return;
+      $('fileInput').click();
+    };
+    $('fileInput').onchange = (e) => e.target.files.length && this.handleFiles([...e.target.files]);
+    $('imgInput').onchange = (e) => e.target.files.length && this.handleFiles([...e.target.files]);
+
     dz.ondragover = (e) => { e.preventDefault(); dz.classList.add('dragover'); };
     dz.ondragleave = () => dz.classList.remove('dragover');
     dz.ondrop = (e) => {
       e.preventDefault();
       dz.classList.remove('dragover');
-      if (e.dataTransfer.files[0]) this.loadFile(e.dataTransfer.files[0]);
+      if (e.dataTransfer.files?.length) this.handleFiles([...e.dataTransfer.files]);
     };
 
+    // Hỗ trợ nhấn Ctrl+V để dán ảnh chụp màn hình ở bất kỳ đâu trên màn hình nạp bài
+    document.addEventListener('paste', (e) => {
+      if (!$('screenSetup').classList.contains('active')) return;
+      const items = [...(e.clipboardData?.items || [])];
+      const imgItems = items.filter((it) => it.type.startsWith('image/'));
+      if (imgItems.length) {
+        e.preventDefault();
+        const files = imgItems.map((it, idx) => {
+          const f = it.getAsFile();
+          return new File([f], `Anh-dan-clipboard-${idx + 1}.png`, { type: f.type });
+        });
+        this.handleFiles(files);
+      }
+    });
+
+    // Khung quản lý ảnh đính kèm
+    $('btnClearMedia').onclick = () => {
+      App.media = [];
+      this.renderMedia();
+      toast('Đã xóa tất cả ảnh đính kèm.');
+    };
+    $('btnOcr').onclick = () => this.ocrImages();
+
+    // Tùy chọn trò chơi & kết nối AI
     $('selGrade').onchange = (e) => { App.settings.grade = e.target.value; localStorage.setItem('dh_grade', e.target.value); };
     $('selCount').onchange = (e) => { App.settings.count = parseInt(e.target.value, 10); localStorage.setItem('dh_count', e.target.value); };
     $('roundToggles').onchange = () => {
@@ -554,40 +753,146 @@ const Setup = {
     $('btnRestore').onclick = () => this.restore();
   },
 
-  updateCount() {
-    const n = $('txtSource').value.length;
-    $('charCount').textContent = `${n.toLocaleString('vi-VN')} ký tự`;
+  cleanPdfLineBreaks(raw) {
+    return raw
+      .normalize('NFC')
+      .replace(/\r\n/g, '\n')
+      .replace(/[ \t]+/g, ' ')
+      .replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ,])\n([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])/g, '$1 $2')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
   },
 
-  async loadFile(file) {
-    toast(`Đang đọc file "${file.name}"…`);
+  updateCount() {
+    const val = $('txtSource').value;
+    const chars = val.length;
+    const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+    $('charCount').textContent = `${chars.toLocaleString('vi-VN')} ký tự · ${words.toLocaleString('vi-VN')} từ`;
+  },
+
+  renderMedia() {
+    const box = $('mediaBox');
+    const list = $('mediaList');
+    const items = App.media;
+    box.hidden = items.length === 0;
+    $('mediaCount').textContent = `🖼️ ${items.length} ảnh / trang tài liệu đính kèm`;
+    list.innerHTML = items.map((m, idx) => `
+      <div class="media-item">
+        <img class="media-thumb" src="${m.dataUrl}" alt="${esc(m.name)}" data-idx="${idx}" title="Bấm để phóng to">
+        <div class="media-name" title="${esc(m.name)}">${esc(m.name)}</div>
+        <button type="button" class="media-del" data-del="${idx}" title="Xóa ảnh này">✕</button>
+      </div>`).join('');
+    list.querySelectorAll('.media-thumb').forEach((img) => {
+      img.onclick = () => Lightbox.open(items[+img.dataset.idx]?.dataUrl);
+    });
+    list.querySelectorAll('[data-del]').forEach((btn) => {
+      btn.onclick = () => {
+        App.media.splice(+btn.dataset.del, 1);
+        this.renderMedia();
+      };
+    });
+  },
+
+  async handleFiles(files) {
+    let addedImages = 0;
+    let loadedTextFiles = 0;
+    for (const file of files) {
+      const lower = file.name.toLowerCase();
+      try {
+        if (file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp)$/i.test(lower)) {
+          const imgObj = await FileLoader.readImage(file);
+          App.media.push(imgObj);
+          addedImages++;
+        } else if (lower.endsWith('.pdf')) {
+          toast(`📄 Đang đọc file PDF "${file.name}"…`);
+          const res = await FileLoader.readPdf(file);
+          if (res.text && res.text.length >= 80) {
+            $('txtSource').value = ($('txtSource').value ? $('txtSource').value + '\n\n' : '') + res.text;
+            loadedTextFiles++;
+            toast(`✅ Đã trích xuất ${res.text.length.toLocaleString('vi-VN')} ký tự từ "${file.name}" (${res.numPages} trang)`);
+          } else if (res.images.length) {
+            App.media.push(...res.images);
+            addedImages += res.images.length;
+            if (res.text) $('txtSource').value = ($('txtSource').value ? $('txtSource').value + '\n\n' : '') + res.text;
+            toast(`📄 PDF "${file.name}" là bản scan – đã nạp ${res.images.length} trang ảnh để AI đọc!`);
+          }
+        } else if (lower.endsWith('.docx')) {
+          toast(`📝 Đang đọc file Word "${file.name}"…`);
+          const t = await FileLoader.readDocx(file);
+          $('txtSource').value = ($('txtSource').value ? $('txtSource').value + '\n\n' : '') + t;
+          loadedTextFiles++;
+          toast(`✅ Đã đọc xong "${file.name}"`);
+        } else if (lower.endsWith('.txt')) {
+          const t = (await file.text()).normalize('NFC').trim();
+          $('txtSource').value = ($('txtSource').value ? $('txtSource').value + '\n\n' : '') + t;
+          loadedTextFiles++;
+          toast(`✅ Đã đọc xong "${file.name}"`);
+        } else {
+          toast(`Định dạng "${file.name}" chưa hỗ trợ. Hãy dùng PDF, DOCX, TXT hoặc Ảnh.`, true);
+        }
+      } catch (e) {
+        toast(e.message, true);
+      }
+    }
+    $('fileInput').value = '';
+    $('imgInput').value = '';
+    this.updateCount();
+    this.renderMedia();
+    if (addedImages > 0 && !loadedTextFiles) {
+      toast(`🖼️ Đã thêm ${addedImages} ảnh ngữ liệu. Bạn có thể bấm "🔍 Trích xuất kí tự từ ảnh" hoặc "✨ Phân tích ngữ liệu bằng AI".`);
+    }
+  },
+
+  async ocrImages() {
+    if (!App.media.length) return toast('Chưa có ảnh nào để trích xuất chữ.', true);
+    if (!App.apiKey()) return toast('Hãy nhập Gemini API Key ở mục ③ để AI đọc chữ từ ảnh.', true);
+    const btn = $('btnOcr');
+    btn.disabled = true;
+    const oldText = btn.textContent;
+    btn.textContent = '⏳ AI đang đọc chữ từ ảnh…';
     try {
-      const text = await FileLoader.read(file);
-      $('txtSource').value = text;
+      const extracted = await AIService.extractTextFromImages(App.media);
+      if (!extracted) throw new Error('Không tìm thấy văn bản trong ảnh.');
+      $('txtSource').value = ($('txtSource').value.trim() ? $('txtSource').value.trim() + '\n\n' : '') + extracted;
       this.updateCount();
-      toast(`✅ Đã đọc xong "${file.name}"`);
+      Connection.set('ok', `Đã kết nối · ${App.model()}`);
+      toast(`✅ Đã trích xuất ${extracted.length.toLocaleString('vi-VN')} ký tự từ ảnh vào ô văn bản!`);
     } catch (e) {
       toast(e.message, true);
     } finally {
-      $('fileInput').value = '';
+      btn.disabled = false;
+      btn.textContent = oldText;
     }
   },
 
   async analyze() {
     const text = $('txtSource').value.trim();
-    if (text.length < 150) return toast('Văn bản quá ngắn. Hãy dán bài văn đầy đủ (ít nhất khoảng 150 ký tự).', true);
+    const hasImages = App.media.length > 0;
+    if (text.length < 80 && !hasImages) {
+      return toast('Hãy dán ngữ liệu (ít nhất 80 ký tự), đẩy file PDF hoặc gửi ảnh bài văn vào trước.', true);
+    }
     if (!App.settings.rounds.length) return toast('Hãy chọn ít nhất 1 vòng chơi.', true);
-    if (!App.apiKey()) return toast('Hãy nhập Gemini API Key, hoặc bấm "Dùng bài mẫu" để chơi thử.', true);
+    if (!App.apiKey()) return toast('Hãy nhập Gemini API Key, hoặc bấm "📚 Dùng ngữ liệu mẫu THPT" để chơi thử.', true);
     localStorage.setItem('dh_api_key', App.apiKey());
 
     showScreen('screenLoading');
-    const steps = ['Đang xác định thể loại, chủ đề, nhân vật…', 'Đang tìm các chi tiết và biện pháp nghệ thuật…', 'Đang soạn câu hỏi theo 3 mức độ nhận thức…', 'Đang kiểm tra đáp án và lời giải thích…'];
+    const steps = [
+      hasImages ? 'Đang đọc văn bản từ trang ảnh / PDF và xác định thể loại…' : 'Đang xác định thể loại, chủ đề, cảm hứng chủ đạo…',
+      'Đang phân tích thi pháp, hệ thống luận điểm và biện pháp tu từ…',
+      `Đang thiết kế câu hỏi Đọc hiểu chuẩn ${App.settings.grade} theo 3 mức độ nhận thức…`,
+      'Đang kiểm tra đáp án, lời giải thích và hướng dẫn chấm tự luận…',
+    ];
     let i = 0;
     $('loadingStep').textContent = steps[0];
     const timer = setInterval(() => { i = (i + 1) % steps.length; $('loadingStep').textContent = steps[i]; }, 3500);
     try {
-      App.analysis = await AIService.analyze(text, App.settings.grade, App.settings.count, App.settings.rounds);
-      App.sourceText = text;
+      const res = await AIService.analyze(text, App.settings.grade, App.settings.count, App.settings.rounds, App.media);
+      App.analysis = res.analysis;
+      if (!text && res.extractedText) {
+        $('txtSource').value = res.extractedText;
+        this.updateCount();
+      }
+      App.sourceText = $('txtSource').value.trim() || res.extractedText || '(Ngữ liệu từ ảnh đính kèm)';
       App.isDemo = false;
       App.saveSession();
       Connection.set('ok', `Đã kết nối · ${App.model()}`);
@@ -616,7 +921,7 @@ const Setup = {
       App.sourceText = s.text;
       App.analysis = s.analysis;
       App.isDemo = !!s.isDemo;
-      $('txtSource').value = s.text;
+      $('txtSource').value = s.text || '';
       this.updateCount();
       Preview.render();
     } catch (e) {
@@ -633,7 +938,7 @@ const Preview = {
     $('pvMeta').textContent = [a.author, a.genre, a.gradeLevel].filter(Boolean).join(' · ');
     $('pvSummary').textContent = a.summary || '(AI chưa tóm tắt)';
     $('pvTheme').textContent = a.theme || '—';
-    $('drawerText').textContent = App.sourceText;
+    Drawer.syncContent();
 
     const Q = a.questions;
     const html = App.settings.rounds.filter((t) => ROUND_ORDER.includes(t)).map((t) => {
@@ -656,7 +961,7 @@ const Preview = {
   },
 
   item(type, idx, body) {
-    return `<div class="pv-item"><div class="pv-item-body">${body}</div>
+    return `<div class="pv-item"><div class="pv-item-body selectable-text">${body}</div>
       <button class="btn small danger" onclick="Preview.remove('${type}', ${idx})" title="Xóa">🗑</button></div>`;
   },
 
@@ -687,6 +992,7 @@ const Game = {
   stats: {},
   levels: {},
   review: [],
+  log: [],
   keys: null,
   locked: false,
 
@@ -698,7 +1004,7 @@ const Game = {
       return { type: t, items: Q[t] };
     }).filter((r) => r.items.length);
 
-    if (!this.rounds.length) return toast('Không còn câu hỏi nào để chơi. Hãy nạp lại bài văn.', true);
+    if (!this.rounds.length) return toast('Không còn câu hỏi nào để chơi. Hãy nạp lại ngữ liệu.', true);
 
     Sound.stopAll();
     this.rIdx = 0; this.iIdx = 0; this.done = 0; this.score = 0; this.review = []; this.log = [];
@@ -706,7 +1012,7 @@ const Game = {
     this.stats = {};
     this.rounds.forEach((r) => { this.stats[r.type] = { points: 0, max: 0, correct: 0, total: 0 }; });
     this.levels = { NB: { c: 0, t: 0 }, TH: { c: 0, t: 0 }, VD: { c: 0, t: 0 } };
-    $('drawerText').textContent = App.sourceText;
+    Drawer.syncContent();
     showScreen('screenGame');
     this.updateHud();
     this.roundIntro();
@@ -758,7 +1064,6 @@ const Game = {
     return `<div class="q-meta">Câu ${this.iIdx + 1}/${r.items.length} ${extra}</div>`;
   },
 
-  /* Ghi nhận kết quả 1 lượt. entries: [{ q, chosen, correct, ok }] – dùng cho bảng thống kê đúng/sai */
   record(points, max, correct, total, level, reviewText, entries = []) {
     const s = this.stats[this.round.type];
     s.points += points; s.max += max; s.correct += correct; s.total += total;
@@ -795,14 +1100,14 @@ const Game = {
     const s = this.stats[this.round.type];
     const pct = s.max ? Math.round((s.points / s.max) * 100) : 0;
     const last = this.rIdx === this.rounds.length - 1;
-    const msg = pct >= 80 ? 'Xuất sắc! Cả lớp đọc hiểu rất tốt 👏' : pct >= 50 ? 'Khá tốt! Cố gắng thêm ở vòng sau nhé 💪' : 'Cần đọc lại văn bản kĩ hơn một chút 📖';
+    const msg = pct >= 80 ? 'Xuất sắc! Cả lớp nắm rất vững ngữ liệu 👏' : pct >= 50 ? 'Khá tốt! Cùng bứt phá ở vòng tiếp theo nhé 💪' : 'Hãy đối chiếu kĩ hơn với văn bản gốc nhé 📖';
     Sound.play('round');
     this.stage(`<div class="round-summary">
       <div style="font-size:60px">${pct >= 80 ? '🏆' : pct >= 50 ? '⭐' : '📖'}</div>
       <h2>Hoàn thành vòng ${this.rIdx + 1}: ${ROUNDS[this.round.type].title}</h2>
       <div class="big-num">${pct}%</div>
       <p style="font-size:20px;color:#cbd5e1;margin-bottom:26px">${msg}</p>
-      <button class="btn primary big" id="btnGo">${last ? '📊 Xem Infographic chốt kiến thức' : `Sang vòng ${this.rIdx + 2} ➜`}</button>
+      <button class="btn primary big" id="btnGo">${last ? '📊 Xem Infographic & Thống kê kết quả' : `Sang vòng ${this.rIdx + 2} ➜`}</button>
     </div>`);
     const go = () => {
       if (last) return this.finish();
@@ -815,7 +1120,7 @@ const Game = {
     $('btnGo').focus();
   },
 
-  /* ── Vòng trắc nghiệm & điền từ (chọn 1, rồi chốt) ── */
+  /* ── Vòng trắc nghiệm & điền từ ── */
   renderChoice(type) {
     const it = this.item;
     const isFill = type === 'fillBlank';
@@ -826,8 +1131,8 @@ const Game = {
       ? `<div class="chips">${it.options.map((o, i) => `<button class="chip" data-i="${i}">${esc(o)}</button>`).join('')}</div>`
       : `<div class="options">${it.options.map((o, i) => `<button class="opt c${i}" data-i="${i}"><span class="opt-key">${'ABCD'[i]}</span><span>${esc(o)}</span></button>`).join('')}</div>`;
 
-    this.stage(`<div class="q-card">${this.qMeta(lvlBadge(it.level))}<div class="q-text">${qHtml}</div>
-      ${isFill ? '<div class="q-hint">Chọn từ ngữ phù hợp điền vào chỗ trống:</div>' : ''}</div>
+    this.stage(`<div class="q-card">${this.qMeta(lvlBadge(it.level))}<div class="q-text selectable-text">${qHtml}</div>
+      ${isFill ? '<div class="q-hint">Chọn từ ngữ / khái niệm phù hợp điền vào chỗ trống:</div>' : ''}</div>
       ${optsHtml}
       <div class="action-row"><button class="btn primary big" id="btnConfirm" disabled>🔒 Chốt đáp án</button></div>
       <div id="fbArea"></div>`);
@@ -873,7 +1178,7 @@ const Game = {
   /* ── Vòng Đúng / Sai ── */
   renderTrueFalse() {
     const it = this.item;
-    this.stage(`<div class="q-card">${this.qMeta(lvlBadge(it.level))}<div class="q-text">“${esc(it.statement)}”</div></div>
+    this.stage(`<div class="q-card">${this.qMeta(lvlBadge(it.level))}<div class="q-text selectable-text">“${esc(it.statement)}”</div></div>
       <div class="tf-options">
         <button class="opt tf-true" data-i="0"><span class="opt-key">1</span>✔ ĐÚNG</button>
         <button class="opt tf-false" data-i="1"><span class="opt-key">2</span>✘ SAI</button>
@@ -916,7 +1221,7 @@ const Game = {
     const n = m.pairs.length;
     const rightOrder = shuffle([...Array(n).keys()]);
     const colors = ['#e11d48', '#2563eb', '#d97706', '#16a34a', '#7c3aed', '#0891b2'];
-    const links = {}; // leftIdx -> rightIdx
+    const links = {};
     let activeL = null, activeR = null;
 
     this.stage(`<div class="q-card"><div class="q-meta">${n} cặp · Bấm 1 ý bên trái rồi bấm ý tương ứng bên phải (bấm lại để gỡ)</div>
@@ -1053,7 +1358,7 @@ const Game = {
       Sound.play(correct >= n / 2 ? 'correct' : 'wrong');
       this.record(correct * 4, n * 4, correct, n, 'Thông hiểu', all ? null : `Trình tự đúng: ${o.items.map((s, i) => `(${i + 1}) ${s}`).join(' → ')}`,
         order.map((v, p) => ({ q: `Sắp xếp: ${o.items[v]}`, chosen: `Vị trí ${p + 1}`, correct: `Vị trí ${v + 1}`, ok: v === p })));
-      this.showNext(this.feedback(all ? 'ok' : 'bad', `Đúng vị trí ${correct}/${n} mục · +${correct * 4} điểm`, all ? 'Hoàn hảo! Nắm rất chắc diễn biến văn bản.' : 'Các mục màu đỏ có ghi vị trí đúng bên dưới.'));
+      this.showNext(this.feedback(all ? 'ok' : 'bad', `Đúng vị trí ${correct}/${n} mục · +${correct * 4} điểm`, all ? 'Hoàn hảo! Nắm rất chắc bố cục và mạch văn bản.' : 'Các mục màu đỏ có ghi vị trí đúng bên dưới.'));
     };
     $('btnConfirm').onclick = confirm;
     this.keys = { confirm };
@@ -1063,12 +1368,12 @@ const Game = {
   renderOpen() {
     const it = this.item;
     const hasKey = !!App.apiKey();
-    this.stage(`<div class="q-card">${this.qMeta(lvlBadge('Vận dụng'))}<div class="q-text">${esc(it.q)}</div></div>
+    this.stage(`<div class="q-card">${this.qMeta(lvlBadge('Vận dụng'))}<div class="q-text selectable-text">${esc(it.q)}</div></div>
       <div class="card">
         <label class="field-label" for="openAns">✍️ Câu trả lời của học sinh / của lớp:</label>
-        <textarea id="openAns" class="open-answer" placeholder="Giáo viên nhập câu trả lời của học sinh vào đây…"></textarea>
+        <textarea id="openAns" class="open-answer" placeholder="Giáo viên nhập hoặc dán câu trả lời của học sinh vào đây…"></textarea>
         <div class="action-row">
-          ${hasKey ? '<button class="btn primary big" id="btnAIGrade">🤖 AI chấm điểm</button>' : ''}
+          ${hasKey ? '<button class="btn primary big" id="btnAIGrade">🤖 AI chấm điểm theo Rubric THPT</button>' : ''}
           <button class="btn ${hasKey ? 'ghost' : 'primary big'}" id="btnSelfGrade">👁 Xem gợi ý &amp; giáo viên tự chấm</button>
         </div>
         <div id="gradeArea"></div>
@@ -1087,7 +1392,7 @@ const Game = {
       this.showNext(this.feedback(score >= 5 ? 'ok' : 'info', title, body));
     };
 
-    const sampleHtml = () => `<div class="sample-box"><strong>📌 Gợi ý đáp án:</strong> ${esc(it.sampleAnswer || '—')}<br><strong>🎯 Tiêu chí:</strong> ${esc(it.rubric || '—')}</div>`;
+    const sampleHtml = () => `<div class="sample-box selectable-text"><strong>📌 Gợi ý đáp án:</strong> ${esc(it.sampleAnswer || '—')}<br><strong>🎯 Tiêu chí chấm:</strong> ${esc(it.rubric || '—')}</div>`;
 
     $('btnSelfGrade').onclick = () => {
       $('gradeArea').innerHTML = `${sampleHtml()}
@@ -1116,7 +1421,7 @@ const Game = {
             `${esc(g.verdict)}${g.strengths ? `<br>👍 <strong>Điểm tốt:</strong> ${esc(g.strengths)}` : ''}${g.improve ? `<br>🔧 <strong>Cần bổ sung:</strong> ${esc(g.improve)}` : ''}<br><span class="small">Giáo viên có thể điều chỉnh nhận xét nếu cần.</span>`, 'AI');
         } catch (e) {
           toast(`${e.message} – Chuyển sang giáo viên tự chấm.`, true);
-          b.disabled = false; b.textContent = '🤖 AI chấm điểm';
+          b.disabled = false; b.textContent = '🤖 AI chấm điểm theo Rubric THPT';
           $('btnSelfGrade').click();
         }
       };
@@ -1131,7 +1436,7 @@ const Game = {
   },
 };
 
-/* ───────── INFOGRAPHIC CHỐT KIẾN THỨC ───────── */
+/* ───────── INFOGRAPHIC CHỐT KIẾN THỨC & THỐNG KÊ ───────── */
 const Result = {
   render() {
     const a = App.analysis;
@@ -1161,10 +1466,10 @@ const Result = {
       ? `<ul class="ig-review">${G.review.slice(0, 8).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`
       : '<p>🎉 Lớp đã trả lời đúng tất cả các câu hỏi. Tuyệt vời!</p>';
 
-    $('infographic').innerHTML = `<div class="ig">
+    $('infographic').innerHTML = `<div class="ig selectable-text">
       <div class="ig-head">
         <div>
-          <div class="ig-kicker">Infographic chốt kiến thức · Đọc hiểu văn bản</div>
+          <div class="ig-kicker">Infographic chốt kiến thức · Đọc hiểu Ngữ văn THPT</div>
           <div class="ig-title">${esc(a.title)}</div>
           <div class="ig-tags">${tags}</div>
         </div>
@@ -1173,18 +1478,18 @@ const Result = {
         </div>
       </div>
       <div class="ig-grid">
-        ${box('teal', a.theme ? 8 : 12, '📌 Tóm tắt văn bản', a.summary ? `<p>${esc(a.summary)}</p>` : '')}
-        ${box('dark', 4, '🎯 Chủ đề', a.theme ? `<p class="ig-message">${esc(a.theme)}</p>` : '')}
-        ${box('', 12, '🧭 Trình tự sự việc / mạch ý', timeline)}
-        ${box('pink', techs ? 6 : 12, '👥 Nhân vật', chars)}
-        ${box('violet', chars ? 6 : 12, '🎨 Đặc sắc nghệ thuật', techs)}
-        ${box('blue', a.message ? 7 : 12, '🗂 Ý chính / Bố cục', ideas)}
-        ${box('amber', ideas ? 5 : 12, '💡 Thông điệp – Bài học', a.message ? `<p class="ig-message">${esc(a.message)}</p>` : '')}
-        ${box('blue', 5, '📚 Từ ngữ cần nhớ', vocab)}
+        ${box('teal', a.theme ? 8 : 12, '📌 Tổng quan văn bản', a.summary ? `<p>${esc(a.summary)}</p>` : '')}
+        ${box('dark', 4, '🎯 Chủ đề & Cảm hứng', a.theme ? `<p class="ig-message">${esc(a.theme)}</p>` : '')}
+        ${box('', 12, '🧭 Mạch cảm xúc / Trình tự sự việc / Luận điểm', timeline)}
+        ${box('pink', techs ? 6 : 12, '👥 Hình tượng / Chủ thể trữ tình', chars)}
+        ${box('violet', chars ? 6 : 12, '🎨 Đặc sắc nghệ thuật & Thi pháp', techs)}
+        ${box('blue', a.message ? 7 : 12, '🗂 Bố cục / Hệ thống ý chính', ideas)}
+        ${box('amber', ideas ? 5 : 12, '💡 Thông điệp – Giá trị tư tưởng', a.message ? `<p class="ig-message">${esc(a.message)}</p>` : '')}
+        ${box('blue', 5, '📚 Từ ngữ & Khái niệm cần nhớ', vocab)}
         ${box('', vocab ? 7 : 12, '📊 Kết quả đọc hiểu của lớp', `${this.tallyLine()}${roundBars}${levelBars ? `<div style="margin-top:10px;font-weight:800;font-size:13px;color:#64748b">THEO MỨC ĐỘ NHẬN THỨC</div>${levelBars}` : ''}`)}
         ${box('pink', 12, '🔁 Nội dung cần ôn lại', review)}
       </div>
-      <div class="ig-foot">Tạo bởi “Đọc Hiểu Cùng AI” · Gemini + Antigravity · ${new Date().toLocaleDateString('vi-VN')}${App.isDemo ? ' · Bài mẫu' : ''}</div>
+      <div class="ig-foot">Hệ thống Đọc Hiểu Cùng AI (Chương trình THPT) · ${new Date().toLocaleDateString('vi-VN')}${App.isDemo ? ' · Ngữ liệu mẫu' : ''}</div>
     </div>`;
     this.renderStats();
     showScreen('screenResult');
@@ -1200,7 +1505,6 @@ const Result = {
     return `<div class="tally-line"><span class="t-ok">✓ Đúng ${c.ok}</span><span class="t-bad">✗ Sai ${c.bad}</span><span>/ ${c.total} câu</span></div>`;
   },
 
-  /* ── BẢNG THỐNG KÊ CÂU ĐÚNG / SAI ── */
   renderStats(filter = 'all') {
     const log = Game.log;
     const c = this.counts(log);
@@ -1208,7 +1512,7 @@ const Result = {
     const byLevel = ['Nhận biết', 'Thông hiểu', 'Vận dụng'].map((lv) => ({ lv, ...this.counts(log.filter((x) => x.level === lv)) })).filter((x) => x.total);
     const rows = log.map((x, i) => ({ ...x, n: i + 1 })).filter((x) => filter === 'all' || (filter === 'bad' ? !x.ok : x.ok));
 
-    $('statsPanel').innerHTML = `<div class="stats" id="statsSection">
+    $('statsPanel').innerHTML = `<div class="stats selectable-text" id="statsSection">
       <h2 class="stats-title">📋 Thống kê câu đúng / sai</h2>
       <div class="stat-cards">
         <div class="stat-card"><div class="sc-num">${c.total}</div><div class="sc-lbl">Tổng số câu</div></div>
@@ -1248,14 +1552,13 @@ const Result = {
     $('statsPanel').querySelectorAll('[data-f]').forEach((b) => (b.onclick = () => this.renderStats(b.dataset.f)));
   },
 
-  /* Xuất thống kê ra file CSV (mở được bằng Excel, giữ dấu tiếng Việt) */
   exportCsv() {
     const log = Game.log;
     if (!log.length) return toast('Chưa có dữ liệu thống kê.', true);
     const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const c = this.counts(log);
     const lines = [
-      ['Văn bản', App.analysis.title], ['Ngày', new Date().toLocaleString('vi-VN')],
+      ['Văn bản', App.analysis.title], ['Khối lớp', App.analysis.gradeLevel || App.settings.grade], ['Ngày', new Date().toLocaleString('vi-VN')],
       ['Tổng số câu', c.total], ['Câu đúng', c.ok], ['Câu sai', c.bad], ['Tỉ lệ đúng (%)', c.pct], [],
       ['STT', 'Vòng', 'Mức độ', 'Câu hỏi', 'Lớp trả lời', 'Đáp án đúng', 'Kết quả'],
       ...log.map((x, i) => [i + 1, ROUNDS[x.type].title, x.level, x.q, x.chosen, x.correct, x.ok ? 'Đúng' : 'Sai']),
@@ -1273,8 +1576,22 @@ const Result = {
   },
 };
 
-/* ───────── ĐIỀU KHIỂN CHUNG ───────── */
+/* ───────── ĐIỀU KHIỂN NGĂN VĂN BẢN & SỰ KIỆN CHUNG ───────── */
 const Drawer = {
+  syncContent() {
+    $('drawerText').textContent = App.sourceText || '';
+    const imgBox = $('drawerImages');
+    if (App.media && App.media.length && !App.isDemo) {
+      imgBox.hidden = false;
+      imgBox.innerHTML = App.media.map((m, i) => `<img src="${m.dataUrl}" alt="${esc(m.name)}" data-idx="${i}" title="Bấm để phóng to: ${esc(m.name)}">`).join('');
+      imgBox.querySelectorAll('img').forEach((img) => {
+        img.onclick = () => Lightbox.open(App.media[+img.dataset.idx]?.dataUrl);
+      });
+    } else {
+      imgBox.hidden = true;
+      imgBox.innerHTML = '';
+    }
+  },
   open() { $('textDrawer').classList.add('open'); $('drawerBackdrop').classList.add('open'); },
   close() { $('textDrawer').classList.remove('open'); $('drawerBackdrop').classList.remove('open'); },
   toggle() { $('textDrawer').classList.contains('open') ? this.close() : this.open(); },
@@ -1284,6 +1601,11 @@ function bindGlobal() {
   $('btnShowText').onclick = () => Drawer.toggle();
   $('btnCloseDrawer').onclick = () => Drawer.close();
   $('drawerBackdrop').onclick = () => Drawer.close();
+  $('btnCopyDrawer').onclick = () => copyToClipboard(App.sourceText, 'ngữ liệu đọc hiểu');
+  $('btnCopySummary').onclick = () => copyToClipboard(`${App.analysis?.title || ''}\n\nTóm tắt: ${App.analysis?.summary || ''}\nChủ đề: ${App.analysis?.theme || ''}`, 'tóm tắt ngữ liệu');
+  $('btnCloseModal').onclick = () => Lightbox.close();
+  $('imgModal').onclick = (e) => { if (e.target === $('imgModal')) Lightbox.close(); };
+
   $('btnSound').onclick = () => Sound.toggle();
   $('btnFullscreen').onclick = () => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}));
   $('btnHome').onclick = () => {
@@ -1301,7 +1623,10 @@ function bindGlobal() {
   $('btnNewText').onclick = () => { Sound.stopAll(); showScreen('screenSetup'); };
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') return Drawer.close();
+    if (e.key === 'Escape') {
+      if (!$('imgModal').hidden) return Lightbox.close();
+      return Drawer.close();
+    }
     const typing = ['TEXTAREA', 'INPUT', 'SELECT'].includes(document.activeElement?.tagName);
     if (typing || !$('screenGame').classList.contains('active')) return;
     const k = Game.keys || {};
@@ -1322,4 +1647,3 @@ document.addEventListener('DOMContentLoaded', () => {
   Setup.init();
   bindGlobal();
 });
-

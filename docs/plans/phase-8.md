@@ -2,23 +2,26 @@
 
 Phase này xây dựng một trò chơi **riêng biệt** (thư mục `game-doc-hieu-van-ban/`, chạy offline bằng `.bat`): giáo viên đưa vào một bài văn → Gemini AI phân tích → sinh nhiều vòng chơi đánh giá năng lực đọc hiểu → kết thúc bằng **Infographic chốt kiến thức**.
 
-- **Đối tượng:** Học sinh THCS lớp 6–9 (Ngữ văn – CT GDPT 2018).
+- **Đối tượng:** Học sinh THPT lớp 10–12 & Ôn thi Tốt nghiệp THPT (Ngữ văn – CT GDPT 2018).
 - **Cách chơi:** Giáo viên chiếu màn hình, cả lớp cùng chơi.
-- **Công cụ AI:** Google Gemini (mặc định `gemini-3.8-flash`), API Key lưu cục bộ trên máy giáo viên.
+- **Công cụ AI:** Google Gemini Multimodal (mặc định `gemini-3.8-flash`), API Key lưu cục bộ trên máy giáo viên.
 
 ---
 
 ## 1. Danh Sách Công Việc (Task Checklist)
 
-- [x] **Task 1: Màn hình Nạp văn bản (giáo viên)**
-  - Dán văn bản trực tiếp hoặc tải file `.pdf` (PDF.js offline), `.docx` (Mammoth – CDN), `.txt`.
-  - Chọn khối lớp, số câu mỗi vòng, bật/tắt từng vòng chơi.
+- [x] **Task 1: Màn hình Nạp ngữ liệu đa phương thức (giáo viên THPT)**
+  - **Copy / Dán kí tự:** Ô nhập văn bản hỗ trợ dán trực tiếp, nút "📋 Dán nhanh" từ Clipboard, nút "📑 Copy kí tự" để sao chép văn bản chuẩn hóa (kể cả văn bản trích xuất từ PDF/ảnh).
+  - **Đẩy file PDF / DOCX / TXT:** Đọc `.pdf` có lớp chữ bằng PDF.js offline; nếu là **PDF scan (ảnh)** thì tự động kết xuất các trang PDF thành ảnh để AI đọc OCR hoặc phân tích trực tiếp.
+  - **Gửi ảnh vào:** Hỗ trợ chọn nhiều ảnh (`.png`, `.jpg`, `.jpeg`, `.webp`), kéo & thả ảnh, hoặc **dán ảnh trực tiếp bằng `Ctrl+V`** (ảnh chụp màn hình/điện thoại). Có nút **"🔍 Trích xuất chữ từ ảnh (AI)"** và hỗ trợ gửi thẳng ảnh vào Gemini Vision khi bấm phân tích.
+  - Chọn khối lớp THPT (`Lớp 10`, `Lớp 11`, `Lớp 12`, `Ôn thi Tốt nghiệp THPT`), số câu mỗi vòng, bật/tắt từng vòng chơi.
   - Cấu hình Gemini API Key + model, nút kiểm tra kết nối.
-  - Nút "Dùng bài mẫu" chạy được ngay không cần API Key (chế độ demo offline).
-- [x] **Task 2: Dịch vụ phân tích AI (`AIService`)**
-  - Prompt sư phạm Ngữ văn trả về JSON: thông tin tác phẩm, tóm tắt, chủ đề, nhân vật, trình tự sự việc, biện pháp nghệ thuật, thông điệp, từ ngữ khó + câu hỏi 6 dạng, gắn mức độ Nhận biết / Thông hiểu / Vận dụng.
+  - Nút "Dùng bài mẫu THPT" chạy được ngay không cần API Key (chế độ demo offline).
+- [x] **Task 2: Dịch vụ phân tích AI cấp THPT (`AIService`)**
+  - Prompt sư phạm Ngữ văn THPT (CT GDPT 2018 & cấu trúc Đề thi TN THPT mới): trả về JSON gồm thông tin tác phẩm, tóm tắt, chủ đề/cảm hứng chủ đạo, hình tượng/nhân vật/chủ thể trữ tình, mạch kết cấu/luận điểm, đặc sắc nghệ thuật (thi pháp, điểm nhìn, giọng điệu, biện pháp tu từ), thông điệp triết lí, từ ngữ/khái niệm + câu hỏi 6 dạng theo 3 mức độ (Nhận biết / Thông hiểu / Vận dụng).
+  - Hỗ trợ đầu vào đa phương thức (văn bản + nhiều ảnh / trang PDF scan qua `inlineData`), trả kèm `extractedText` nếu ngữ liệu đầu vào là ảnh/PDF scan.
   - Chuẩn hóa & kiểm tra dữ liệu AI trả về, trộn vị trí đáp án đúng.
-  - Chấm câu tự luận ngắn bằng AI theo rubric.
+  - Chấm câu tự luận ngắn theo chuẩn đọc hiểu THPT bằng AI theo rubric.
 - [x] **Task 3: Màn hình Xem trước & duyệt (Human-in-the-loop)**
   - Hiển thị kết quả phân tích, danh sách câu hỏi từng vòng; giáo viên xóa câu chưa phù hợp trước khi chơi.
 - [x] **Task 4: Engine game nhiều vòng**

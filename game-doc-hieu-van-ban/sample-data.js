@@ -1,105 +1,221 @@
-/* Bài mẫu dùng cho chế độ DEMO (không cần API Key).
-   Văn bản: kể lại truyền thuyết dân gian "Thánh Gióng" (lời kể biên soạn riêng cho ứng dụng). */
-window.SAMPLE_TEXT = `THÁNH GIÓNG
-(Truyền thuyết dân gian – kể lại)
+/* Ngữ liệu mẫu dùng cho chế độ DEMO Chương trình Ngữ văn THPT (không cần API Key).
+   Văn bản: Bài thơ "Đây thôn Vĩ Dạ" – Hàn Mặc Tử (Ngữ văn 11, CT GDPT 2018). */
+window.SAMPLE_TEXT = `ĐÂY THÔN VĨ DẠ
+(Hàn Mặc Tử)
 
-Vào đời Hùng Vương thứ sáu, ở làng Gióng có hai vợ chồng ông lão chăm chỉ làm ăn, nổi tiếng phúc đức nhưng mãi chưa có con. Một hôm, bà ra đồng thấy một vết chân rất to, liền đặt bàn chân mình lên ướm thử. Về nhà, bà thụ thai và mười hai tháng sau sinh một cậu bé mặt mũi khôi ngô. Lạ thay, đứa bé lên ba tuổi vẫn không biết nói, không biết cười, đặt đâu nằm đấy.
+Sao anh không về chơi thôn Vĩ?
+Nhìn nắng hàng cau nắng mới lên.
+Vườn ai mướt quá xanh như ngọc
+Lá trúc che ngang mặt chữ điền.
 
-Bấy giờ giặc Ân kéo đến xâm phạm bờ cõi, thế giặc rất mạnh. Nhà vua sai sứ giả đi khắp nơi tìm người tài giỏi cứu nước. Nghe tiếng sứ giả rao, đứa bé bỗng cất tiếng nói đầu tiên: "Mẹ ra mời sứ giả vào đây". Cậu bảo sứ giả về tâu vua rèn cho một con ngựa sắt, một chiếc roi sắt và một tấm áo giáp sắt để đi đánh giặc.
+Gió theo lối gió, mây đường mây,
+Dòng nước buồn thiu, hoa bắp lay...
+Thuyền ai đậu bến sông trăng đó,
+Có chở trăng về kịp tối nay?
 
-Từ hôm đó, Gióng lớn nhanh như thổi, cơm ăn mấy cũng không no, áo vừa mặc xong đã chật. Hai vợ chồng làm lụng không đủ nuôi con, bà con làng xóm vui lòng góp gạo nuôi cậu bé, ai cũng mong Gióng giết giặc cứu nước.
+Mơ khách đường xa, khách đường xa,
+Áo em trắng quá nhìn không ra...
+Ở đây sương khói mờ nhân ảnh,
+Ai biết tình ai có đậm đà?
 
-Khi sứ giả đem ngựa sắt, roi sắt, áo giáp sắt đến, Gióng vươn vai một cái bỗng biến thành tráng sĩ mình cao hơn trượng, oai phong lẫm liệt. Tráng sĩ mặc áo giáp, cầm roi, nhảy lên mình ngựa. Ngựa hí dài mấy tiếng vang dội, phun lửa, phi thẳng đến nơi có giặc. Gióng đón đầu đánh giặc, giặc chết như rạ. Bỗng roi sắt gãy, Gióng nhổ những cụm tre bên đường quật vào giặc. Giặc tan vỡ, đám tàn quân giẫm đạp lên nhau chạy trốn.
-
-Đánh tan giặc, Gióng một mình một ngựa lên đỉnh núi Sóc, cởi áo giáp sắt bỏ lại rồi cả người lẫn ngựa từ từ bay lên trời. Vua nhớ công ơn, phong là Phù Đổng Thiên Vương và lập đền thờ ngay ở quê nhà. Ngày nay, ở làng Gióng vẫn còn những ao hồ liên tiếp do vết chân ngựa để lại, và tre đằng ngà có màu vàng óng vì bị lửa ngựa phun cháy.`;
+(Trích tập "Thơ Điên" – "Đau thương", sáng tác năm 1938.
+Hoàn cảnh sáng tác: Bài thơ được gợi cảm hứng từ tấm bưu thiếp phong cảnh Huế kèm lời thăm hỏi của Hoàng Thị Kim Cúc gửi cho Hàn Mặc Tử khi thi sĩ đang lâm trọng bệnh tại Quy Nhơn.)`;
 
 window.SAMPLE_ANALYSIS = {
-  title: "Thánh Gióng",
-  author: "Truyện dân gian (kể lại)",
-  genre: "Truyền thuyết",
-  gradeLevel: "Lớp 6",
-  summary: "Cậu bé làng Gióng ra đời kì lạ, lên ba tuổi chưa biết nói. Khi giặc Ân xâm lược, nghe sứ giả rao tìm người tài, Gióng cất tiếng xin đi đánh giặc, được dân làng góp gạo nuôi và lớn nhanh như thổi. Gióng vươn vai thành tráng sĩ, cưỡi ngựa sắt đánh tan giặc, rồi bay về trời và được vua phong Phù Đổng Thiên Vương.",
-  theme: "Ca ngợi người anh hùng đánh giặc giữ nước và sức mạnh đoàn kết của toàn dân.",
+  title: "Đây thôn Vĩ Dạ",
+  author: "Hàn Mặc Tử",
+  genre: "Thơ trữ tình hiện đại (Phong trào Thơ mới)",
+  gradeLevel: "Lớp 11",
+  summary: "Từ lời hỏi thăm nhẹ nhàng như một lời trách yêu mở đầu, bài thơ khắc họa bức tranh thiên nhiên và con người thôn Vĩ trong trẻo, tinh khôi buổi bình minh, rồi chuyển sang cảnh sông Hương đêm trăng huyền ảo nhuốm nỗi buồn chia lìa và niềm khắc khoải 'kịp tối nay'. Khổ cuối khép lại trong cõi mộng sương khói mờ ảo cùng câu hỏi tu từ da diết, bộc lộ khát vọng sống, khát vọng giao cảm mãnh liệt của một hồn thơ đang đối diện với nghịch cảnh.",
+  theme: "Tình yêu thiên nhiên, con người xứ Huế tha thiết hòa quyện với nỗi niềm cô đơn và khát vọng sống, khát vọng yêu thương khắc khoải của cái tôi trữ tình Hàn Mặc Tử.",
   mainIdeas: [
-    "Sự ra đời và tuổi thơ kì lạ của Gióng",
-    "Gióng nhận nhiệm vụ đánh giặc, được nhân dân cùng nuôi lớn",
-    "Gióng đánh tan giặc Ân bằng vũ khí sắt và cả tre quê hương",
-    "Gióng bay về trời, để lại dấu tích và lòng biết ơn của nhân dân"
+    "Khổ 1: Bức tranh thôn Vĩ buổi ban mai tươi sáng, trong trẻo và vẻ đẹp phúc hậu, kín đáo của con người xứ Huế",
+    "Khổ 2: Cảnh sông nước đêm trăng huyền ảo nhuốm màu chia lìa và niềm mong mỏi khắc khoải chạy đua với thời gian",
+    "Khổ 3: Cõi mộng đắm chìm trong sương khói hư ảo và nỗi hoài nghi, khát khao tình đời, tình người đậm đà"
   ],
   characters: [
-    { name: "Thánh Gióng", traits: "Người anh hùng có sức mạnh phi thường, yêu nước, không màng danh lợi." },
-    { name: "Bà mẹ Gióng", traits: "Người mẹ hiền hậu, sinh ra người anh hùng một cách kì lạ." },
-    { name: "Bà con làng xóm", traits: "Đoàn kết, góp gạo nuôi Gióng – tượng trưng cho sức mạnh nhân dân." },
-    { name: "Sứ giả", traits: "Người truyền lệnh vua đi tìm người tài cứu nước." }
+    { name: "Chủ thể trữ tình (cái tôi thi sĩ)", traits: "Tâm hồn nhạy cảm, tha thiết yêu đời, yêu người nhưng mặc cảm chia lìa, khắc khoải khát khao giao cảm." },
+    { name: "Hình tượng người con gái thôn Vĩ ('em')", traits: "Vẻ đẹp phúc hậu, kín đáo ('lá trúc che ngang mặt chữ điền'), vừa gần gũi vừa xa xôi trong cõi mộng ('áo em trắng quá nhìn không ra')." }
   ],
   timeline: [
-    "Bà mẹ ướm chân vào vết chân lạ rồi sinh ra Gióng",
-    "Nghe sứ giả rao, Gióng cất tiếng nói đầu tiên xin đi đánh giặc",
-    "Gióng lớn nhanh như thổi, bà con làng xóm góp gạo nuôi",
-    "Gióng vươn vai thành tráng sĩ, cưỡi ngựa sắt ra trận",
-    "Roi sắt gãy, Gióng nhổ tre quật giặc, giặc tan vỡ",
-    "Gióng lên núi Sóc, cả người lẫn ngựa bay về trời"
+    "Lời hỏi han, mời gọi vừa trách nhẹ vừa tha thiết: 'Sao anh không về chơi thôn Vĩ?'",
+    "Cảnh ban mai thôn Vĩ tinh khôi với nắng hàng cau mới lên và khu vườn 'mướt quá xanh như ngọc'",
+    "Hình ảnh con người thôn Vĩ dịu dàng, kín đáo: 'Lá trúc che ngang mặt chữ điền'",
+    "Không gian sông nước chia lìa ('Gió theo lối gió, mây đường mây') và nỗi buồn thấm đẫm cảnh vật",
+    "Bến sông trăng huyền ảo cùng câu hỏi khắc khoải: 'Có chở trăng về kịp tối nay?'",
+    "Cõi mộng sương khói mờ nhân ảnh và câu hỏi hoài nghi đầy khao khát: 'Ai biết tình ai có đậm đà?'"
   ],
   artTechniques: [
-    { name: "Chi tiết kì ảo", example: "Gióng vươn vai thành tráng sĩ; ngựa sắt phun lửa", effect: "Tôn vinh sức mạnh phi thường của người anh hùng." },
-    { name: "Cường điệu (phóng đại)", example: "Cơm ăn mấy cũng không no, áo vừa mặc xong đã chật", effect: "Nhấn mạnh sự lớn lên thần kì gắn với nhiệm vụ cứu nước." },
-    { name: "So sánh", example: "Giặc chết như rạ", effect: "Diễn tả sức mạnh áp đảo của Gióng trước kẻ thù." },
-    { name: "Gắn với dấu tích lịch sử", example: "Ao hồ liên tiếp, tre đằng ngà vàng óng", effect: "Làm câu chuyện thêm đáng tin, gắn với quê hương thực." }
+    { name: "Câu hỏi tu từ & Đại từ phiếm chỉ ('ai')", example: "Sao anh không về chơi thôn Vĩ? / Có chở trăng về kịp tối nay? / Ai biết tình ai có đậm đà?", effect: "Tạo giọng điệu đa thanh: vừa mời gọi, tự vấn, vừa bộc lộ nỗi khắc khoải, hoài nghi và khát vọng đồng cảm sâu sắc." },
+    { name: "So sánh, nhân hóa & Tả cảnh ngụ tình", example: "Vườn ai mướt quá xanh như ngọc / Dòng nước buồn thiu, hoa bắp lay", effect: "Khắc họa sự chuyển biến tâm trạng từ say đắm trước vẻ đẹp tinh khôi sang nỗi buồn chia phôi, cô lẻ." },
+    { name: "Bút pháp tượng trưng – siêu thực", example: "Thuyền ai đậu bến sông trăng đó / Ở đây sương khói mờ nhân ảnh", effect: "Xóa nhòa ranh giới thực – mộng, mở ra không gian nghệ thuật lung linh, huyền ảo mang đậm dấu ấn Hàn Mặc Tử." },
+    { name: "Điệp ngữ & Cực tả sắc trắng", example: "Mơ khách đường xa, khách đường xa / Áo em trắng quá nhìn không ra", effect: "Nhấn mạnh khoảng cách vời vợi và sự bất lực của thị giác khi hình bóng người thương dần tan vào hư vô." }
   ],
-  message: "Lòng yêu nước và tinh thần đoàn kết của toàn dân là sức mạnh để bảo vệ Tổ quốc; người anh hùng sống mãi trong lòng nhân dân.",
+  message: "Dù ở trong nghịch cảnh đau thương nhất, vẻ đẹp của cuộc đời và khát vọng yêu thương, giao cảm chân thành vẫn là nguồn ánh sáng nâng đỡ tâm hồn con người.",
   vocabulary: [
-    { word: "Sứ giả", meaning: "Người được vua phái đi làm một nhiệm vụ." },
-    { word: "Tráng sĩ", meaning: "Người đàn ông khỏe mạnh, có chí khí, làm việc lớn." },
-    { word: "Trượng", meaning: "Đơn vị đo chiều dài cổ, khoảng 3–4 mét." },
-    { word: "Bờ cõi", meaning: "Lãnh thổ, biên giới của một đất nước." },
-    { word: "Tàn quân", meaning: "Số quân lính còn sót lại sau khi thua trận." }
+    { word: "Chủ thể trữ tình", meaning: "Hình tượng người bộc lộ cảm xúc, suy tư trong bài thơ (hiện diện qua từ 'anh' và cái tôi ẩn sau toàn bộ mạch cảm xúc)." },
+    { word: "Mặt chữ điền", meaning: "Khuôn mặt vuông vức, đầy đặn, biểu trưng cho vẻ đẹp phúc hậu, hiền hòa theo quan niệm truyền thống." },
+    { word: "Bến sông trăng", meaning: "Hình ảnh tượng trưng độc đáo: dòng sông ngập tràn ánh trăng vàng như một dòng sông trăng, nơi con thuyền chở ánh sáng và niềm hi vọng." },
+    { word: "Nhân ảnh", meaning: "Hình bóng con người; trong sương khói, bóng người trở nên nhạt nhòa, hư ảo giữa thực và mộng." },
+    { word: "Đại từ phiếm chỉ", meaning: "Từ dùng để chỉ chung, không xác định cụ thể một đối tượng duy nhất (như 'ai' trong 'vườn ai', 'thuyền ai', 'tình ai')." }
   ],
   questions: {
     mcq: [
-      { q: "Gióng cất tiếng nói đầu tiên vào lúc nào?", options: ["Khi nghe sứ giả rao tìm người tài cứu nước", "Khi lên ba tuổi được mẹ dỗ dành", "Khi giặc Ân kéo đến làng Gióng", "Khi nhà vua về thăm làng"], ans: 0, level: "Nhận biết", explain: "Văn bản kể: \"Nghe tiếng sứ giả rao, đứa bé bỗng cất tiếng nói đầu tiên\"." },
-      { q: "Gióng nhờ sứ giả tâu vua chuẩn bị những gì?", options: ["Ngựa sắt, roi sắt, áo giáp sắt", "Ngựa sắt, gươm thần, nón sắt", "Voi chiến, cung tên, áo giáp", "Thuyền rồng, giáo sắt, khiên đồng"], ans: 0, level: "Nhận biết", explain: "Gióng yêu cầu \"một con ngựa sắt, một chiếc roi sắt và một tấm áo giáp sắt\"." },
-      { q: "Chi tiết \"bà con làng xóm vui lòng góp gạo nuôi cậu bé\" thể hiện điều gì?", options: ["Gióng là con của cả cộng đồng, sức mạnh của Gióng là sức mạnh nhân dân", "Gia đình Gióng là nhà giàu có nhất làng", "Dân làng muốn Gióng làm vua", "Dân làng sợ Gióng nên phải nuôi"], ans: 0, level: "Thông hiểu", explain: "Cả làng cùng nuôi Gióng cho thấy người anh hùng được hun đúc từ sức mạnh và tình yêu nước của toàn dân." },
-      { q: "Vì sao khi roi sắt gãy, chi tiết Gióng nhổ tre quật giặc lại có ý nghĩa đặc biệt?", options: ["Cho thấy cây cỏ quê hương cũng cùng nhân dân đánh giặc", "Cho thấy roi sắt được rèn không tốt", "Cho thấy Gióng muốn nghỉ ngơi", "Cho thấy giặc Ân rất yếu"], ans: 0, level: "Thông hiểu", explain: "Tre là hình ảnh của làng quê Việt; dùng tre đánh giặc thể hiện cả quê hương cùng chung tay giữ nước." },
-      { q: "Chi tiết Gióng bay về trời sau khi đánh tan giặc có ý nghĩa gì?", options: ["Người anh hùng bất tử, làm việc nghĩa không màng danh lợi", "Gióng sợ bị vua trách phạt", "Gióng chán cuộc sống ở làng", "Giặc Ân đuổi theo Gióng"], ans: 0, level: "Vận dụng", explain: "Gióng không về nhận thưởng mà bay về trời – nhân dân muốn bất tử hóa người anh hùng vô tư, cao đẹp." }
+      {
+        q: "Câu thơ mở đầu “Sao anh không về chơi thôn Vĩ?” mang sắc thái biểu cảm phức hợp nào?",
+        options: [
+          "Vừa là lời hỏi han, trách nhẹ của người thôn Vĩ, vừa là lời tự vấn, ước ao thầm kín của chính nhà thơ",
+          "Là lời trách móc gay gắt của người con gái Huế vì tác giả đã lãng quên kỉ niệm xưa",
+          "Là câu hỏi thông tin thuần túy để xác định thời điểm tác giả trở lại thăm Huế",
+          "Là lời khẳng định tác giả đang đứng ngay giữa khung cảnh thôn Vĩ buổi sớm mai"
+        ],
+        ans: 0,
+        level: "Thông hiểu",
+        explain: "Câu hỏi tu từ mở đầu có sự phân thân độc đáo: vừa gợi lời nhắn nhủ của người thôn Vĩ, vừa là tiếng lòng tự vấn đầy tiếc nuối, khát khao của thi nhân."
+      },
+      {
+        q: "Trong khổ thơ thứ nhất, vẻ đẹp của cảnh vật thôn Vĩ được khắc họa nổi bật vào thời điểm nào?",
+        options: [
+          "Buổi bình minh trong trẻo với 'nắng hàng cau nắng mới lên'",
+          "Buổi chiều tà tĩnh lặng bên dòng sông Hương",
+          "Đêm trăng huyền ảo phủ đầy sương khói",
+          "Buổi trưa hè rực rỡ nắng vàng"
+        ],
+        ans: 0,
+        level: "Nhận biết",
+        explain: "Câu thơ thứ hai nêu rõ thời điểm: 'Nhìn nắng hàng cau nắng mới lên' – ánh nắng ban mai tinh khôi chiếu lên ngọn cau."
+      },
+      {
+        q: "Hai câu thơ “Gió theo lối gió, mây đường mây / Dòng nước buồn thiu, hoa bắp lay...” sử dụng nổi bật nghệ thuật gì và gợi tâm trạng nào?",
+        options: [
+          "Nhịp thơ 4/3 tạo thế chia cắt cùng phép nhân hóa gợi nỗi buồn chia lìa, cô đơn và mặc cảm xa cách",
+          "Phép phóng đại để ngợi ca sự vận động sôi nổi, hào hùng của thiên nhiên xứ Huế",
+          "Phép ẩn dụ chuyển đổi cảm giác để diễn tả niềm vui đoàn tụ đang đến gần",
+          "Phép đối lập giữa quá khứ và tương lai để khẳng định quy luật tuần hoàn của tạo hóa"
+        ],
+        ans: 0,
+        level: "Thông hiểu",
+        explain: "Gió và mây vốn gắn bó nay 'gió theo lối gió, mây đường mây', kết hợp nhân hóa 'dòng nước buồn thiu' gợi sâu sắc mặc cảm chia lìa của nhà thơ."
+      },
+      {
+        q: "Chữ “kịp” trong câu thơ “Có chở trăng về kịp tối nay?” thể hiện điều gì trong tâm thức của Hàn Mặc Tử?",
+        options: [
+          "Sự gấp gáp, khắc khoải chạy đua với thời gian hữu hạn vì khao khát ánh sáng, niềm vui và sự giao cảm",
+          "Sự lo lắng con thuyền chở hàng hóa về bến muộn giờ phiên chợ đêm",
+          "Thái độ bình thản, ung dung chờ đợi ánh trăng lên theo quy luật tự nhiên",
+          "Mong muốn màn đêm trôi qua thật nhanh để đón ánh nắng ban mai"
+        ],
+        ans: 0,
+        level: "Vận dụng",
+        explain: "Trong hoàn cảnh bạo bệnh, chữ 'kịp' hàm chứa quỹ thời gian gấp gáp và niềm mong mỏi tha thiết được đón nhận ánh trăng – biểu tượng của cái đẹp và tình đời."
+      },
+      {
+        q: "Đại từ phiếm chỉ “ai” xuất hiện bao nhiêu lần trong toàn bộ bài thơ “Đây thôn Vĩ Dạ”?",
+        options: [
+          "4 lần (Vườn ai, Thuyền ai, Ai biết, tình ai)",
+          "2 lần (Vườn ai, Thuyền ai)",
+          "3 lần (Vườn ai, Thuyền ai, Ai biết)",
+          "5 lần trong cả ba khổ thơ"
+        ],
+        ans: 0,
+        level: "Nhận biết",
+        explain: "Đại từ 'ai' xuất hiện 4 lần: 'Vườn ai mướt quá...', 'Thuyền ai đậu bến...', và 2 lần trong câu cuối 'Ai biết tình ai có đậm đà?'."
+      }
     ],
     trueFalse: [
-      { statement: "Gióng ra đời sau khi bà mẹ ướm chân vào một vết chân lạ ngoài đồng.", answer: true, level: "Nhận biết", explain: "Đúng – bà ướm chân vào vết chân to rồi thụ thai." },
-      { statement: "Sau khi đánh tan giặc, Gióng về kinh thành nhận phần thưởng của nhà vua.", answer: false, level: "Nhận biết", explain: "Sai – Gióng lên núi Sóc rồi bay về trời, không nhận thưởng." },
-      { statement: "Khi roi sắt gãy, Gióng nhổ tre bên đường để tiếp tục đánh giặc.", answer: true, level: "Nhận biết", explain: "Đúng – \"Gióng nhổ những cụm tre bên đường quật vào giặc\"." },
-      { statement: "Chi tiết Gióng \"lớn nhanh như thổi\" là chi tiết tả thực, hoàn toàn có thật.", answer: false, level: "Thông hiểu", explain: "Sai – đây là chi tiết kì ảo đặc trưng của truyền thuyết." },
-      { statement: "Truyện Thánh Gióng thuộc thể loại truyền thuyết.", answer: true, level: "Nhận biết", explain: "Đúng – truyện kể về nhân vật, sự kiện gắn với lịch sử, có yếu tố kì ảo." }
+      {
+        statement: "Hình ảnh “Lá trúc che ngang mặt chữ điền” gợi vẻ đẹp kín đáo, dịu dàng, phúc hậu của con người xứ Huế.",
+        answer: true,
+        level: "Nhận biết",
+        explain: "Đúng – hình ảnh vừa tả thực nét duyên dáng e ấp sau nhành trúc, vừa gợi vẻ phúc hậu của con người thôn Vĩ."
+      },
+      {
+        statement: "Mạch cảm xúc của bài thơ vận động từ cõi mộng hư ảo ở khổ 1 sang bức tranh hiện thực tươi sáng ở khổ 3.",
+        answer: false,
+        level: "Thông hiểu",
+        explain: "Sai – mạch thơ đi từ hoài niệm tươi sáng, trong trẻo (khổ 1) sang cõi mộng trăng sao chia lìa (khổ 2) và đắm sâu vào sương khói hư ảo (khổ 3)."
+      },
+      {
+        statement: "Hình ảnh “bến sông trăng” và “chở trăng” ở khổ 2 là sáng tạo nghệ thuật mang đậm bút pháp tượng trưng – lãng mạn của Hàn Mặc Tử.",
+        answer: true,
+        level: "Thông hiểu",
+        explain: "Đúng – ánh trăng hóa thành dòng sông, thành vật thể hữu hình để con thuyền chuyên chở niềm hi vọng."
+      },
+      {
+        statement: "Câu thơ “Áo em trắng quá nhìn không ra” chỉ đơn thuần miêu tả màu áo trắng tinh của thiếu nữ dưới ánh nắng mặt trời.",
+        answer: false,
+        level: "Thông hiểu",
+        explain: "Sai – sắc trắng được cực tả ('trắng quá') hòa vào sương khói cõi mộng khiến hình bóng người thương nhòa đi, vừa gần vừa xa vời vợi."
+      },
+      {
+        statement: "Đằng sau câu hỏi hoài nghi “Ai biết tình ai có đậm đà?” là một khát vọng được yêu thương, được sẻ chia và gắn bó tha thiết với cuộc đời.",
+        answer: true,
+        level: "Vận dụng",
+        explain: "Đúng – càng hoài nghi, trăn trở trước mặc cảm chia lìa, nhà thơ càng bộc lộ niềm khao khát tình đời, tình người sâu nặng."
+      }
     ],
     fillBlank: [
-      { sentence: "Gióng vươn vai một cái bỗng biến thành ____ mình cao hơn trượng, oai phong lẫm liệt.", answer: "tráng sĩ", options: ["tráng sĩ", "người khổng lồ", "vị tướng", "nhà vua"], level: "Nhận biết", explain: "Từ đúng trong văn bản là \"tráng sĩ\"." },
-      { sentence: "Đánh tan giặc, Gióng một mình một ngựa lên đỉnh núi ____.", answer: "Sóc", options: ["Sóc", "Tản Viên", "Ba Vì", "Thái Sơn"], level: "Nhận biết", explain: "Gióng lên đỉnh núi Sóc rồi bay về trời." },
-      { sentence: "Nhớ công ơn, vua phong Gióng là ____.", answer: "Phù Đổng Thiên Vương", options: ["Phù Đổng Thiên Vương", "Đức Thánh Tản", "Lạc Long Quân", "Hùng Vương"], level: "Nhận biết", explain: "Gióng được phong là Phù Đổng Thiên Vương." },
-      { sentence: "Tre đằng ngà có màu ____ vì bị lửa ngựa sắt phun cháy.", answer: "vàng óng", options: ["vàng óng", "xanh biếc", "đỏ thẫm", "đen sạm"], level: "Thông hiểu", explain: "Văn bản giải thích tre đằng ngà vàng óng do lửa ngựa phun." }
+      {
+        sentence: "Vườn ai mướt quá xanh như ____ / Lá trúc che ngang mặt chữ điền.",
+        answer: "ngọc",
+        options: ["ngọc", "lụa", "lá", "biếc"],
+        level: "Nhận biết",
+        explain: "So sánh 'xanh như ngọc' gợi vẻ xanh non, mỡ màng và ánh lên sắc sáng trong trẻo dưới nắng mai."
+      },
+      {
+        sentence: "Thuyền ai đậu bến ____ đó / Có chở trăng về kịp tối nay?",
+        answer: "sông trăng",
+        options: ["sông trăng", "sông Hương", "sông sâu", "giang đầu"],
+        level: "Nhận biết",
+        explain: "Hình ảnh 'bến sông trăng' là sáng tạo thi ảnh độc đáo của Hàn Mặc Tử."
+      },
+      {
+        sentence: "Ở đây ____ mờ nhân ảnh / Ai biết tình ai có đậm đà?",
+        answer: "sương khói",
+        options: ["sương khói", "mây trắng", "trăng nước", "gió lạnh"],
+        level: "Nhận biết",
+        explain: "Cụm từ 'sương khói mờ nhân ảnh' khắc họa không gian hư ảo phủ mờ bóng người."
+      },
+      {
+        sentence: "Mạch cảm xúc của bài thơ khởi đầu bằng niềm say đắm trước cảnh sắc thôn Vĩ nhưng càng về cuối càng thấm đượm nỗi ____ và khát khao giao cảm.",
+        answer: "cô đơn",
+        options: ["cô đơn", "hân hoan", "phẫn nộ", "thờ ơ"],
+        level: "Thông hiểu",
+        explain: "Sự chuyển dịch từ khu vườn nắng sớm sang dòng nước buồn thiu và sương khói cho thấy nỗi cô đơn, khắc khoải của thi nhân."
+      }
     ],
     matching: {
-      instruction: "Nối mỗi chi tiết trong truyện với ý nghĩa phù hợp.",
+      instruction: "Nối mỗi hình ảnh / câu thơ ở cột trái với ý nghĩa biểu đạt tương ứng ở cột phải.",
       pairs: [
-        { left: "Vết chân lạ ngoài đồng", right: "Sự ra đời kì lạ của người anh hùng" },
-        { left: "Tiếng nói đầu tiên", right: "Ý thức đánh giặc cứu nước" },
-        { left: "Bà con góp gạo nuôi Gióng", right: "Sức mạnh đoàn kết của nhân dân" },
-        { left: "Nhổ tre quật giặc", right: "Cả quê hương cùng đánh giặc" },
-        { left: "Bay về trời", right: "Người anh hùng bất tử" }
+        { left: "Nắng hàng cau nắng mới lên", right: "Sức sống tinh khôi, trong trẻo buổi ban mai" },
+        { left: "Lá trúc che ngang mặt chữ điền", right: "Vẻ đẹp phúc hậu, kín đáo của người xứ Huế" },
+        { left: "Gió theo lối gió, mây đường mây", right: "Nỗi buồn chia lìa, nghịch cảnh trái ngang" },
+        { left: "Có chở trăng về kịp tối nay?", right: "Niềm khắc khoải, chạy đua với thời gian" },
+        { left: "Ai biết tình ai có đậm đà?", right: "Hoài nghi gắn liền với khát vọng tình đời" }
       ]
     },
     ordering: {
-      instruction: "Sắp xếp các sự việc theo đúng trình tự trong truyện.",
+      instruction: "Sắp xếp diễn biến mạch cảm xúc và hình ảnh theo đúng trình tự 3 khổ thơ.",
       items: [
-        "Bà mẹ ướm chân vào vết chân lạ rồi sinh ra Gióng",
-        "Nghe sứ giả rao, Gióng cất tiếng nói xin đi đánh giặc",
-        "Bà con làng xóm góp gạo nuôi Gióng",
-        "Gióng vươn vai thành tráng sĩ, cưỡi ngựa sắt ra trận",
-        "Roi sắt gãy, Gióng nhổ tre quật giặc",
-        "Gióng lên núi Sóc rồi bay về trời"
+        "Lời hỏi thăm kiêm lời tự vấn: 'Sao anh không về chơi thôn Vĩ?'",
+        "Khu vườn thôn Vĩ buổi sớm mai 'mướt quá xanh như ngọc'",
+        "Vẻ đẹp kín đáo: 'Lá trúc che ngang mặt chữ điền'",
+        "Cảnh gió mây chia lìa, dòng nước buồn thiu, hoa bắp lay",
+        "Con thuyền đậu bến sông trăng và câu hỏi 'kịp tối nay?'",
+        "Hình bóng 'khách đường xa' nhòa trong sương khói và câu hỏi 'tình ai có đậm đà?'"
       ]
     },
     openEnded: [
-      { q: "Theo em, vì sao đến ngày nay nhân dân vẫn lập đền thờ và mở hội để tưởng nhớ Thánh Gióng? (Trả lời 3–5 câu)", rubric: "Nêu được: công lao đánh giặc giữ nước; lòng biết ơn của nhân dân; Gióng là biểu tượng của lòng yêu nước và sức mạnh đoàn kết; liên hệ truyền thống uống nước nhớ nguồn.", sampleAnswer: "Nhân dân lập đền thờ và mở hội vì Gióng có công đánh tan giặc Ân, bảo vệ đất nước. Đó là cách thể hiện lòng biết ơn, đúng truyền thống \"uống nước nhớ nguồn\". Gióng còn là biểu tượng của lòng yêu nước và sức mạnh đoàn kết của cả dân tộc, nhắc nhở các thế hệ sau giữ gìn quê hương." },
-      { q: "Từ hình tượng Thánh Gióng, em rút ra bài học gì cho bản thân? (Trả lời 3–5 câu)", rubric: "Nêu được ít nhất một bài học hợp lí (yêu nước, trách nhiệm, đoàn kết, sống không vụ lợi…), có lí giải và liên hệ việc làm cụ thể của học sinh.", sampleAnswer: "Em học được tinh thần yêu nước và trách nhiệm với quê hương. Như Gióng sẵn sàng nhận nhiệm vụ khi đất nước cần, em sẽ chăm chỉ học tập, rèn luyện sức khỏe. Em cũng hiểu sức mạnh của tập thể, nên sẽ đoàn kết, giúp đỡ bạn bè và làm việc tốt mà không mong được khen thưởng." }
+      {
+        q: "Anh/Chị hãy phân tích hiệu quả nghệ thuật của 3 câu hỏi tu từ xuất hiện ở 3 khổ thơ trong bài “Đây thôn Vĩ Dạ”. (Trả lời khoảng 4–6 câu)",
+        rubric: "Chỉ ra được 3 câu hỏi tu từ ở 3 khổ thơ ('Sao anh không về...', 'Có chở trăng về kịp...', 'Ai biết tình ai...'); phân tích sự chuyển biến sắc thái tâm trạng (từ ước ao hoài niệm → khắc khoải lo âu → hoài nghi da diết) và khẳng định khát vọng giao cảm mãnh liệt của chủ thể trữ tình.",
+        sampleAnswer: "Ba câu hỏi tu từ ở ba khổ thơ tạo nên trục kết cấu cảm xúc xuyên suốt bài thơ. Câu hỏi mở đầu 'Sao anh không về chơi thôn Vĩ?' mang âm hưởng lời mời gọi dịu dàng xen lẫn nỗi tiếc nuối, đánh thức hoài niệm tươi đẹp. Đến khổ hai, câu hỏi 'Có chở trăng về kịp tối nay?' chuyển sang nhịp điệu gấp gáp, thể hiện niềm khắc khoải mong chờ ánh sáng và hạnh phúc giữa quỹ thời gian ngắn ngủi. Khép lại bài thơ, 'Ai biết tình ai có đậm đà?' là tiếng thở dài hoài nghi nhưng ẩn chứa khát vọng được yêu thương, sẻ chia cháy bỏng của một tâm hồn tha thiết gắn bó với cuộc đời."
+      },
+      {
+        q: "Từ tâm sự và khát vọng sống của Hàn Mặc Tử trong bài thơ, anh/chị rút ra suy nghĩ gì về ý nghĩa của niềm yêu đời và sự đồng cảm trước những nghịch cảnh trong cuộc sống? (Trả lời khoảng 5–7 câu)",
+        rubric: "Nêu được hoàn cảnh éo le của nhà thơ nhưng vẫn hướng về cái đẹp; khẳng định giá trị của nghị lực, tình yêu cuộc sống và sự sẻ chia giữa con người với con người; có liên hệ thực tế của học sinh THPT.",
+        sampleAnswer: "Dù đang đối mặt với căn bệnh hiểm nghèo và mặc cảm chia lìa, Hàn Mặc Tử vẫn gửi trọn tâm hồn mình vào sắc nắng ban mai, ánh trăng xứ Huế và tình người đằm thắm. Điều đó cho thấy tình yêu cái đẹp và khát vọng sống có sức mạnh nâng đỡ con người vượt lên trên nỗi đau thể xác lẫn tinh thần. Trong cuộc sống, sự quan tâm, đồng cảm – dù chỉ bắt đầu từ một lời hỏi thăm chân thành – cũng có thể trở thành điểm tựa quý giá cho những người đang gặp nghịch cảnh. Là học sinh THPT, em nhận thức được cần sống nhân ái, biết trân trọng từng khoảnh khắc và lan tỏa sự sẻ chia tới mọi người xung quanh."
+      }
     ]
   }
 };
-

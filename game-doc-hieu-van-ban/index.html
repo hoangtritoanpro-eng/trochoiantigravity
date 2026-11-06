@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đọc Hiểu Cùng AI – Game đánh giá năng lực đọc hiểu</title>
-  <meta name="description" content="Đưa một bài văn vào, AI phân tích và tạo các vòng chơi trắc nghiệm, đúng/sai, điền từ, nối cặp, sắp xếp, tự luận để đánh giá năng lực đọc hiểu; kết thúc bằng infographic chốt kiến thức.">
+  <title>Đọc Hiểu Cùng AI (THPT) – Hệ thống đánh giá năng lực đọc hiểu Ngữ văn THPT</title>
+  <meta name="description" content="Hệ thống đánh giá năng lực đọc hiểu Ngữ văn THPT (Lớp 10, 11, 12 & Ôn thi TN THPT): copy/dán kí tự, đẩy file PDF, gửi ảnh vào để AI phân tích, tạo 6 vòng chơi, thống kê đúng/sai và xuất Infographic chốt kiến thức.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -14,10 +14,10 @@
 
   <!-- THANH TRÊN CÙNG -->
   <header class="topbar">
-    <div class="brand">📖 <span>ĐỌC HIỂU CÙNG AI</span></div>
+    <div class="brand">📖 <span>ĐỌC HIỂU CÙNG AI</span> <small class="brand-badge">THPT</small></div>
     <div class="topbar-actions">
       <span class="ai-status" id="aiStatusTop" title="Trạng thái kết nối Gemini">🤖 AI: chưa kết nối</span>
-      <button class="icon-btn" id="btnShowText" title="Xem lại văn bản (phím T)" hidden>📄 Văn bản</button>
+      <button class="icon-btn" id="btnShowText" title="Xem lại ngữ liệu đọc hiểu (phím T)" hidden>📄 Văn bản</button>
       <button class="icon-btn" id="btnSound" title="Bật/tắt âm thanh">🔊</button>
       <button class="icon-btn" id="btnFullscreen" title="Toàn màn hình">⛶</button>
       <button class="icon-btn" id="btnHome" title="Về màn hình nạp bài">🏠</button>
@@ -26,34 +26,86 @@
 
   <main class="app">
 
-    <!-- ═════════ MÀN 1: NẠP VĂN BẢN ═════════ -->
+    <!-- ═════════ MÀN 1: NẠP NGỮ LIỆU ═════════ -->
     <section class="screen active" id="screenSetup">
       <div class="setup-grid">
         <div class="card">
-          <h2 class="card-title">① Nạp bài văn</h2>
+          <h2 class="card-title">① Nạp ngữ liệu đọc hiểu (Copy kí tự · Đẩy PDF · Gửi ảnh)</h2>
+
+          <!-- Khung kéo thả / chọn PDF / gửi ảnh -->
           <div class="dropzone" id="dropzone">
-            <div class="dz-icon">📄</div>
-            <div><strong>Kéo &amp; thả file vào đây</strong> hoặc <button class="link-btn" id="btnPickFile">chọn file</button></div>
-            <div class="muted">Hỗ trợ .pdf · .docx · .txt</div>
-            <input type="file" id="fileInput" accept=".pdf,.docx,.txt" hidden>
+            <div class="dz-icon">📄 🖼️</div>
+            <div class="dz-title"><strong>Kéo &amp; thả file PDF, Word, TXT hoặc Ảnh vào đây</strong></div>
+            <div class="dz-btns">
+              <button type="button" class="btn small" id="btnPickFile">📄 Đẩy file PDF / Word / TXT</button>
+              <button type="button" class="btn small violet-btn" id="btnPickImg">🖼️ Gửi ảnh vào (.png, .jpg)</button>
+            </div>
+            <div class="muted small">Hỗ trợ cả <strong>PDF có chữ &amp; PDF scan</strong> · Nhấn <kbd>Ctrl</kbd>+<kbd>V</kbd> để dán trực tiếp ảnh chụp màn hình hoặc văn bản</div>
+            <input type="file" id="fileInput" accept=".pdf,.docx,.txt,image/*" multiple hidden>
+            <input type="file" id="imgInput" accept="image/*" multiple hidden>
           </div>
-          <label class="field-label" for="txtSource">Hoặc dán nội dung bài văn:</label>
-          <textarea id="txtSource" rows="12" placeholder="Dán toàn văn bài đọc (truyện, thơ, văn nghị luận, văn bản thông tin...) vào đây"></textarea>
+
+          <!-- Khung hiển thị ảnh / trang PDF scan đã gửi vào -->
+          <div class="media-box" id="mediaBox" hidden>
+            <div class="media-head">
+              <strong id="mediaCount">🖼️ 0 ảnh đính kèm</strong>
+              <div class="media-actions">
+                <button type="button" class="btn small" id="btnOcr" title="Dùng Gemini AI đọc toàn bộ chữ trong ảnh/PDF ra ô văn bản để chỉnh sửa hoặc copy">🔍 Trích xuất kí tự từ ảnh (AI OCR)</button>
+                <button type="button" class="btn small danger" id="btnClearMedia">🗑 Xóa hết ảnh</button>
+              </div>
+            </div>
+            <div class="media-list" id="mediaList"></div>
+            <div class="muted small">💡 Bạn có thể bấm <strong>"🔍 Trích xuất kí tự từ ảnh"</strong> để lấy chữ ra ô dưới, hoặc bấm thẳng <strong>"✨ Phân tích bằng AI"</strong> để AI đọc trực tiếp từ ảnh.</div>
+          </div>
+
+          <!-- Thanh công cụ Copy / Dán kí tự -->
+          <div class="text-toolbar">
+            <label class="field-label" for="txtSource" style="margin:0">✍️ Nội dung văn bản (có thể gõ, dán hoặc copy kí tự):</label>
+            <div class="char-tools">
+              <button type="button" class="tool-chip" id="btnPasteText" title="Dán văn bản từ Clipboard">📋 Dán kí tự</button>
+              <button type="button" class="tool-chip" id="btnCopyText" title="Sao chép toàn bộ kí tự trong ô">📑 Copy kí tự</button>
+              <button type="button" class="tool-chip" id="btnCleanText" title="Gộp các dòng bị ngắt vụn khi copy từ file PDF">✨ Chuẩn hóa dòng PDF</button>
+            </div>
+          </div>
+
+          <!-- Thanh chèn nhanh kí tự đặc biệt phục vụ văn bản THPT -->
+          <div class="symbol-bar" id="symbolBar" aria-label="Chèn nhanh kí tự">
+            <span class="muted small">Kí tự nhanh:</span>
+            <button type="button" class="sym-btn" data-sym="“”">“ ”</button>
+            <button type="button" class="sym-btn" data-sym="‘’">‘ ’</button>
+            <button type="button" class="sym-btn" data-sym="…">…</button>
+            <button type="button" class="sym-btn" data-sym="[…]">[…]</button>
+            <button type="button" class="sym-btn" data-sym="—">—</button>
+            <button type="button" class="sym-btn" data-sym="–">–</button>
+            <button type="button" class="sym-btn" data-sym="•">•</button>
+            <button type="button" class="sym-btn" data-sym="➜">➜</button>
+            <button type="button" class="sym-btn" data-sym="§">§</button>
+          </div>
+
+          <textarea id="txtSource" rows="10" placeholder="Copy &amp; dán ngữ liệu đọc hiểu THPT (thơ trữ tình, truyện ngắn, tiểu thuyết, kí, kịch, văn bản nghị luận, văn bản thông tin...) vào đây, hoặc đẩy file PDF / gửi ảnh ở trên"></textarea>
           <div class="row-between muted small">
-            <span id="charCount">0 ký tự</span>
-            <button class="link-btn" id="btnClearText">Xóa văn bản</button>
+            <span id="charCount">0 ký tự · 0 từ</span>
+            <button type="button" class="link-btn" id="btnClearText">Xóa văn bản</button>
           </div>
         </div>
 
         <div class="card">
-          <h2 class="card-title">② Tùy chọn trò chơi</h2>
+          <h2 class="card-title">② Tùy chọn trò chơi (Chương trình THPT)</h2>
           <div class="form-row">
-            <label class="field-label" for="selGrade">Khối lớp</label>
+            <label class="field-label" for="selGrade">Khối lớp / Mục tiêu (CT GDPT 2018)</label>
             <select id="selGrade">
-              <option value="Lớp 6">Lớp 6</option>
-              <option value="Lớp 7">Lớp 7</option>
-              <option value="Lớp 8" selected>Lớp 8</option>
-              <option value="Lớp 9">Lớp 9</option>
+              <optgroup label="Cấp THPT (Chương trình GDPT 2018)">
+                <option value="Lớp 10">Lớp 10 – THPT</option>
+                <option value="Lớp 11" selected>Lớp 11 – THPT</option>
+                <option value="Lớp 12">Lớp 12 – THPT</option>
+                <option value="Ôn thi Tốt nghiệp THPT">Ôn thi Tốt nghiệp THPT</option>
+              </optgroup>
+              <optgroup label="Cấp THCS (Mở rộng)">
+                <option value="Lớp 9">Lớp 9 – THCS</option>
+                <option value="Lớp 8">Lớp 8 – THCS</option>
+                <option value="Lớp 7">Lớp 7 – THCS</option>
+                <option value="Lớp 6">Lớp 6 – THCS</option>
+              </optgroup>
             </select>
           </div>
           <div class="form-row">
@@ -64,7 +116,7 @@
               <option value="7">7 câu (~30 phút)</option>
             </select>
           </div>
-          <div class="field-label">Các vòng chơi</div>
+          <div class="field-label">Các vòng chơi đánh giá năng lực đọc hiểu</div>
           <div class="round-toggles" id="roundToggles"></div>
 
           <h2 class="card-title mt">③ Kết nối Gemini AI <span class="conn-pill" id="connPill">● Chưa kết nối</span></h2>
@@ -89,8 +141,8 @@
           </div>
 
           <div class="setup-actions">
-            <button class="btn primary big" id="btnAnalyze">✨ Phân tích bằng AI</button>
-            <button class="btn ghost" id="btnSample">📚 Dùng bài mẫu (không cần API Key)</button>
+            <button class="btn primary big" id="btnAnalyze">✨ Phân tích ngữ liệu bằng AI</button>
+            <button class="btn ghost" id="btnSample">📚 Dùng ngữ liệu mẫu THPT (không cần API Key)</button>
             <button class="btn ghost" id="btnRestore" hidden>↩ Mở lại bộ câu hỏi gần nhất</button>
           </div>
         </div>
@@ -101,8 +153,8 @@
     <section class="screen" id="screenLoading">
       <div class="loading-box">
         <div class="spinner"></div>
-        <h2 id="loadingTitle">Gemini đang đọc bài văn…</h2>
-        <p class="muted" id="loadingStep">Đang xác định thể loại, chủ đề, nhân vật…</p>
+        <h2 id="loadingTitle">Gemini đang đọc &amp; phân tích ngữ liệu THPT…</h2>
+        <p class="muted" id="loadingStep">Đang xác định thể loại, chủ đề, thi pháp và mạch lập luận…</p>
       </div>
     </section>
 
@@ -118,11 +170,14 @@
           <button class="btn primary big" id="btnStart">▶ Bắt đầu chơi</button>
         </div>
       </div>
-      <div class="notice">👩‍🏫 Thầy/Cô hãy đọc lướt và <strong>xóa những câu chưa phù hợp</strong> trước khi cho học sinh chơi. AI có thể sai – giáo viên luôn là người duyệt cuối cùng.</div>
+      <div class="notice">👩‍🏫 Thầy/Cô hãy đọc lướt và <strong>xóa những câu chưa phù hợp</strong> trước khi cho học sinh chơi. Có thể bấm <strong>📄 Văn bản</strong> ở thanh trên để xem hoặc copy lại ngữ liệu.</div>
       <div class="card">
-        <h3 class="card-title">Tóm tắt do AI phân tích</h3>
+        <div class="row-between" style="margin-bottom:8px">
+          <h3 class="card-title" style="margin:0">Tổng quan ngữ liệu do AI phân tích</h3>
+          <button type="button" class="tool-chip" id="btnCopySummary">📑 Copy tóm tắt</button>
+        </div>
         <p id="pvSummary"></p>
-        <p><strong>Chủ đề:</strong> <span id="pvTheme"></span></p>
+        <p style="margin-top:6px"><strong>Chủ đề / Cảm hứng chủ đạo:</strong> <span id="pvTheme"></span></p>
       </div>
       <div id="pvRounds"></div>
     </section>
@@ -145,22 +200,34 @@
         <button class="btn" id="btnStatsJump">📋 Thống kê đúng/sai</button>
         <button class="btn ghost" id="btnExportCsv">⬇ Tải thống kê (Excel)</button>
         <button class="btn ghost" id="btnReplay">🔁 Chơi lại bộ câu hỏi này</button>
-        <button class="btn ghost" id="btnNewText">📄 Nạp bài văn khác</button>
+        <button class="btn ghost" id="btnNewText">📄 Nạp ngữ liệu khác</button>
       </div>
       <div id="infographic"></div>
       <div id="statsPanel"></div>
     </section>
   </main>
 
-  <!-- NGĂN XEM VĂN BẢN -->
+  <!-- NGĂN XEM VĂN BẢN (HỖ TRỢ COPY KÍ TỰ & XEM ẢNH ĐÍNH KÈM) -->
   <aside class="drawer" id="textDrawer" aria-hidden="true">
     <div class="drawer-head">
-      <strong>📄 Văn bản đọc hiểu</strong>
-      <button class="icon-btn" id="btnCloseDrawer">✕</button>
+      <strong>📄 Ngữ liệu đọc hiểu</strong>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="icon-btn" id="btnCopyDrawer" title="Copy toàn bộ kí tự văn bản">📑 Copy kí tự</button>
+        <button class="icon-btn" id="btnCloseDrawer">✕</button>
+      </div>
     </div>
-    <div class="drawer-body" id="drawerText"></div>
+    <div class="drawer-body">
+      <div id="drawerImages" class="drawer-images" hidden></div>
+      <div id="drawerText" class="selectable-text"></div>
+    </div>
   </aside>
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+  <!-- HỘP XEM ẢNH PHÓNG TO (LIGHTBOX) -->
+  <div class="img-modal" id="imgModal" hidden>
+    <button class="img-modal-close" id="btnCloseModal" title="Đóng (Esc)">✕</button>
+    <img id="imgModalTarget" src="" alt="Ảnh ngữ liệu">
+  </div>
 
   <div class="toast" id="toast"></div>
 
@@ -170,4 +237,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-

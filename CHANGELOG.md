@@ -10,6 +10,20 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [2.3.0] - 2026-11-06
+
+### Added
+- **Nâng cấp toàn diện "Đọc Hiểu Cùng AI" lên Chương trình Ngữ văn THPT (CT GDPT 2018):**
+  - Bổ sung lựa chọn khối lớp THPT (`Lớp 10 – THPT`, `Lớp 11 – THPT`, `Lớp 12 – THPT`, `Ôn thi Tốt nghiệp THPT`) làm mặc định.
+  - Nâng cấp Prompt AI chuẩn khảo thí Ngữ văn THPT: phân tích chuyên sâu 3 loại văn bản (văn học, nghị luận, thông tin) theo thi pháp, chủ thể trữ tình, điểm nhìn trần thuật, mạch lập luận và câu hỏi 3 mức độ (Nhận biết / Thông hiểu / Vận dụng).
+  - Thay bộ ngữ liệu mẫu thành tác phẩm **"Đây thôn Vĩ Dạ" – Hàn Mặc Tử** (Ngữ văn 11 THPT) với đầy đủ 6 vòng chơi và đáp án học thuật.
+- **Nạp ngữ liệu đa phương thức (Copy kí tự · Đẩy file PDF · Gửi ảnh vào):**
+  - **Copy & Dán kí tự:** Thêm nút `📋 Dán kí tự`, `📑 Copy kí tự` (ở màn nạp bài, màn xem trước và ngăn xem văn bản), nút `✨ Chuẩn hóa dòng PDF` (gộp các dòng bị ngắt vụn khi copy từ PDF) và thanh chèn nhanh kí tự đặc biệt (`“ ”`, `‘ ’`, `…`, `[…]`, `—`, `–`, `•`, `➜`, `§`).
+  - **Đẩy file PDF (cả PDF chữ và PDF scan):** Trích xuất văn bản chuẩn dòng bằng PDF.js; tự động kết xuất các trang PDF scan thành ảnh chất lượng cao để AI đọc OCR hoặc phân tích trực tiếp.
+  - **Gửi ảnh vào (`.png`, `.jpg`, `.webp`):** Hỗ trợ chọn nhiều ảnh, kéo thả ảnh, hoặc nhấn `Ctrl+V` để dán trực tiếp ảnh chụp màn hình/trang sách. Có khung xem ảnh thu nhỏ, phóng to Lightbox, nút **"🔍 Trích xuất kí tự từ ảnh (AI OCR)"** và hỗ trợ gửi thẳng ảnh vào Gemini Vision.
+
+---
+
 ## [2.2.1] - 2026-11-05
 
 ### Added
