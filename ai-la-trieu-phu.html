@@ -1707,46 +1707,13 @@ D. x = -4"></textarea>
       audioCtx: null,
       introTimer: null,
 
-      // Các file MP3 tĩnh trong cùng thư mục (hỗ trợ fallback đa nguồn)
-      mp3Intro: new Audio('nhacmodau.mp3'),
-      mp3Bg: new Audio('nhacnenlientuc.mp3'),
+      // Chỉ sử dụng âm thanh Đúng / Sai
       mp3Correct: new Audio('amthanhdung.mp3'),
       mp3Wrong: new Audio('amthanhsai.mp3'),
-      mp3Ending: new Audio('nhacketthuc.mp3'),
 
       init() {
-        const setupFallback = (audioEl, sources) => {
-          let srcIdx = 0;
-          audioEl.src = sources[srcIdx];
-          audioEl.onerror = () => {
-            srcIdx++;
-            if (srcIdx < sources.length) {
-              audioEl.src = sources[srcIdx];
-            }
-          };
-        };
-
-        setupFallback(this.mp3Intro, [
-          'nhacmodau.mp3',
-          encodeURI('mở đầu chương trình.mp3'),
-          'mở đầu chương trình.mp3',
-          'assets/millionaire/nhacmodau.mp3',
-          'ai-la-trieu-phu mo dau.mp3'
-        ]);
-
-        setupFallback(this.mp3Ending, [
-          'nhacketthuc.mp3',
-          encodeURI('kết thúc chương trình.mp3'),
-          'kết thúc chương trình.mp3',
-          'assets/millionaire/nhacketthuc.mp3'
-        ]);
-
-        this.mp3Bg.loop = true;
-        this.mp3Bg.volume = 0.35;
-        this.mp3Intro.volume = 0.9;
         this.mp3Correct.volume = 0.9;
         this.mp3Wrong.volume = 0.85;
-        this.mp3Ending.volume = 0.95;
       },
 
       getAudioContext() {
@@ -1764,8 +1731,6 @@ D. x = -4"></textarea>
         this.enabled = !this.enabled;
         if (!this.enabled) {
           this.stopAll();
-        } else {
-          this.playBg();
         }
         return this.enabled;
       },
@@ -1778,22 +1743,13 @@ D. x = -4"></textarea>
           btnIntro.style.borderColor = '';
           btnIntro.style.color = '';
         }
-        [this.mp3Intro, this.mp3Bg, this.mp3Correct, this.mp3Wrong, this.mp3Ending].forEach(a => {
+        [this.mp3Correct, this.mp3Wrong].forEach(a => {
           try { a.pause(); a.currentTime = 0; } catch(e){}
         });
       },
 
-      pauseBg() {
-        try { this.mp3Bg.pause(); } catch(e){}
-      },
-
-      resumeBg() {
-        if (!this.enabled) return;
-        try {
-          this.mp3Bg.volume = 0.35;
-          this.mp3Bg.play().catch(() => {});
-        } catch(e){}
-      },
+      pauseBg() {},
+      resumeBg() {},
 
       playIntro(onFinished) {
         if (!this.enabled) {
@@ -1801,76 +1757,12 @@ D. x = -4"></textarea>
           return;
         }
         this.stopAll();
-        this.mp3Intro.currentTime = 0;
-        this.mp3Intro.volume = 0.9;
-
-        const updateBtn = (playing) => {
-          const btn = document.getElementById('btnPlayIntro');
-          if (btn) {
-            btn.innerHTML = playing ? '🎵 Đang phát...' : '🎵 Mở đầu';
-            btn.style.borderColor = playing ? 'var(--gold-primary)' : '';
-            btn.style.color = playing ? 'var(--gold-light)' : '';
-          }
-        };
-
-        updateBtn(true);
-
-        this.mp3Intro.onended = () => {
-          this.mp3Intro.onended = null;
-          updateBtn(false);
-          if (this.enabled) {
-            this.playBg();
-          }
-          if (onFinished) onFinished();
-        };
-
-        const playPromise = this.mp3Intro.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            updateBtn(false);
-            this.synthFanfare();
-            if (this.enabled) {
-              this.introTimer = setTimeout(() => this.playBg(), 2000);
-            }
-          });
-        }
+        this.synthFanfare();
+        if (onFinished) this.introTimer = setTimeout(() => onFinished(), 1200);
       },
 
-      fadeIntroToBg() {
-        if (!this.mp3Intro.paused && this.mp3Intro.currentTime > 0) {
-          const btnIntro = document.getElementById('btnPlayIntro');
-          if (btnIntro) {
-            btnIntro.innerHTML = '🎵 Mở đầu';
-            btnIntro.style.borderColor = '';
-            btnIntro.style.color = '';
-          }
-          try {
-            let vol = this.mp3Intro.volume;
-            const fade = setInterval(() => {
-              vol = Math.max(0, vol - 0.2);
-              this.mp3Intro.volume = vol;
-              if (vol <= 0) {
-                clearInterval(fade);
-                this.mp3Intro.pause();
-                this.mp3Intro.currentTime = 0;
-                this.resumeBg();
-              }
-            }, 50);
-          } catch(e) {
-            this.mp3Intro.pause();
-            this.resumeBg();
-          }
-        }
-      },
-
-      playBg() {
-        if (!this.enabled) return;
-        if (this.introTimer) { clearTimeout(this.introTimer); this.introTimer = null; }
-        try { this.mp3Intro.pause(); } catch(e){}
-        try { this.mp3Ending.pause(); } catch(e){}
-        this.mp3Bg.volume = 0.35;
-        this.mp3Bg.play().catch(() => {});
-      },
+      fadeIntroToBg() {},
+      playBg() {},
 
       playLockAnswer() {
         if (!this.enabled) return;
@@ -1879,7 +1771,6 @@ D. x = -4"></textarea>
 
       playCorrect(isMilestone = false) {
         if (!this.enabled) return;
-        this.pauseBg(); // Tắt nhạc nền để chuông đúng vang trọn vẹn
         this.mp3Correct.currentTime = 0;
         this.mp3Correct.play().catch(() => this.synthCorrect());
 
@@ -1890,7 +1781,6 @@ D. x = -4"></textarea>
 
       playWrong() {
         if (!this.enabled) return;
-        this.pauseBg(); // Tắt nhạc nền để âm thanh sai rõ ràng
         this.mp3Wrong.currentTime = 0;
         this.mp3Wrong.play().catch(() => this.synthWrong());
       },
@@ -1898,9 +1788,7 @@ D. x = -4"></textarea>
       playEnding() {
         if (!this.enabled) return;
         this.stopAll();
-        this.mp3Ending.currentTime = 0;
-        this.mp3Ending.volume = 0.95;
-        this.mp3Ending.play().catch(() => this.synthFanfare());
+        this.synthFanfare();
         setTimeout(() => this.playApplause(true), 1000);
       },
 

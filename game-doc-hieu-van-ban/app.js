@@ -73,14 +73,13 @@ const lvlBadge = (level) => {
   return `<span class="lvl ${LEVEL_CLASS[k]}">${LEVEL_NAMES[k]}</span>`;
 };
 
-/* ───────── ÂM THANH ───────── */
+/* ───────── ÂM THANH (CHỈ DÙNG ÂM THANH ĐÚNG / SAI) ───────── */
 const Sound = {
   enabled: localStorage.getItem('dh_sound') !== 'off',
   ctx: null,
   files: {
     correct: new Audio('assets/sounds/amthanhdung.mp3'),
     wrong: new Audio('assets/sounds/amthanhsai.mp3'),
-    end: new Audio('assets/sounds/nhacketthuc.mp3'),
   },
 
   beep(freqs, dur = 0.12, type = 'sine', vol = 0.15) {
@@ -104,11 +103,11 @@ const Sound = {
   play(name) {
     if (!this.enabled) return;
     if (name === 'click') return this.beep([660], 0.06, 'triangle', 0.08);
-    if (name === 'round') return this.beep([523, 659, 784, 1047], 0.13, 'triangle', 0.12);
+    if (name === 'round' || name === 'end') return this.beep([523, 659, 784, 1047], 0.13, 'triangle', 0.12);
     const a = this.files[name];
     if (!a) return;
     a.currentTime = 0;
-    a.volume = name === 'end' ? 0.8 : 0.9;
+    a.volume = 0.9;
     a.play().catch(() => this.beep(name === 'wrong' ? [300, 200] : [784, 1047], 0.15));
   },
 

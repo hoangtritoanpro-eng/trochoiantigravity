@@ -1,45 +1,12 @@
 const MilAudio = {
   audioCtx: null,
   introTimer: null,
-  audioIntro: new Audio('nhacmodau.mp3'),
-  audioBg: new Audio('nhacnenlientuc.mp3'),
   audioCorrect: new Audio('amthanhdung.mp3'),
   audioWrong: new Audio('amthanhsai.mp3'),
-  audioEnding: new Audio('nhacketthuc.mp3'),
 
   init() {
-    const setupFallback = (audioEl, sources) => {
-      let srcIdx = 0;
-      audioEl.src = sources[srcIdx];
-      audioEl.onerror = () => {
-        srcIdx++;
-        if (srcIdx < sources.length) {
-          audioEl.src = sources[srcIdx];
-        }
-      };
-    };
-
-    setupFallback(this.audioIntro, [
-      'nhacmodau.mp3',
-      encodeURI('mở đầu chương trình.mp3'),
-      'mở đầu chương trình.mp3',
-      'assets/millionaire/nhacmodau.mp3',
-      'ai-la-trieu-phu mo dau.mp3'
-    ]);
-
-    setupFallback(this.audioEnding, [
-      'nhacketthuc.mp3',
-      encodeURI('kết thúc chương trình.mp3'),
-      'kết thúc chương trình.mp3',
-      'assets/millionaire/nhacketthuc.mp3'
-    ]);
-
-    this.audioBg.loop = true;
-    this.audioBg.volume = 0.35;
-    this.audioIntro.volume = 0.9;
     this.audioCorrect.volume = 0.9;
     this.audioWrong.volume = 0.85;
-    this.audioEnding.volume = 0.95;
   },
 
   getAudioContext() {
@@ -59,78 +26,19 @@ const MilAudio = {
       return;
     }
     this.stopAll();
-    this.audioIntro.currentTime = 0;
-    this.audioIntro.volume = 0.9;
-
-    this.audioIntro.onended = () => {
-      this.audioIntro.onended = null;
-      if (typeof AppState === 'undefined' || AppState.soundEnabled) {
-        this.playBg();
-      }
-      if (onFinished) onFinished();
-    };
-
-    const playPromise = this.audioIntro.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(e => {
-        if (typeof AppState === 'undefined' || AppState.soundEnabled) {
-          this.playBg();
-        }
-        if (onFinished) onFinished();
-      });
-    }
+    this.synthReveal();
+    if (onFinished) this.introTimer = setTimeout(() => onFinished(), 800);
   },
 
-  fadeIntroToBg() {
-    if (!this.audioIntro.paused && this.audioIntro.currentTime > 0) {
-      try {
-        let vol = this.audioIntro.volume;
-        const fade = setInterval(() => {
-          vol = Math.max(0, vol - 0.2);
-          this.audioIntro.volume = vol;
-          if (vol <= 0) {
-            clearInterval(fade);
-            this.audioIntro.pause();
-            this.audioIntro.currentTime = 0;
-            this.resumeBg();
-          }
-        }, 50);
-      } catch(e) {
-        this.audioIntro.pause();
-        this.resumeBg();
-      }
-    }
-  },
-
-  playBg() {
-    if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
-    if (this.introTimer) { clearTimeout(this.introTimer); this.introTimer = null; }
-    try { this.audioIntro.pause(); } catch(e){}
-    try { this.audioEnding.pause(); } catch(e){}
-    this.audioBg.loop = true;
-    this.audioBg.volume = 0.35;
-    this.audioBg.play().catch(e => console.log('Audio play failed:', e));
-  },
-
-  pauseBg() {
-    try { this.audioBg.pause(); } catch(e){}
-  },
-
-  resumeBg() {
-    if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
-    try {
-      this.audioBg.volume = 0.35;
-      this.audioBg.play().catch(e => console.log('Audio resume failed:', e));
-    } catch(e){}
-  },
+  fadeIntroToBg() {},
+  playBg() {},
+  pauseBg() {},
+  resumeBg() {},
 
   stopAll() {
     if (this.introTimer) { clearTimeout(this.introTimer); this.introTimer = null; }
-    this.audioIntro.pause();
-    this.audioBg.pause();
     this.audioCorrect.pause();
     this.audioWrong.pause();
-    this.audioEnding.pause();
   },
 
   playLockAnswer() {
@@ -140,7 +48,6 @@ const MilAudio = {
 
   playCorrect(isMilestone = false) {
     if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
-    this.pauseBg();
     this.audioCorrect.currentTime = 0;
     this.audioCorrect.play().catch(e => console.log('Audio play failed:', e));
 
@@ -151,7 +58,6 @@ const MilAudio = {
 
   playWrong() {
     if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
-    this.pauseBg();
     this.audioWrong.currentTime = 0;
     this.audioWrong.play().catch(e => console.log('Audio play failed:', e));
   },
@@ -159,10 +65,8 @@ const MilAudio = {
   playEnding() {
     if (typeof AppState !== 'undefined' && !AppState.soundEnabled) return;
     this.stopAll();
-    this.audioEnding.currentTime = 0;
-    this.audioEnding.volume = 0.95;
-    this.audioEnding.play().catch(e => console.log('Audio play failed:', e));
-    setTimeout(() => this.synthApplause(4.0), 1000);
+    this.synthReveal();
+    setTimeout(() => this.synthApplause(4.0), 600);
   },
 
   playReveal() {

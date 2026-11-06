@@ -6,3 +6,11 @@
 .DS_Store
 Thumbs.db
 *.log
+
+# Audio files: chỉ tải âm thanh đúng/sai lên GitHub
+*.mp3
+!amthanhdung.mp3
+!amthanhsai.mp3
+!**/amthanhdung.mp3
+!**/amthanhsai.mp3
+

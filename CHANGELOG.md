@@ -38,6 +38,9 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
       - 📋 **Bảng dữ liệu (`data_table`)**: Hiển thị bảng dữ liệu trực tiếp từ file `.csv` của NotebookLM kèm nút xuất Excel/CSV.
   - **Khung Xem & Tương tác ngay tại chỗ cả 9 tính năng Studio:** Cho phép giáo viên bấm vào từng thẻ pill để xem, tương tác và trình chiếu ngay trên lớp cả 9 định dạng, đồng thời hỗ trợ nút **📤 Copy Nguồn & Mở NotebookLM Web** và **📥 Tải file Nguồn (.md)**.
 
+### Removed
+- **Xóa toàn bộ các file nhạc nền/mở đầu/kết thúc của trò chơi Ai Là Triệu Phú trên GitHub:** Chỉ giữ lại 2 file âm thanh **Đúng (`amthanhdung.mp3`)** và **Sai (`amthanhsai.mp3`)** trên toàn bộ hệ thống (`game-doc-hieu-van-ban`, `game-ai-la-trieu-phu` và thư mục gốc) và cấu hình `.gitignore` chặn đẩy các file `.mp3` khác lên GitHub.
+
 ### Fixed
 - **Sửa lỗi co hẹp nút bấm trong khung kết quả Studio (`.studio-head-row` trong [style.css](file:///c:/Users/hoang/Downloads/TOAN/duantoan/game-doc-hieu-van-ban/style.css#L573-L577)):** Bổ sung `flex-wrap: wrap` và `flex-shrink: 0; white-space: nowrap` cho các nút thao tác (`🔍 Xem Sơ đồ SVG lớn`, `📥 Tải Bảng dữ liệu (.csv)`, `🔊 Nghe đọc Podcast`, `⚡ Thực hiện mục này`) để nút luôn hiển thị cân đối trên mọi kích thước màn hình.
 - **Khắc phục triệt để lỗi `"Dữ liệu AI trả về bị lỗi định dạng. Hãy bấm phân tích lại."` khi phân tích văn bản bằng Gemini 2.5 / 3.x (`AIService` trong [app.js](file:///c:/Users/hoang/Downloads/TOAN/duantoan/game-doc-hieu-van-ban/app.js#L314-L485)):**

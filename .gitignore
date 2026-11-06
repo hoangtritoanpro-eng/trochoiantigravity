@@ -32,3 +32,10 @@ __pycache__/
 gemini-notebook-mcp-cli/
 game-doc-hieu-van-ban/nlm_outputs/
 nlm_outputs/
+
+# Audio files: chỉ tải âm thanh đúng/sai lên GitHub
+*.mp3
+!amthanhdung.mp3
+!amthanhsai.mp3
+!**/amthanhdung.mp3
+!**/amthanhsai.mp3
