@@ -170,14 +170,20 @@
           <button class="btn primary big" id="btnStart">▶ Bắt đầu chơi</button>
         </div>
       </div>
-      <div class="notice">👩‍🏫 Thầy/Cô hãy đọc lướt và <strong>xóa những câu chưa phù hợp</strong> trước khi cho học sinh chơi. Có thể bấm <strong>📄 Văn bản</strong> ở thanh trên để xem hoặc copy lại ngữ liệu.</div>
-      <div class="card">
-        <div class="row-between" style="margin-bottom:8px">
+      <div class="notice">👩‍🏫 Thầy/Cô có thể <strong>bấm trực tiếp vào bất kỳ câu hỏi nào (hoặc bấm nút ✏️ Sửa)</strong> để chỉnh sửa câu hỏi, các phương án A–D, đáp án đúng, mức độ, lời giải thích; bấm <strong>➕ Thêm câu</strong> để bổ sung hoặc <strong>🗑</strong> để xóa.</div>
+      <div class="card" id="pvOverviewCard">
+        <div class="row-between" style="margin-bottom:8px;flex-wrap:wrap;gap:8px">
           <h3 class="card-title" style="margin:0">Tổng quan ngữ liệu do AI phân tích</h3>
-          <button type="button" class="tool-chip" id="btnCopySummary">📑 Copy tóm tắt</button>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="tool-chip" id="btnEditOverview">✏️ Sửa tổng quan</button>
+            <button type="button" class="tool-chip" id="btnCopySummary">📑 Copy tóm tắt</button>
+          </div>
         </div>
-        <p id="pvSummary"></p>
-        <p style="margin-top:6px"><strong>Chủ đề / Cảm hứng chủ đạo:</strong> <span id="pvTheme"></span></p>
+        <div id="pvOverviewDisplay">
+          <p id="pvSummary"></p>
+          <p style="margin-top:6px"><strong>Chủ đề / Cảm hứng chủ đạo:</strong> <span id="pvTheme"></span></p>
+        </div>
+        <div id="pvOverviewEditor" class="pv-editor" hidden></div>
       </div>
       <div id="pvRounds"></div>
     </section>

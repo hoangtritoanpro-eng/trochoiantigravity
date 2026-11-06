@@ -930,30 +930,60 @@ const Setup = {
   },
 };
 
-/* ───────── MÀN XEM TRƯỚC & DUYỆT ───────── */
+/* ───────── MÀN XEM TRƯỚC, CHỈNH SỬA TRỰC TIẾP & DUYỆT ───────── */
 const Preview = {
+  editingKey: null, // VD: "mcq_0", "trueFalse_1"
+
   render() {
     const a = App.analysis;
     $('pvTitle').textContent = a.title;
     $('pvMeta').textContent = [a.author, a.genre, a.gradeLevel].filter(Boolean).join(' · ');
     $('pvSummary').textContent = a.summary || '(AI chưa tóm tắt)';
     $('pvTheme').textContent = a.theme || '—';
+    $('pvOverviewEditor').hidden = true;
+    $('pvOverviewDisplay').hidden = false;
     Drawer.syncContent();
 
     const Q = a.questions;
     const html = App.settings.rounds.filter((t) => ROUND_ORDER.includes(t)).map((t) => {
       const meta = ROUNDS[t];
       let items = [];
-      if (t === 'mcq') items = Q.mcq.map((x, i) => this.item(t, i, `${esc(x.q)} ${lvlBadge(x.level)}<br><span class="pv-ans">✓ ${esc(x.options[x.ans])}</span>`));
-      if (t === 'trueFalse') items = Q.trueFalse.map((x, i) => this.item(t, i, `${esc(x.statement)} ${lvlBadge(x.level)}<br><span class="pv-ans">✓ ${x.answer ? 'ĐÚNG' : 'SAI'}</span>`));
-      if (t === 'fillBlank') items = Q.fillBlank.map((x, i) => this.item(t, i, `${esc(x.sentence)} ${lvlBadge(x.level)}<br><span class="pv-ans">✓ ${esc(x.answer)}</span> <span class="muted small">(lựa chọn: ${x.options.map(esc).join(' / ')})</span>`));
-      if (t === 'matching') items = Q.matching.pairs.map((p, i) => this.item(t, i, `${esc(p.left)} <strong>⟶</strong> ${esc(p.right)}`));
-      if (t === 'ordering') items = Q.ordering.items.map((s, i) => this.item(t, i, `<strong>${i + 1}.</strong> ${esc(s)}`));
-      if (t === 'openEnded') items = Q.openEnded.map((x, i) => this.item(t, i, `${esc(x.q)}<br><span class="muted small">Tiêu chí: ${esc(x.rubric)}</span>`));
+      if (t === 'mcq') {
+        items = Q.mcq.map((x, i) => {
+          const optsHtml = `<div class="pv-opts-grid">${x.options.map((o, k) => `<div class="pv-opt-line ${k === x.ans ? 'correct' : ''}">${k === x.ans ? '✓' : 'ABCD'[k] + '.'} ${esc(o)}</div>`).join('')}</div>`;
+          const expHtml = x.explain ? `<div class="pv-explain-line">💡 ${esc(x.explain)}</div>` : '';
+          return this.item(t, i, `<strong>Câu ${i + 1}:</strong> ${esc(x.q)} ${lvlBadge(x.level)}${optsHtml}${expHtml}`);
+        });
+      }
+      if (t === 'trueFalse') {
+        items = Q.trueFalse.map((x, i) => {
+          const expHtml = x.explain ? `<div class="pv-explain-line">💡 ${esc(x.explain)}</div>` : '';
+          return this.item(t, i, `<strong>Câu ${i + 1}:</strong> “${esc(x.statement)}” ${lvlBadge(x.level)}<br><span class="pv-ans">✓ Đáp án: ${x.answer ? 'ĐÚNG' : 'SAI'}</span>${expHtml}`);
+        });
+      }
+      if (t === 'fillBlank') {
+        items = Q.fillBlank.map((x, i) => {
+          const expHtml = x.explain ? `<div class="pv-explain-line">💡 ${esc(x.explain)}</div>` : '';
+          return this.item(t, i, `<strong>Câu ${i + 1}:</strong> ${esc(x.sentence)} ${lvlBadge(x.level)}<br><span class="pv-ans">✓ ${esc(x.answer)}</span> <span class="muted small">(Lựa chọn: ${x.options.map(esc).join(' / ')})</span>${expHtml}`);
+        });
+      }
+      if (t === 'matching') {
+        items = Q.matching.pairs.map((p, i) => this.item(t, i, `<strong>Cặp ${i + 1}:</strong> ${esc(p.left)} <strong>⟶</strong> <span class="pv-ans">${esc(p.right)}</span>`));
+      }
+      if (t === 'ordering') {
+        items = Q.ordering.items.map((s, i) => this.item(t, i, `<strong>Thứ tự ${i + 1}:</strong> ${esc(s)}`));
+      }
+      if (t === 'openEnded') {
+        items = Q.openEnded.map((x, i) => this.item(t, i, `<strong>Câu ${i + 1}:</strong> ${esc(x.q)} ${lvlBadge('Vận dụng')}<br><span class="muted small">🎯 Tiêu chí chấm: ${esc(x.rubric || '—')}</span>${x.sampleAnswer ? `<br><span class="muted small">📌 Gợi ý: ${esc(x.sampleAnswer)}</span>` : ''}`));
+      }
       const count = items.length;
+      const unitLabel = t === 'matching' ? 'cặp' : t === 'ordering' ? 'mục' : 'câu';
       return `<div class="card pv-round">
-        <h3 class="card-title">${meta.icon} ${meta.title} <span class="pv-count">${count} ${t === 'matching' ? 'cặp' : t === 'ordering' ? 'mục' : 'câu'}</span></h3>
-        ${count ? items.join('') : '<p class="muted">Không có câu hỏi – vòng này sẽ được bỏ qua.</p>'}
+        <div class="pv-round-head">
+          <h3 class="card-title">${meta.icon} ${meta.title} <span class="pv-count">${count} ${unitLabel}</span></h3>
+          <button type="button" class="btn small ghost" onclick="Preview.add('${t}')">➕ Thêm ${unitLabel}</button>
+        </div>
+        ${count ? items.join('') : '<p class="muted">Không có câu hỏi – vòng này sẽ được bỏ qua (hoặc bấm "➕ Thêm" để tạo mới).</p>'}
       </div>`;
     }).join('');
     $('pvRounds').innerHTML = html;
@@ -961,21 +991,280 @@ const Preview = {
   },
 
   item(type, idx, body) {
-    return `<div class="pv-item"><div class="pv-item-body selectable-text">${body}</div>
-      <button class="btn small danger" onclick="Preview.remove('${type}', ${idx})" title="Xóa">🗑</button></div>`;
+    const key = `${type}_${idx}`;
+    const isEditing = this.editingKey === key;
+    return `<div class="pv-item" id="pv_${key}">
+      <div class="pv-item-row">
+        <div class="pv-item-body selectable-text" onclick="Preview.toggleEdit('${type}', ${idx})" title="Bấm để chỉnh sửa câu này">${body}</div>
+        <div class="pv-item-actions">
+          <button type="button" class="btn small edit-btn" onclick="Preview.toggleEdit('${type}', ${idx})" title="Chỉnh sửa trực tiếp">✏️ Sửa</button>
+          <button type="button" class="btn small danger" onclick="Preview.remove('${type}', ${idx})" title="Xóa">🗑</button>
+        </div>
+      </div>
+      ${isEditing ? this.renderEditor(type, idx) : ''}
+    </div>`;
+  },
+
+  levelSelectHtml(current) {
+    const cur = LEVEL_NAMES[levelKey(current)];
+    return `<select id="ed_level">
+      <option value="Nhận biết" ${cur === 'Nhận biết' ? 'selected' : ''}>Nhận biết</option>
+      <option value="Thông hiểu" ${cur === 'Thông hiểu' ? 'selected' : ''}>Thông hiểu</option>
+      <option value="Vận dụng" ${cur === 'Vận dụng' ? 'selected' : ''}>Vận dụng</option>
+    </select>`;
+  },
+
+  renderEditor(type, idx) {
+    const Q = App.analysis.questions;
+    let fields = '';
+    if (type === 'mcq') {
+      const x = Q.mcq[idx];
+      const opts = [...x.options, '', '', '', ''].slice(0, 4);
+      fields = `
+        <div class="pv-ed-grid">
+          <div><label class="pv-ed-lbl">Nội dung câu hỏi trắc nghiệm</label><textarea id="ed_q" rows="2">${esc(x.q)}</textarea></div>
+          <div><label class="pv-ed-lbl">Mức độ nhận thức</label>${this.levelSelectHtml(x.level)}</div>
+        </div>
+        <label class="pv-ed-lbl">Các phương án A, B, C, D (tích chọn ô tròn ở phương án ĐÚNG)</label>
+        <div class="pv-ed-opts">
+          ${opts.map((o, k) => `<div class="pv-ed-opt">
+            <input type="radio" name="ed_ans" value="${k}" ${k === x.ans ? 'checked' : ''} title="Chọn làm đáp án đúng">
+            <strong>${'ABCD'[k]}.</strong>
+            <input type="text" id="ed_opt_${k}" value="${esc(o)}" placeholder="Phương án ${'ABCD'[k]}">
+          </div>`).join('')}
+        </div>
+        <div class="pv-ed-row"><label class="pv-ed-lbl">Giải thích / Dẫn chứng trong văn bản</label><input type="text" id="ed_explain" value="${esc(x.explain || '')}" placeholder="Giải thích ngắn gọn vì sao đáp án này đúng…"></div>`;
+    } else if (type === 'trueFalse') {
+      const x = Q.trueFalse[idx];
+      fields = `
+        <div class="pv-ed-row"><label class="pv-ed-lbl">Nội dung nhận định Đúng / Sai</label><textarea id="ed_statement" rows="2">${esc(x.statement)}</textarea></div>
+        <div class="pv-ed-grid">
+          <div>
+            <label class="pv-ed-lbl">Đáp án đúng</label>
+            <select id="ed_tf_ans">
+              <option value="true" ${x.answer ? 'selected' : ''}>✔ ĐÚNG</option>
+              <option value="false" ${!x.answer ? 'selected' : ''}>✘ SAI</option>
+            </select>
+          </div>
+          <div><label class="pv-ed-lbl">Mức độ nhận thức</label>${this.levelSelectHtml(x.level)}</div>
+        </div>
+        <div class="pv-ed-row"><label class="pv-ed-lbl">Giải thích / Dẫn chứng</label><input type="text" id="ed_explain" value="${esc(x.explain || '')}"></div>`;
+    } else if (type === 'fillBlank') {
+      const x = Q.fillBlank[idx];
+      const opts = [...x.options, '', '', '', ''].slice(0, 4);
+      const ansIdx = Math.max(0, x.options.indexOf(x.answer));
+      fields = `
+        <div class="pv-ed-grid">
+          <div><label class="pv-ed-lbl">Câu điền từ (dùng đúng 4 gạch dưới ____ cho chỗ trống)</label><textarea id="ed_sentence" rows="2">${esc(x.sentence)}</textarea></div>
+          <div><label class="pv-ed-lbl">Mức độ nhận thức</label>${this.levelSelectHtml(x.level)}</div>
+        </div>
+        <label class="pv-ed-lbl">4 thẻ từ lựa chọn (tích chọn ô tròn ở từ ĐÚNG cần điền)</label>
+        <div class="pv-ed-opts">
+          ${opts.map((o, k) => `<div class="pv-ed-opt">
+            <input type="radio" name="ed_fb_ans" value="${k}" ${k === ansIdx ? 'checked' : ''} title="Chọn làm từ đúng">
+            <strong>#${k + 1}</strong>
+            <input type="text" id="ed_fb_opt_${k}" value="${esc(o)}" placeholder="Từ lựa chọn ${k + 1}">
+          </div>`).join('')}
+        </div>
+        <div class="pv-ed-row"><label class="pv-ed-lbl">Giải thích</label><input type="text" id="ed_explain" value="${esc(x.explain || '')}"></div>`;
+    } else if (type === 'matching') {
+      const p = Q.matching.pairs[idx];
+      fields = `
+        <div class="pv-ed-opts">
+          <div><label class="pv-ed-lbl">Vế trái (Chi tiết / Hình ảnh / Luận điểm)</label><input type="text" id="ed_left" value="${esc(p.left)}"></div>
+          <div><label class="pv-ed-lbl">Vế phải (Ý nghĩa / Đặc điểm tương ứng)</label><input type="text" id="ed_right" value="${esc(p.right)}"></div>
+        </div>`;
+    } else if (type === 'ordering') {
+      const s = Q.ordering.items[idx];
+      const total = Q.ordering.items.length;
+      fields = `
+        <div class="pv-ed-row"><label class="pv-ed-lbl">Nội dung mục ở vị trí thứ ${idx + 1}</label><input type="text" id="ed_order_item" value="${esc(s)}"></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="muted small">Đổi vị trí chuẩn:</span>
+          <button type="button" class="btn small ghost" onclick="Preview.moveOrder(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>▲ Đưa lên trước</button>
+          <button type="button" class="btn small ghost" onclick="Preview.moveOrder(${idx}, 1)" ${idx === total - 1 ? 'disabled' : ''}>▼ Đưa xuống dưới</button>
+        </div>`;
+    } else if (type === 'openEnded') {
+      const x = Q.openEnded[idx];
+      fields = `
+        <div class="pv-ed-row"><label class="pv-ed-lbl">Câu hỏi tự luận / Vận dụng THPT</label><textarea id="ed_open_q" rows="2">${esc(x.q)}</textarea></div>
+        <div class="pv-ed-row"><label class="pv-ed-lbl">Tiêu chí chấm (Rubric)</label><textarea id="ed_rubric" rows="2">${esc(x.rubric || '')}</textarea></div>
+        <div class="pv-ed-row"><label class="pv-ed-lbl">Đáp án gợi ý</label><textarea id="ed_sample" rows="3">${esc(x.sampleAnswer || '')}</textarea></div>`;
+    }
+    return `<div class="pv-editor" onclick="event.stopPropagation()">
+      ${fields}
+      <div class="pv-ed-actions">
+        <button type="button" class="btn small ghost" onclick="Preview.cancelEdit()">Hủy</button>
+        <button type="button" class="btn small primary" onclick="Preview.saveEdit('${type}', ${idx})">💾 Lưu câu hỏi</button>
+      </div>
+    </div>`;
+  },
+
+  toggleEdit(type, idx) {
+    const key = `${type}_${idx}`;
+    this.editingKey = this.editingKey === key ? null : key;
+    this.render();
+    if (this.editingKey) {
+      const el = $(`pv_${key}`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  },
+
+  cancelEdit() {
+    this.editingKey = null;
+    this.render();
+  },
+
+  saveEdit(type, idx) {
+    const Q = App.analysis.questions;
+    if (type === 'mcq') {
+      const q = $('ed_q').value.trim();
+      const opts = [0, 1, 2, 3].map((k) => $(`ed_opt_${k}`).value.trim()).filter(Boolean);
+      const ansRadio = document.querySelector('input[name="ed_ans"]:checked');
+      const ans = ansRadio ? clamp(+ansRadio.value, 0, opts.length - 1) : 0;
+      if (!q || opts.length < 2) return toast('Hãy nhập nội dung câu hỏi và ít nhất 2 phương án trả lời.', true);
+      Q.mcq[idx] = { q, options: opts, ans, level: $('ed_level').value, explain: $('ed_explain').value.trim() };
+    } else if (type === 'trueFalse') {
+      const statement = $('ed_statement').value.trim();
+      if (!statement) return toast('Hãy nhập nội dung nhận định.', true);
+      Q.trueFalse[idx] = {
+        statement,
+        answer: $('ed_tf_ans').value === 'true',
+        level: $('ed_level').value,
+        explain: $('ed_explain').value.trim(),
+      };
+    } else if (type === 'fillBlank') {
+      let sentence = $('ed_sentence').value.trim().replace(/_{2,}/g, '____');
+      const opts = [0, 1, 2, 3].map((k) => $(`ed_fb_opt_${k}`).value.trim()).filter(Boolean);
+      const ansRadio = document.querySelector('input[name="ed_fb_ans"]:checked');
+      const ansIdx = ansRadio ? clamp(+ansRadio.value, 0, opts.length - 1) : 0;
+      const answer = opts[ansIdx] || '';
+      if (!sentence || !answer || opts.length < 2) return toast('Hãy nhập câu điền từ và ít nhất 2 lựa chọn.', true);
+      if (!sentence.includes('____')) sentence += ' ____';
+      Q.fillBlank[idx] = {
+        sentence,
+        answer,
+        options: opts,
+        ans: ansIdx,
+        level: $('ed_level').value,
+        explain: $('ed_explain').value.trim(),
+      };
+    } else if (type === 'matching') {
+      const left = $('ed_left').value.trim();
+      const right = $('ed_right').value.trim();
+      if (!left || !right) return toast('Hãy nhập đủ cả 2 vế của cặp nối.', true);
+      Q.matching.pairs[idx] = { left, right };
+    } else if (type === 'ordering') {
+      const val = $('ed_order_item').value.trim();
+      if (!val) return toast('Nội dung mục sắp xếp không được để trống.', true);
+      Q.ordering.items[idx] = val;
+    } else if (type === 'openEnded') {
+      const q = $('ed_open_q').value.trim();
+      if (!q) return toast('Hãy nhập câu hỏi tự luận.', true);
+      Q.openEnded[idx] = {
+        q,
+        rubric: $('ed_rubric').value.trim(),
+        sampleAnswer: $('ed_sample').value.trim(),
+      };
+    }
+    this.editingKey = null;
+    App.saveSession();
+    this.render();
+    toast('✅ Đã lưu chỉnh sửa câu đọc hiểu!');
+  },
+
+  moveOrder(idx, dir) {
+    const items = App.analysis.questions.ordering.items;
+    const curVal = $('ed_order_item')?.value.trim();
+    if (curVal) items[idx] = curVal;
+    const target = idx + dir;
+    if (target < 0 || target >= items.length) return;
+    [items[idx], items[target]] = [items[target], items[idx]];
+    this.editingKey = `ordering_${target}`;
+    App.saveSession();
+    this.render();
+  },
+
+  add(type) {
+    const Q = App.analysis.questions;
+    let newIdx = 0;
+    if (type === 'mcq') {
+      Q.mcq.push({ q: 'Câu hỏi đọc hiểu mới…', options: ['Phương án A (đáp án đúng)', 'Phương án B', 'Phương án C', 'Phương án D'], ans: 0, level: 'Thông hiểu', explain: '' });
+      newIdx = Q.mcq.length - 1;
+    } else if (type === 'trueFalse') {
+      Q.trueFalse.push({ statement: 'Nhận định mới về văn bản…', answer: true, level: 'Nhận biết', explain: '' });
+      newIdx = Q.trueFalse.length - 1;
+    } else if (type === 'fillBlank') {
+      Q.fillBlank.push({ sentence: 'Điền từ còn thiếu vào chỗ trống: ____.', answer: 'từ đúng', options: ['từ đúng', 'từ nhiễu 1', 'từ nhiễu 2', 'từ nhiễu 3'], ans: 0, level: 'Nhận biết', explain: '' });
+      newIdx = Q.fillBlank.length - 1;
+    } else if (type === 'matching') {
+      Q.matching.pairs.push({ left: 'Chi tiết / Hình ảnh mới', right: 'Ý nghĩa biểu đạt tương ứng' });
+      newIdx = Q.matching.pairs.length - 1;
+    } else if (type === 'ordering') {
+      Q.ordering.items.push('Sự việc / luận điểm tiếp theo…');
+      newIdx = Q.ordering.items.length - 1;
+    } else if (type === 'openEnded') {
+      Q.openEnded.push({ q: 'Câu hỏi tự luận / vận dụng mới…', rubric: 'Nêu được luận điểm rõ ràng, dẫn chứng phù hợp từ ngữ liệu.', sampleAnswer: '' });
+      newIdx = Q.openEnded.length - 1;
+    }
+    this.editingKey = `${type}_${newIdx}`;
+    App.saveSession();
+    this.render();
+    const el = $(`pv_${this.editingKey}`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  },
+
+  toggleOverviewEdit() {
+    const ed = $('pvOverviewEditor');
+    const disp = $('pvOverviewDisplay');
+    if (!ed.hidden) {
+      ed.hidden = true;
+      disp.hidden = false;
+      return;
+    }
+    const a = App.analysis;
+    ed.innerHTML = `
+      <div class="pv-ed-opts">
+        <div><label class="pv-ed-lbl">Tên văn bản / Đoạn trích</label><input type="text" id="ed_meta_title" value="${esc(a.title)}"></div>
+        <div><label class="pv-ed-lbl">Tác giả / Nguồn</label><input type="text" id="ed_meta_author" value="${esc(a.author || '')}"></div>
+      </div>
+      <div class="pv-ed-opts">
+        <div><label class="pv-ed-lbl">Thể loại</label><input type="text" id="ed_meta_genre" value="${esc(a.genre || '')}"></div>
+        <div><label class="pv-ed-lbl">Khối lớp</label><input type="text" id="ed_meta_grade" value="${esc(a.gradeLevel || '')}"></div>
+      </div>
+      <div class="pv-ed-row"><label class="pv-ed-lbl">Tóm tắt văn bản</label><textarea id="ed_meta_summary" rows="3">${esc(a.summary || '')}</textarea></div>
+      <div class="pv-ed-row"><label class="pv-ed-lbl">Chủ đề / Cảm hứng chủ đạo</label><input type="text" id="ed_meta_theme" value="${esc(a.theme || '')}"></div>
+      <div class="pv-ed-actions">
+        <button type="button" class="btn small ghost" onclick="Preview.toggleOverviewEdit()">Hủy</button>
+        <button type="button" class="btn small primary" onclick="Preview.saveOverviewEdit()">💾 Lưu thông tin chung</button>
+      </div>`;
+    disp.hidden = true;
+    ed.hidden = false;
+  },
+
+  saveOverviewEdit() {
+    const a = App.analysis;
+    a.title = $('ed_meta_title').value.trim() || a.title;
+    a.author = $('ed_meta_author').value.trim();
+    a.genre = $('ed_meta_genre').value.trim();
+    a.gradeLevel = $('ed_meta_grade').value.trim();
+    a.summary = $('ed_meta_summary').value.trim();
+    a.theme = $('ed_meta_theme').value.trim();
+    App.saveSession();
+    this.render();
+    toast('✅ Đã cập nhật thông tin tổng quan ngữ liệu!');
   },
 
   remove(type, idx) {
     const Q = App.analysis.questions;
     if (type === 'matching') {
       Q.matching.pairs.splice(idx, 1);
-      if (Q.matching.pairs.length < 2) Q.matching.pairs = [];
     } else if (type === 'ordering') {
       Q.ordering.items.splice(idx, 1);
-      if (Q.ordering.items.length < 3) Q.ordering.items = [];
     } else {
       Q[type].splice(idx, 1);
     }
+    if (this.editingKey === `${type}_${idx}`) this.editingKey = null;
     App.saveSession();
     this.render();
   },
@@ -1602,6 +1891,7 @@ function bindGlobal() {
   $('btnCloseDrawer').onclick = () => Drawer.close();
   $('drawerBackdrop').onclick = () => Drawer.close();
   $('btnCopyDrawer').onclick = () => copyToClipboard(App.sourceText, 'ngữ liệu đọc hiểu');
+  $('btnEditOverview').onclick = () => Preview.toggleOverviewEdit();
   $('btnCopySummary').onclick = () => copyToClipboard(`${App.analysis?.title || ''}\n\nTóm tắt: ${App.analysis?.summary || ''}\nChủ đề: ${App.analysis?.theme || ''}`, 'tóm tắt ngữ liệu');
   $('btnCloseModal').onclick = () => Lightbox.close();
   $('imgModal').onclick = (e) => { if (e.target === $('imgModal')) Lightbox.close(); };

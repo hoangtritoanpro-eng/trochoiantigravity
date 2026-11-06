@@ -10,6 +10,16 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
 - **Fixed** cho các lỗi lập trình đã được sửa.
 - **Security** trong trường hợp có lỗi bảo mật hoặc vá lỗi bảo mật.
 
+## [2.3.1] - 2026-11-06
+
+### Added
+- **Chỉnh sửa trực tiếp câu hỏi đọc hiểu trên màn hình Xem trước & Duyệt (`Preview`):**
+  - Bấm trực tiếp vào bất kỳ câu hỏi nào hoặc bấm nút **`✏️ Sửa`** để mở khung chỉnh sửa tại chỗ cho cả 6 vòng chơi (Trắc nghiệm 4 phương án A–D & chọn đáp án đúng, Đúng/Sai, Điền từ, Nối cặp, Sắp xếp trình tự có nút `▲/▼`, Tự luận kèm Rubric & Gợi ý đáp án).
+  - Thêm nút **`➕ Thêm câu / cặp / mục`** ở đầu mỗi vòng để giáo viên tự bổ sung câu hỏi mới.
+  - Thêm nút **`✏️ Sửa tổng quan`** để chỉnh sửa trực tiếp tên văn bản, tác giả, thể loại, tóm tắt và chủ đề trước khi chơi.
+
+---
+
 ## [2.3.0] - 2026-11-06
 
 ### Added

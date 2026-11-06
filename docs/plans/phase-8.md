@@ -22,8 +22,10 @@ Phase này xây dựng một trò chơi **riêng biệt** (thư mục `game-doc-
   - Hỗ trợ đầu vào đa phương thức (văn bản + nhiều ảnh / trang PDF scan qua `inlineData`), trả kèm `extractedText` nếu ngữ liệu đầu vào là ảnh/PDF scan.
   - Chuẩn hóa & kiểm tra dữ liệu AI trả về, trộn vị trí đáp án đúng.
   - Chấm câu tự luận ngắn theo chuẩn đọc hiểu THPT bằng AI theo rubric.
-- [x] **Task 3: Màn hình Xem trước & duyệt (Human-in-the-loop)**
-  - Hiển thị kết quả phân tích, danh sách câu hỏi từng vòng; giáo viên xóa câu chưa phù hợp trước khi chơi.
+- [x] **Task 3: Màn hình Xem trước, Chỉnh sửa trực tiếp & Duyệt (Human-in-the-loop)**
+  - Hiển thị kết quả phân tích, danh sách câu hỏi từng vòng.
+  - Giáo viên có thể **chỉnh sửa trực tiếp** mọi câu hỏi đọc hiểu (nội dung câu hỏi, 4 phương án A/B/C/D, đổi đáp án đúng, mức độ nhận thức, lời giải thích, cặp nối, thứ tự sắp xếp, câu hỏi & rubric tự luận, thông tin tóm tắt/chủ đề).
+  - Hỗ trợ **thêm câu hỏi mới** (`➕ Thêm câu`) hoặc **xóa câu chưa phù hợp** (`🗑`) trước khi bắt đầu chơi.
 - [x] **Task 4: Engine game nhiều vòng**
   - Vòng 1: Trắc nghiệm A/B/C/D · Vòng 2: Đúng/Sai · Vòng 3: Điền từ (chọn thẻ từ) · Vòng 4: Nối cặp · Vòng 5: Sắp xếp trình tự sự việc · Vòng 6: Tự luận ngắn (AI chấm, hoặc giáo viên tự chấm khi offline).
   - Màn giới thiệu vòng, thanh tiến độ, điểm, giải thích sau mỗi câu, nút "Xem văn bản" bất kỳ lúc nào, âm thanh đúng/sai.
