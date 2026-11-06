@@ -28,6 +28,12 @@ Tất cả những thay đổi nổi bật của dự án này sẽ được ghi
     9. 📋 **Bảng dữ liệu (`data_table`)**
   - **Khung Xem & Tương tác ngay tại chỗ cả 9 tính năng Studio:** Cho phép giáo viên bấm vào từng thẻ pill để xem, tương tác và trình chiếu ngay trên lớp cả 9 định dạng (Podcast đối thoại 2 Host có đọc giọng nói tiếng Việt, Slide bài giảng, Kịch bản Explainer Video, Bản đồ tư duy phân nhánh, Báo cáo & Giáo án CV 5512, Thẻ ghi nhớ lật 2 mặt, Bài kiểm tra trắc nghiệm chấm điểm tức thì, Bản đồ hoạ thông tin tóm tắt, Bảng dữ liệu học thuật kèm nút tải `.csv`), đồng thời hỗ trợ nút **📤 Copy Nguồn & Mở NotebookLM Web** và **📥 Tải file Nguồn (.md)**.
 
+### Fixed
+- **Khắc phục triệt để lỗi `"Dữ liệu AI trả về bị lỗi định dạng. Hãy bấm phân tích lại."` khi phân tích văn bản bằng Gemini 2.5 / 3.x (`AIService` trong [app.js](file:///c:/Users/hoang/Downloads/TOAN/duantoan/game-doc-hieu-van-ban/app.js#L314-L485)):**
+  - Lọc bỏ các phần suy nghĩ nội bộ (`thought: true`) của Gemini 2.5 / 3.x trước khi giải mã JSON và nâng `maxOutputTokens` lên `32768` để tránh đứt gãy JSON.
+  - Xây dựng bộ **Auto-Repair JSON (`AIService.repairJSON`)** tự động sửa dấu ngoặc kép thẳng (`"..."`) chưa escape khi AI trích dẫn thơ/văn tiếng Việt, ký tự xuống dòng trực tiếp trong chuỗi, dấu phẩy thừa cuối mảng/object và tự động đóng ngoặc nếu phản hồi bị ngắt.
+  - Tách bước OCR văn bản thuần (`extractTextFromImages`) trước khi phân tích JSON đối với ngữ liệu ảnh/PDF scan và tự động thử lại (`retry`) nếu phản hồi lỗi định dạng.
+
 ---
 
 ## [2.3.1] - 2026-11-06

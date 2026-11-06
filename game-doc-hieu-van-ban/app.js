@@ -311,7 +311,7 @@ const AIService = {
     return this.models;
   },
 
-  async call(prompt, { json = true, temperature = 0.45, maxTokens = 16384, model, images = [] } = {}) {
+  async call(prompt, { json = true, temperature = 0.35, maxTokens = 32768, model, images = [] } = {}) {
     const key = App.apiKey();
     if (!key) throw new Error('Chưa nhập Gemini API Key.');
     const useModel = model || App.model();
@@ -327,13 +327,16 @@ const AIService = {
     });
     if (data.promptFeedback?.blockReason) throw new Error(`Gemini từ chối xử lý nội dung này (${data.promptFeedback.blockReason}).`);
     const cand = data.candidates?.[0];
-    const text = cand?.content?.parts?.map((p) => p.text || '').join('') || '';
+    const allParts = cand?.content?.parts || [];
+    const nonThought = allParts.filter((p) => !p.thought);
+    const useParts = nonThought.length ? nonThought : allParts;
+    const text = useParts.map((p) => p.text || '').join('') || '';
     if (!text) throw new Error('Gemini không trả về nội dung. Hãy thử lại.');
     if (!json) return text;
     try {
       return this.parseJSON(text);
     } catch (e) {
-      if (cand.finishReason === 'MAX_TOKENS') throw new Error('Câu trả lời của AI bị cắt ngắn vì quá dài. Hãy giảm "Số câu mỗi vòng" rồi thử lại.');
+      if (cand?.finishReason === 'MAX_TOKENS') throw new Error('Câu trả lời của AI bị cắt ngắn vì quá dài. Hãy giảm "Số câu mỗi vòng" rồi thử lại.');
       throw e;
     }
   },
@@ -342,24 +345,150 @@ const AIService = {
     try {
       return await this.call(prompt, opts);
     } catch (e) {
-      if (e.status !== 404) throw e;
-      if (!this.models.length) await this.listModels(App.apiKey()).catch(() => {});
-      const alt = this.models.find((m) => m.id !== App.model() && /flash/.test(m.id)) || this.models.find((m) => m.id !== App.model());
-      if (!alt) throw e;
-      Connection.fillModels(alt.id);
-      toast(`Model cũ không khả dụng – đã tự chuyển sang ${alt.id}`);
-      return this.call(prompt, opts);
+      if (e.status === 404) {
+        if (!this.models.length) await this.listModels(App.apiKey()).catch(() => {});
+        const alt = this.models.find((m) => m.id !== App.model() && /flash/.test(m.id)) || this.models.find((m) => m.id !== App.model());
+        if (!alt) throw e;
+        Connection.fillModels(alt.id);
+        toast(`Model cũ không khả dụng – đã tự chuyển sang ${alt.id}`);
+        return this.call(prompt, opts);
+      }
+      if (e.isJsonError && !opts._retried) {
+        return this.call(prompt, { ...opts, temperature: 0.2, _retried: true });
+      }
+      throw e;
     }
   },
 
-  parseJSON(text) {
-    let t = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
-    const s = t.indexOf('{'), e = t.lastIndexOf('}');
+  repairJSON(input) {
+    let t = String(input || '').trim();
+    // Nếu có code block ```json ... ``` thì ưu tiên lấy nội dung trong code block
+    const fenceMatch = t.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (fenceMatch && fenceMatch[1].includes('{')) {
+      t = fenceMatch[1].trim();
+    }
+    const s = t.indexOf('{');
+    const e = t.lastIndexOf('}');
     if (s >= 0 && e > s) t = t.slice(s, e + 1);
+    else if (s >= 0) t = t.slice(s);
+
+    // Chuẩn hóa các dấu ngoặc kép thông minh ở vị trí cú pháp JSON nếu AI lỡ dùng
+    let out = '';
+    let inStr = false;
+    let isKey = false;
+    const stack = []; // '{' hoặc '['
+
+    for (let i = 0; i < t.length; i++) {
+      const ch = t[i];
+      if (!inStr) {
+        if (ch === '{') {
+          stack.push('{');
+          isKey = true;
+          out += ch;
+        } else if (ch === '[') {
+          stack.push('[');
+          isKey = false;
+          out += ch;
+        } else if (ch === '}' || ch === ']') {
+          stack.pop();
+          isKey = false;
+          out += ch;
+        } else if (ch === ':') {
+          isKey = false;
+          out += ch;
+        } else if (ch === ',') {
+          isKey = stack[stack.length - 1] === '{';
+          out += ch;
+        } else if (ch === '"') {
+          inStr = true;
+          out += '"';
+        } else {
+          out += ch;
+        }
+      } else {
+        if (ch === '\\') {
+          const next = t[i + 1];
+          if (next === undefined) {
+            out += '\\\\';
+          } else if ('"\\/bfnrtu'.includes(next)) {
+            out += '\\' + next;
+            i++;
+          } else {
+            out += '\\\\';
+          }
+        } else if (ch === '\n') {
+          out += '\\n';
+        } else if (ch === '\r') {
+          out += '\\r';
+        } else if (ch === '\t') {
+          out += '\\t';
+        } else if (ch === '"') {
+          const rest = t.slice(i + 1).trimStart();
+          const top = stack[stack.length - 1];
+          let isClosing = false;
+          if (!rest) {
+            isClosing = true;
+          } else if (isKey) {
+            isClosing = rest.startsWith(':');
+          } else if (top === '{') {
+            if (rest.startsWith('}')) isClosing = true;
+            else if (rest.startsWith(',')) {
+              const afterComma = rest.slice(1).trimStart();
+              isClosing = /^"[^"\\\r\n]{1,64}"\s*:/.test(afterComma) || afterComma.startsWith('}');
+            }
+          } else if (top === '[') {
+            if (rest.startsWith(']')) isClosing = true;
+            else if (rest.startsWith(',')) {
+              const afterComma = rest.slice(1).trimStart();
+              isClosing = afterComma.startsWith('{') || afterComma.startsWith('[') || afterComma.startsWith(']') ||
+                /^(?:true|false|null|-?\d)/.test(afterComma) ||
+                /^"(?:[^"\\]|\\.)*"\s*(?:,|])/.test(afterComma);
+            }
+          } else {
+            isClosing = /^[,}\]:]/.test(rest);
+          }
+
+          if (isClosing) {
+            inStr = false;
+            out += '"';
+          } else {
+            out += '\\"';
+          }
+        } else {
+          out += ch;
+        }
+      }
+    }
+
+    if (inStr) out += '"';
+    // Xóa dấu phẩy thừa trước } hoặc ]
+    out = out.replace(/,\s*([}\]])/g, '$1');
+    // Tự động đóng các ngoặc còn mở nếu JSON bị cắt nhẹ ở cuối
+    while (stack.length) {
+      const top = stack.pop();
+      out += top === '{' ? '}' : ']';
+    }
+    out = out.replace(/,\s*([}\]])/g, '$1');
+    return out;
+  },
+
+  parseJSON(text) {
+    let clean = String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+    const s = clean.indexOf('{');
+    const e = clean.lastIndexOf('}');
+    if (s >= 0 && e > s) clean = clean.slice(s, e + 1);
     try {
-      return JSON.parse(t);
-    } catch (err) {
-      throw new Error('Dữ liệu AI trả về bị lỗi định dạng. Hãy bấm phân tích lại.');
+      return JSON.parse(clean);
+    } catch (_) {
+      try {
+        const repaired = this.repairJSON(text);
+        return JSON.parse(repaired);
+      } catch (err) {
+        console.warn('JSON Parse Error:', err, '\nRaw AI text:', text);
+        const eObj = new Error('Dữ liệu AI trả về bị lỗi định dạng. Hãy bấm phân tích lại.');
+        eObj.isJsonError = true;
+        throw eObj;
+      }
     }
   },
 
@@ -403,18 +532,17 @@ YÊU CẦU SƯ PHẠM THPT BẮT BUỘC:
 6. Nối cặp ("matching"): vế trái là hình ảnh/chi tiết/biện pháp nghệ thuật/luận điểm, vế phải là ý nghĩa/tác dụng/đặc điểm tương ứng; mỗi vế dưới 14 từ.
 7. Sắp xếp ("ordering"): liệt kê các sự việc / khổ thơ / luận điểm THEO ĐÚNG TRÌNH TỰ triển khai trong văn bản.
 8. Câu tự luận ("openEnded"): thiết kế theo chuẩn câu hỏi Đọc hiểu nâng cao / Vận dụng THPT (phân tích hiệu quả nghệ thuật, rút ra thông điệp, hoặc bày tỏ quan điểm đồng tình/không đồng tình có lí giải 5–7 dòng).
-${hasImages ? '9. Vì có ảnh đính kèm, hãy ghi lại nguyên văn bài đọc trích xuất từ ảnh vào trường "extractedText" (giữ đúng xuống dòng, khổ thơ).' : ''}
+9. QUY TẮC ĐỊNH DẠNG JSON BẮT BUỘC: Khi trích dẫn câu thơ, câu văn hoặc từ ngữ bên trong chuỗi JSON, BẮT BUỘC dùng dấu nháy đơn ('...') hoặc ngoặc kép cong (“...”), TUYỆT ĐỐI KHÔNG dùng dấu ngoặc kép thẳng (") bên trong nội dung chuỗi. Không xuống dòng trực tiếp trong chuỗi JSON (dùng \\n nếu cần).
 
 SỐ LƯỢNG YÊU CẦU: mcq ${c.mcq} câu; trueFalse ${c.trueFalse} câu; fillBlank ${c.fillBlank} câu; matching ${c.matching} cặp; ordering ${c.ordering} mục; openEnded ${c.openEnded} câu. (Nếu phần nào bằng 0 thì trả về mảng rỗng).
 
-CHỈ TRẢ VỀ JSON theo đúng cấu trúc sau:
+CHỈ TRẢ VỀ JSON HỢP LỆ theo đúng cấu trúc sau:
 {
   "title": "Tên văn bản / đoạn trích", "author": "Tác giả / Nguồn", "genre": "Thể loại (VD: Thơ trữ tình hiện đại / Truyện ngắn / Văn bản nghị luận...)", "gradeLevel": "${grade}",
-  ${hasImages ? '"extractedText": "Nguyên văn bài đọc trích xuất từ ảnh (nếu có)",' : ''}
   "summary": "Tóm tắt nội dung và giá trị nghệ thuật chính (3–4 câu)", "theme": "Chủ đề & Cảm hứng chủ đạo", "mainIdeas": ["Bố cục / Luận điểm / Mạch ý chính"],
   "characters": [{"name": "Nhân vật / Chủ thể trữ tình / Đối tượng trung tâm", "traits": "Đặc điểm, tâm trạng, vẻ đẹp hoặc vai trò"}],
   "timeline": ["Mạch cảm xúc / Trình tự sự việc / Hệ thống luận điểm theo thứ tự"],
-  "artTechniques": [{"name": "Biện pháp tu từ / Đặc sắc thi pháp / Nghệ thuật lập luận", "example": "Dẫn chứng trong văn bản", "effect": "Tác dụng biểu đạt"}],
+  "artTechniques": [{"name": "Biện pháp tu từ / Đặc sắc thi pháp / Nghệ thuật lập luận", "example": "Dẫn chứng trong văn bản (dùng nháy đơn '...')", "effect": "Tác dụng biểu đạt"}],
   "message": "Thông điệp tư tưởng, giá trị nhân sinh", "vocabulary": [{"word": "Từ ngữ / Khái niệm học thuật", "meaning": "Giải nghĩa ngắn gọn"}],
   "questions": {
     "mcq": [{"q": "", "options": ["", "", "", ""], "ans": 0, "level": "Nhận biết", "explain": ""}],
@@ -431,11 +559,19 @@ ${text.trim() ? `NGỮ LIỆU VĂN BẢN:\n"""\n${text.slice(0, 28000)}\n"""` : 
 
   async analyze(text, grade, n, rounds, images = []) {
     const hasImages = images && images.length > 0;
-    const raw = await this.callWithFallback(this.buildPrompt(text, grade, n, rounds, hasImages), { images });
-    const fullText = str(text) || str(raw.extractedText) || '';
+    let sourceText = str(text);
+    let extractedText = '';
+    if (hasImages && sourceText.length < 40) {
+      try {
+        extractedText = await this.extractTextFromImages(images);
+        if (extractedText) sourceText = extractedText;
+      } catch (_) {}
+    }
+    const raw = await this.callWithFallback(this.buildPrompt(sourceText, grade, n, rounds, hasImages), { images: sourceText.length >= 40 ? [] : images });
+    const fullText = sourceText || str(raw.extractedText) || '';
     return {
       analysis: Normalizer.analysis(raw, fullText),
-      extractedText: str(raw.extractedText),
+      extractedText: extractedText || str(raw.extractedText),
     };
   },
 
