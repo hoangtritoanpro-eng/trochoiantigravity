@@ -2,4 +2,15 @@
 Thumbs.db
 *.log
 .vercel/
+__pycache__/
+.nlm_storage/
+nlm_outputs/
+
+# Audio files: chỉ tải âm thanh đúng/sai lên GitHub
+*.mp3
+!amthanhdung.mp3
+!amthanhsai.mp3
+!**/amthanhdung.mp3
+!**/amthanhsai.mp3
+
 

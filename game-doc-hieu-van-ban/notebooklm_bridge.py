@@ -66,6 +66,7 @@ try:
     from notebooklm_tools.services import (
         downloads as downloads_service,
         notebooks as notebooks_service,
+        notes as notes_service,
         sources as sources_service,
         studio as studio_service,
     )
@@ -220,10 +221,11 @@ def create_one_artifact(
 
 
 def execute_push_payload(client: NotebookLMClient, body: dict[str, Any]) -> dict[str, Any]:
-    """Đẩy dữ liệu nguồn lên Google NotebookLM và tự động khởi tạo các tính năng Studio trên NotebookLM."""
+    """Đẩy dữ liệu nguồn + Ghi chú học liệu Studio lên Google NotebookLM và tự động khởi tạo các tính năng Studio trên NotebookLM."""
     notebook_id = str(body.get("notebook_id") or "").strip()
     title = str(body.get("title") or "Đọc hiểu Ngữ văn THPT").strip()
     sources = body.get("sources") or []
+    studio_notes = body.get("studio_notes") or []
     artifacts = body.get("artifacts") or [
         "audio",
         "slide_deck",
@@ -247,12 +249,43 @@ def execute_push_payload(client: NotebookLMClient, body: dict[str, Any]) -> dict
         skip_sources_if_exists=sources_already_uploaded,
     )
 
+    # 1. Tạo ngay các Ghi chú Học liệu Studio (Notes) cho từng tính năng đã chọn bên trong cột Studio của Google NotebookLM
+    created_notes: list[dict[str, Any]] = []
+    if not sources_already_uploaded and studio_notes:
+        for note in studio_notes:
+            n_title = str(note.get("title") or "").strip()
+            n_content = str(note.get("content") or "").strip()
+            if not n_title or not n_content:
+                continue
+            try:
+                nr = notes_service.create_note(client, notebook_id, n_content, title=n_title)
+                created_notes.append(dict(nr))
+            except Exception:
+                pass
+
+    # 2. Khởi tạo các tính năng Studio gốc của Google NotebookLM (ưu tiên các mục hoàn thành nhanh trước)
+    priority_order = [
+        "mind_map",
+        "report",
+        "quiz",
+        "flashcards",
+        "data_table",
+        "slide_deck",
+        "infographic",
+        "audio",
+        "video",
+    ]
+    ordered_artifacts = sorted(
+        artifacts,
+        key=lambda x: priority_order.index(x) if x in priority_order else 99,
+    )
+
     created_artifacts: list[dict[str, Any]] = []
     artifact_errors: list[dict[str, str]] = []
 
-    for idx, art_type in enumerate(artifacts):
+    for idx, art_type in enumerate(ordered_artifacts):
         if idx > 0:
-            time.sleep(0.35)
+            time.sleep(0.4)
         try:
             res = create_one_artifact(
                 client,
@@ -278,6 +311,7 @@ def execute_push_payload(client: NotebookLMClient, body: dict[str, Any]) -> dict
         "notebook_url": notebook_url,
         "title": title,
         "sources_added": len(source_ids),
+        "notes_added": len(created_notes),
         "created_artifacts": created_artifacts,
         "errors": artifact_errors,
     }
@@ -754,7 +788,7 @@ class BridgeHandler(SimpleHTTPRequestHandler):
             return self.send_json({"ok": False, "status": "error", "error": str(e)}, 500)
 
     def handle_execute_one(self) -> None:
-        """Tự động nạp nguồn (nếu chưa nạp) + khởi tạo 1 tính năng trên NotebookLM + trả kết quả."""
+        """Tự động nạp nguồn (nếu chưa nạp) + lưu Note học liệu + khởi tạo 1 tính năng trên NotebookLM + trả kết quả."""
         try:
             body = self.read_json()
             client = build_nlm_client()
@@ -765,6 +799,7 @@ class BridgeHandler(SimpleHTTPRequestHandler):
             artifact_type = str(body.get("artifact_type") or "").strip()
             focus_prompt = str(body.get("focus_prompt") or "").strip()
             sources_already_uploaded = bool(body.get("sources_already_uploaded"))
+            studio_note = body.get("studio_note")
 
             notebook_id, notebook_url, source_ids = ensure_notebook_and_sources(
                 client,
@@ -773,6 +808,15 @@ class BridgeHandler(SimpleHTTPRequestHandler):
                 sources,
                 skip_sources_if_exists=sources_already_uploaded,
             )
+
+            if isinstance(studio_note, dict):
+                n_title = str(studio_note.get("title") or "").strip()
+                n_content = str(studio_note.get("content") or "").strip()
+                if n_title and n_content:
+                    try:
+                        notes_service.create_note(client, notebook_id, n_content, title=n_title)
+                    except Exception:
+                        pass
 
             created = create_one_artifact(
                 client,

@@ -2191,10 +2191,130 @@ const NotebookLM = {
       ...a.questions.openEnded.map((q, i) => `${i + 1}. Câu hỏi: ${q.q}\n   Tiêu chí chấm: ${q.rubric}\n   Gợi ý đáp án: ${q.sampleAnswer}`),
     ].join('\n');
 
+    const notes = this.buildStudioNotes();
+    const src3 = [
+      `# TRỌN BỘ 9 HỌC LIỆU STUDIO CHUẨN HÓA: ${a.title.toUpperCase()}`,
+      ...notes.map((n) => `\n========================================\n## ${n.title}\n${n.content}`),
+    ].join('\n');
+
     return [
-      { title: `Ngữ liệu & Phân tích: ${a.title}`, text: src1 },
-      { title: `Sơ đồ tư duy & Kết quả Đọc hiểu: ${a.title}`, text: src2 },
+      { title: `1. Ngữ liệu & Phân tích THPT: ${a.title}`, text: src1 },
+      { title: `2. Sơ đồ tư duy & Kết quả Đọc hiểu: ${a.title}`, text: src2 },
+      { title: `3. Trọn bộ 9 Tính năng Studio: ${a.title}`, text: src3 },
     ];
+  },
+
+  buildStudioNotes(selectedIds = null) {
+    const a = App.analysis;
+    const G = Game;
+    const c = Result.counts(G.log);
+    const Q = a.questions || {};
+
+    const allNotes = {
+      audio: {
+        id: 'audio',
+        title: `🎙️ Tổng quan bằng âm thanh (Podcast): ${a.title}`,
+        content: [
+          `# KỊCH BẢN TỔNG QUAN BẰNG ÂM THANH (PODCAST 2 HOST) – ${a.title.toUpperCase()}`,
+          `- Host 1 (Minh Anh): Chào các bạn học sinh THPT! Hôm nay chúng ta cùng khám phá tác phẩm “${a.title}” của ${a.author || 'tác giả'} (${a.gradeLevel || App.settings.grade}).`,
+          `- Host 2 (Hoàng Nam): Điểm cuốn hút nhất ở văn bản này chính là chủ đề: ${a.theme}.`,
+          `- Host 1 (Minh Anh): Về mặt thi pháp và nghệ thuật, nổi bật là: ${a.artTechniques.map((t) => `${t.name} qua dẫn chứng “${t.example}” (${t.effect})`).join('; ') || 'ngôn từ giàu sức gợi'}.`,
+          `- Host 2 (Hoàng Nam): ${G.review.length ? `Khi luyện tập đọc hiểu, cần lưu ý tránh nhầm lẫn ở điểm: ${G.review.join('; ')}.` : 'Cả lớp đã nắm rất chắc mạch đọc hiểu!'} Thông điệp tư tưởng sâu sắc nhất là: ${a.message}`,
+        ].join('\n\n'),
+      },
+      slide_deck: {
+        id: 'slide_deck',
+        title: `📊 Bản trình bày (Slide Bài giảng): ${a.title}`,
+        content: [
+          `# BẢN TRÌNH BÀY BÀI GIẢNG NGỮ VĂN THPT – ${a.title.toUpperCase()}`,
+          `## Slide 1: Giới thiệu chung\n- Tác phẩm: ${a.title}\n- Tác giả / Nguồn: ${a.author || '—'}\n- Thể loại: ${a.genre || '—'} (${a.gradeLevel || App.settings.grade})\n- Tóm tắt: ${a.summary}`,
+          `## Slide 2: Bố cục & Mạch vận động của văn bản\n${(a.mainIdeas.length ? a.mainIdeas : a.timeline).map((x, i) => `${i + 1}. ${x}`).join('\n')}`,
+          `## Slide 3: Hình tượng & Chủ thể biểu đạt\n${a.characters.map((ch) => `- ${ch.name}: ${ch.traits}`).join('\n') || a.theme}`,
+          `## Slide 4: Đặc sắc Nghệ thuật & Thi pháp\n${a.artTechniques.map((t) => `- ${t.name} (“${t.example}”) ➜ Tác dụng: ${t.effect}`).join('\n')}`,
+          `## Slide 5: Thông điệp Tư tưởng & Tổng kết Đọc hiểu\n- Chủ đề: ${a.theme}\n- Thông điệp: ${a.message}\n- Kết quả đọc hiểu của lớp: ${c.ok}/${c.total} câu đúng (${c.pct}%)`,
+        ].join('\n\n'),
+      },
+      video: {
+        id: 'video',
+        title: `🎬 Tổng quan bằng video (Explainer Video): ${a.title}`,
+        content: [
+          `# KỊCH BẢN TỔNG QUAN BẰNG VIDEO – ${a.title.toUpperCase()}`,
+          `- Cảnh 1 (0:00 – 0:30) [Hook mở đầu]: Giới thiệu nhan đề “${a.title}” (${a.author || '—'}) và câu hỏi khởi động tư duy.`,
+          `- Cảnh 2 (0:30 – 1:30) [Mạch văn bản]: Trình chiếu sơ đồ diễn biến: ${a.timeline.slice(0, 4).join(' → ')}.`,
+          `- Cảnh 3 (1:30 – 2:45) [Giải mã Thi pháp]: Phân tích trực quan các biện pháp nghệ thuật: ${a.artTechniques.map((t) => `${t.name} (“${t.example}”)`).join(', ')}.`,
+          `- Cảnh 4 (2:45 – 3:30) [Lưu ý Đọc hiểu THPT]: Giải đáp các câu hỏi vận dụng và lỗi sai thường gặp.`,
+          `- Cảnh 5 (3:30 – 4:00) [Thông điệp kết thúc]: Khắc sâu bài học nhân sinh: “${a.message}”.`,
+        ].join('\n\n'),
+      },
+      mind_map: {
+        id: 'mind_map',
+        title: `🧠 Bản đồ tư duy: ${a.title}`,
+        content: [
+          `# BẢN ĐỒ TƯ DUY CHỐT KIẾN THỨC – ${a.title.toUpperCase()}`,
+          `1. CHỦ ĐỀ & CẢM HỨNG:\n   - ${a.theme}`,
+          `2. BỐ CỤC / MẠCH TRIỂN KHAI:\n${(a.mainIdeas.length ? a.mainIdeas : a.timeline).map((x) => `   - ${x}`).join('\n')}`,
+          `3. HÌNH TƯỢNG / NHÂN VẬT TRUNG TÂM:\n${a.characters.map((ch) => `   - ${ch.name}: ${ch.traits}`).join('\n')}`,
+          `4. ĐẶC SẮC NGHỆ THUẬT & THI PHÁP:\n${a.artTechniques.map((t) => `   - ${t.name} (“${t.example}”) ➜ ${t.effect}`).join('\n')}`,
+          `5. THÔNG ĐIỆP TƯ TƯỞNG:\n   - ${a.message}`,
+          `6. TỪ KHÓA / KHÁI NIỆM HỌC THUẬT:\n${a.vocabulary.map((v) => `   - ${v.word}: ${v.meaning}`).join('\n')}`,
+        ].join('\n\n'),
+      },
+      report: {
+        id: 'report',
+        title: `📄 Báo cáo & Hướng dẫn học tập (CV 5512): ${a.title}`,
+        content: [
+          `# BÁO CÁO & KẾ HOẠCH BÀI DẠY (CÔNG VĂN 5512) – ${a.title.toUpperCase()}`,
+          `## 1. Mục tiêu bài học (Theo YCCĐ CT GDPT 2018)\n- Nhận biết: Xác định thể loại (${a.genre || '—'}), tác giả (${a.author || '—'}), chủ thể biểu đạt và chi tiết tiêu biểu.\n- Thông hiểu: Phân tích chủ đề (${a.theme}), mạch kết cấu và tác dụng biện pháp nghệ thuật.\n- Vận dụng: Liên hệ thông điệp (${a.message}) vào thực tiễn đời sống.`,
+          `## 2. Tiến trình tổ chức hoạt động dạy học\n- Hoạt động 1 (Mở đầu – 5 phút): Khởi động gắn với hình tượng trung tâm của “${a.title}”.\n- Hoạt động 2 (Hình thành kiến thức mới – 20 phút): Tìm hiểu bố cục (${a.mainIdeas.join(' → ')}) và phân tích nghệ thuật (${a.artTechniques.map((t) => t.name).join(', ')}).\n- Hoạt động 3 (Luyện tập Đọc hiểu – 12 phút): Tổ chức 6 vòng câu hỏi; kết quả lớp đạt ${c.ok}/${c.total} câu (${c.pct}%).\n- Hoạt động 4 (Vận dụng & Khắc phục lỗi sai – 8 phút): ${G.review.length ? `Chốt lại các câu học sinh còn nhầm: ${G.review.join('; ')}.` : 'Mở rộng thảo luận câu hỏi tự luận vận dụng cao.'}`,
+        ].join('\n\n'),
+      },
+      flashcards: {
+        id: 'flashcards',
+        title: `🗂️ Thẻ ghi nhớ (Flashcards): ${a.title}`,
+        content: [
+          `# BỘ THẺ GHI NHỚ ÔN TẬP (FLASHCARDS) – ${a.title.toUpperCase()}`,
+          ...a.vocabulary.map((v, i) => `- Thẻ #${i + 1} [Thuật ngữ]: ${v.word}\n  ➜ Giải nghĩa: ${v.meaning}`),
+          ...a.artTechniques.map((t, i) => `- Thẻ #${a.vocabulary.length + i + 1} [Nghệ thuật]: ${t.name} (“${t.example}”)\n  ➜ Tác dụng: ${t.effect}`),
+          `- Thẻ [Chủ đề]: Chủ đề chính của “${a.title}” là gì?\n  ➜ Đáp án: ${a.theme}`,
+          `- Thẻ [Thông điệp]: Thông điệp tư tưởng của “${a.title}”?\n  ➜ Đáp án: ${a.message}`,
+        ].join('\n\n'),
+      },
+      quiz: {
+        id: 'quiz',
+        title: `❓ Bài kiểm tra Đọc hiểu: ${a.title}`,
+        content: [
+          `# BÀI KIỂM TRA ĐỌC HIỂU CHUẨN THPT – ${a.title.toUpperCase()}`,
+          ...arr(Q.mcq).map((m, i) => `Câu ${i + 1} [${m.level}]: ${m.q}\n${m.options.map((opt, idx) => `   ${'ABCD'[idx]}. ${opt}`).join('\n')}\n   ✓ Đáp án đúng: ${'ABCD'[m.ans]} — Giải thích: ${m.explain}`),
+          ...arr(Q.trueFalse).map((t, i) => `Câu Đúng/Sai ${i + 1} [${t.level}]: “${t.statement}”\n   ✓ Đáp án: ${t.answer ? 'ĐÚNG' : 'SAI'} — Giải thích: ${t.explain}`),
+        ].join('\n\n'),
+      },
+      infographic: {
+        id: 'infographic',
+        title: `📊 Bản đồ hoạ thông tin (Infographic): ${a.title}`,
+        content: [
+          `# BẢN ĐỒ HOẠ THÔNG TIN (INFOGRAPHIC TÓM TẮT) – ${a.title.toUpperCase()}`,
+          `1. HỒ SƠ TÁC PHẨM: ${a.title} · Tác giả: ${a.author || '—'} · Thể loại: ${a.genre || '—'} · Khối: ${a.gradeLevel || App.settings.grade}`,
+          `2. TRỤC NỘI DUNG & KẾT CẤU:\n${(a.mainIdeas.length ? a.mainIdeas : a.timeline).map((x, i) => `   [${i + 1}] ${x}`).join('\n')}`,
+          `3. TRỤC THI PHÁP & NGHỆ THUẬT:\n${a.artTechniques.map((t) => `   • ${t.name}: “${t.example}” ➜ ${t.effect}`).join('\n')}`,
+          `4. THÔNG ĐIỆP CỐT LÕI & CHỈ SỐ ĐỌC HIỂU:\n   • Thông điệp: ${a.message}\n   • Kết quả lớp học: ${c.ok}/${c.total} câu đúng (${c.pct}%)`,
+        ].join('\n\n'),
+      },
+      data_table: {
+        id: 'data_table',
+        title: `📋 Bảng dữ liệu Học thuật: ${a.title}`,
+        content: [
+          `# BẢNG DỮ LIỆU TỔNG HỢP HỌC THUẬT – ${a.title.toUpperCase()}`,
+          `| STT | Phân loại | Yếu tố / Hình tượng / Nghệ thuật | Dẫn chứng tiêu biểu | Giá trị / Tác dụng biểu đạt |`,
+          `|---|---|---|---|---|`,
+          ...a.artTechniques.map((t, i) => `| ${i + 1} | Nghệ thuật | ${t.name} | “${t.example}” | ${t.effect} |`),
+          ...a.characters.map((ch, i) => `| ${a.artTechniques.length + i + 1} | Hình tượng | ${ch.name} | Trong văn bản | ${ch.traits} |`),
+          ...a.vocabulary.map((v, i) => `| ${a.artTechniques.length + a.characters.length + i + 1} | Từ khóa | ${v.word} | Thuật ngữ | ${v.meaning} |`),
+        ].join('\n'),
+      },
+    };
+
+    const ids = selectedIds && selectedIds.length ? selectedIds : Object.keys(allNotes);
+    return ids.map((k) => allNotes[k]).filter(Boolean);
   },
 
   features: [
@@ -2419,6 +2539,7 @@ const NotebookLM = {
       notebook_id: targetNb,
       title: `Đọc hiểu THPT – ${App.analysis.title}`,
       sources: this.buildSourcePackage(),
+      studio_notes: this.buildStudioNotes(artifacts),
       artifacts,
       focus_prompt: $('nlmFocusPrompt')?.value.trim() || '',
       sources_already_uploaded: !!(this.sourcesUploaded && targetNb && targetNb === this.lastNotebookId),
@@ -2443,7 +2564,7 @@ const NotebookLM = {
       } else if (t) {
         this.itemState[t] = {
           status: 'running',
-          msg: `Đã đẩy dữ liệu & đang tạo "${this.featLabel(t)}" bên trong Google NotebookLM…`,
+          msg: `Đã tạo học liệu Studio & đang sinh "${this.featLabel(t)}" bên trong Google NotebookLM…`,
         };
         this.startArtifactPoller(t, res.notebook_id, art.artifact_id);
       }
@@ -2457,14 +2578,14 @@ const NotebookLM = {
     const box = $('nlmPushResult');
     if (box) {
       box.hidden = false;
-      const createdList = arr(res.created_artifacts).map((x) => `<li>✅ <strong>${esc(this.featLabel(x.artifact_type))}</strong>: Đã khởi tạo bên trong Google NotebookLM &amp; đang đồng bộ về App</li>`).join('');
+      const createdList = arr(res.created_artifacts).map((x) => `<li>✅ <strong>${esc(this.featLabel(x.artifact_type))}</strong>: Đã có dữ liệu học liệu Studio + đang sinh bản gốc trong Google NotebookLM</li>`).join('');
       const errList = arr(res.errors).map((x) => `<li style="color:#fca5a5">⚠️ ${esc(this.featLabel(x.type))}: ${esc(x.error)}</li>`).join('');
       box.innerHTML = `
-        <div>🎉 <strong>Đã kết nối &amp; tự động đẩy toàn bộ dữ liệu qua Google NotebookLM thành công!</strong></div>
-        <div style="margin:6px 0">✨ <strong>Google NotebookLM đang tự động tạo các tính năng Studio bên trong Notebook của bạn và sẽ đồng bộ kết quả về khung bên phải!</strong></div>
+        <div>🎉 <strong>Đã kết nối &amp; tự động đẩy toàn bộ dữ liệu 9 tính năng qua Google NotebookLM thành công!</strong></div>
+        <div style="margin:6px 0">✨ <strong>Đã nạp ${res.sources_added || 3} nguồn dữ liệu + tạo ngay ${res.notes_added || 9} mục học liệu chi tiết trong cột Studio bên phải của Google NotebookLM + kích hoạt tạo tự động 9 tính năng gốc!</strong></div>
         <ul style="margin-left:18px;margin-top:6px">${createdList}${errList}</ul>
         <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-          <a class="btn small primary" href="${esc(res.notebook_url)}" target="_blank" rel="noopener" style="text-decoration:none">↗ Mở xem các tính năng bên Google NotebookLM</a>
+          <a class="btn small primary" href="${esc(res.notebook_url)}" target="_blank" rel="noopener" style="text-decoration:none">↗ Mở xem dữ liệu 9 tính năng bên Google NotebookLM</a>
           <button type="button" class="btn small ghost" id="btnPollNlmStudio">🔄 Kiểm tra tiến độ Studio</button>
         </div>`;
       $('btnPollNlmStudio').onclick = () => this.pollStudio();
@@ -2665,6 +2786,7 @@ const NotebookLM = {
           notebook_id: targetNb,
           title: `Đọc hiểu THPT – ${App.analysis.title}`,
           sources: this.buildSourcePackage(),
+          studio_note: this.buildStudioNotes([tab])[0] || null,
           artifact_type: tab,
           focus_prompt: $('nlmFocusPrompt')?.value.trim() || '',
           sources_already_uploaded: !!(this.sourcesUploaded && targetNb && targetNb === this.lastNotebookId),
@@ -2911,22 +3033,22 @@ CHỈ TRẢ VỀ JSON: {"headers": ["STT", "Yếu tố / Hình tượng / Nghệ
 
   async copyAndOpenWeb() {
     const pkg = this.buildSourcePackage();
-    const combined = `${pkg[0].text}\n\n========================================\n\n${pkg[1].text}`;
-    await copyToClipboard(combined, 'trọn bộ Hồ sơ Nguồn cho NotebookLM');
+    const combined = pkg.map((p) => p.text).join('\n\n========================================\n\n');
+    await copyToClipboard(combined, 'trọn bộ Hồ sơ Nguồn + Dữ liệu 9 tính năng Studio cho NotebookLM');
     window.open('https://notebooklm.google.com/', '_blank', 'noopener');
   },
 
   downloadSourceMd() {
     const pkg = this.buildSourcePackage();
-    const combined = `${pkg[0].text}\n\n---\n\n${pkg[1].text}`;
+    const combined = pkg.map((p) => p.text).join('\n\n---\n\n');
     const blob = new Blob([combined], { type: 'text/markdown;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `nguon-notebooklm-${(App.analysis?.title || 'van-ban').slice(0, 30)}.md`;
+    a.download = `nguon-9-tinh-nang-notebooklm-${(App.analysis?.title || 'van-ban').slice(0, 30)}.md`;
     document.body.appendChild(a);
     a.click();
     a.remove();
-    toast('✅ Đã tải file nguồn (.md) để nạp vào Google NotebookLM!');
+    toast('✅ Đã tải file nguồn (.md) gồm trọn bộ 9 tính năng để nạp vào Google NotebookLM!');
   },
 
   renderTreeHtml(node) {
