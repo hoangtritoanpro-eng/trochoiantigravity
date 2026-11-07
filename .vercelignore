@@ -1,0 +1,8 @@
+gemini-notebook-mcp-cli/
+.nlm_storage/
+nlm_outputs/
+game-doc-hieu-van-ban/.nlm_storage/
+game-doc-hieu-van-ban/nlm_outputs/
+__pycache__/
+*.pyc
+*.log

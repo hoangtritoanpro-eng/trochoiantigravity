@@ -1,0 +1,5 @@
+.nlm_storage/
+nlm_outputs/
+__pycache__/
+*.pyc
+*.log
