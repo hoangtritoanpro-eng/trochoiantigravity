@@ -2108,7 +2108,10 @@ const MindMap = {
       <div class="mm-svg-wrap">${this.buildSvg()}</div>
     </div>`;
     $('btnDownloadMmSvg').onclick = () => this.downloadSvg();
-    $('btnMmToNlm').onclick = () => $('nlmSection')?.scrollIntoView({ behavior: 'smooth' });
+    $('btnMmToNlm').onclick = () => {
+      $('nlmSection')?.scrollIntoView({ behavior: 'smooth' });
+      NotebookLM.connectAndAutoPush();
+    };
   },
 
   downloadSvg() {
@@ -2133,7 +2136,9 @@ const NotebookLM = {
   lastNotebookId: '',
   lastNotebookUrl: '',
   sourcesUploaded: false,
+  autoPushOnConnect: true,
   autoExecuteOnSelect: true,
+  isPushing: false,
   liveResults: {},
   itemState: {},
   pollTimers: {},
@@ -2289,19 +2294,19 @@ const NotebookLM = {
       <div class="nlm-head">
         <div>
           <div class="nlm-title">🚀 <span>ĐẤU NỐI GOOGLE NOTEBOOKLM (9 TÍNH NĂNG STUDIO)</span></div>
-          <div style="font-size:14px;color:#cbd5e1;margin-top:4px">Khi chọn mục bất kỳ hoặc bấm nút thực hiện, ứng dụng tự động đấu nối, chuyển dữ liệu qua thực hiện và hiển thị kết quả trực tiếp ngay trên App</div>
+          <div style="font-size:14px;color:#cbd5e1;margin-top:4px">Khi kết nối với Google NotebookLM, hệ thống tự động tạo Notebook, đẩy toàn bộ dữ liệu qua để tạo các tính năng bên NotebookLM và đồng bộ kết quả lên App</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <span class="nlm-badge" id="nlmConnBadge">⏳ Đang kiểm tra cầu nối NotebookLM…</span>
-          <button type="button" class="btn small ghost" id="btnNlmRefresh">🔄 Kiểm tra kết nối</button>
-          <button type="button" class="btn small" id="btnNlmLogin">🔑 Đăng nhập NotebookLM</button>
+          <button type="button" class="btn small ghost" id="btnNlmRefresh">🔄 Kiểm tra &amp; Đẩy tự động</button>
+          <button type="button" class="btn small primary" id="btnNlmLogin">🔑 Kết nối &amp; Tự động đẩy qua NotebookLM</button>
         </div>
       </div>
 
       <div class="nlm-grid">
         <!-- CỘT TRÁI: 9 TÍNH NĂNG GOOGLE NOTEBOOKLM STUDIO -->
         <div class="nlm-panel">
-          <h3>① Chọn Tính năng Studio để Thực hiện &amp; Hiện lên App</h3>
+          <h3>① Chọn Tính năng tạo bên Google NotebookLM &amp; Hiện lên App</h3>
           <div class="form-row">
             <label class="field-label" for="nlmTargetNotebook">Chọn Notebook đích trên Google NotebookLM</label>
             <select id="nlmTargetNotebook">
@@ -2309,13 +2314,18 @@ const NotebookLM = {
             </select>
           </div>
 
-          <label class="nlm-auto-bar" for="chkAutoExecuteStudio">
-            <span>⚡ Tự động đấu nối, chuyển dữ liệu &amp; thực hiện ngay khi bấm chọn mục</span>
+          <label class="nlm-auto-bar" for="chkAutoPushOnConnect">
+            <span>🚀 Khi kết nối Google NotebookLM thì tự động đẩy dữ liệu qua tạo các tính năng bên NotebookLM</span>
+            <input type="checkbox" id="chkAutoPushOnConnect" ${this.autoPushOnConnect ? 'checked' : ''}>
+          </label>
+
+          <label class="nlm-auto-bar" for="chkAutoExecuteStudio" style="margin-top:-4px">
+            <span>⚡ Tự động thực hiện &amp; hiển thị kết quả ngay khi bấm chọn từng mục</span>
             <input type="checkbox" id="chkAutoExecuteStudio" ${this.autoExecuteOnSelect ? 'checked' : ''}>
           </label>
 
           <div class="row-between" style="margin-top:6px;margin-bottom:4px;flex-wrap:wrap;gap:8px">
-            <label class="field-label" style="margin:0">Bấm vào mục để thực hiện · Tích chọn chạy hàng loạt:</label>
+            <label class="field-label" style="margin:0">Tích chọn các tính năng sẽ tự động tạo bên Google NotebookLM:</label>
             <div style="display:flex;gap:6px;flex-shrink:0">
               <button type="button" class="btn small ghost" id="btnNlmCheckAll" style="padding:4px 9px;font-size:12px;white-space:nowrap">☑ Chọn cả 9</button>
               <button type="button" class="btn small ghost" id="btnNlmUncheckAll" style="padding:4px 9px;font-size:12px;white-space:nowrap">☐ Bỏ chọn</button>
@@ -2327,17 +2337,26 @@ const NotebookLM = {
           </div>
 
           <div class="form-row">
-            <label class="field-label" for="nlmFocusPrompt">Yêu cầu / Định hướng sư phạm (tùy chọn)</label>
+            <label class="field-label" for="nlmFocusPrompt">Yêu cầu / Định hướng sư phạm gửi qua NotebookLM (tùy chọn)</label>
             <input type="text" id="nlmFocusPrompt" value="Thiết kế học liệu tiếng Việt bám sát Chương trình Ngữ văn THPT 2018 (${esc(a.gradeLevel || App.settings.grade)}), nhấn mạnh các câu học sinh còn làm sai.">
           </div>
 
           <div class="nlm-actions">
-            <button type="button" class="btn primary big" id="btnPushNlm">🚀 Tự động đấu nối, thực hiện &amp; Hiện kết quả lên App</button>
+            <button type="button" class="btn primary big" id="btnPushNlm">🚀 Tự động đẩy dữ liệu qua Google NotebookLM &amp; Tạo các tính năng đã chọn</button>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <button type="button" class="btn ghost small" id="btnOpenNlmWeb" title="Copy toàn bộ hồ sơ nguồn vào Clipboard và mở trang chủ Google NotebookLM">📤 Copy Nguồn &amp; Mở NotebookLM Web ↗</button>
               <button type="button" class="btn ghost small" id="btnDownloadNlmSource" title="Tải file Markdown chuẩn để nạp vào NotebookLM">📥 Tải file Nguồn (.md)</button>
             </div>
           </div>
+
+          <details style="margin-top:10px;background:rgba(15,23,42,.55);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:8px 12px;font-size:13px;color:#cbd5e1">
+            <summary style="cursor:pointer;font-weight:700;color:#99f6e4">🍪 Kết nối nhanh bằng Cookie / cURL từ Google NotebookLM (Tùy chọn)</summary>
+            <div style="margin-top:8px">
+              <div style="margin-bottom:6px;font-size:12.5px;color:#cbd5e1">Nếu trình duyệt của bạn đang đăng nhập sẵn <a href="https://notebooklm.google.com/" target="_blank" rel="noopener" style="color:#fde047">notebooklm.google.com</a>, bạn có thể dán chuỗi Cookie hoặc lệnh <code>Copy as cURL</code> vào đây để kết nối và tự động đẩy dữ liệu ngay:</div>
+              <textarea id="nlmCookieInput" rows="2" placeholder="Dán chuỗi Cookie hoặc lệnh cURL từ trang notebooklm.google.com..." style="width:100%;font-size:12.5px;border-radius:8px;padding:7px;margin-bottom:6px"></textarea>
+              <button type="button" class="btn small primary" id="btnNlmCookieConnect">🔗 Xác thực Cookie &amp; Tự động đẩy qua NotebookLM</button>
+            </div>
+          </details>
 
           <div id="nlmPushResult" class="nlm-status-box" hidden></div>
         </div>
@@ -2359,13 +2378,20 @@ const NotebookLM = {
       </div>
     </div>`;
 
-    $('btnNlmRefresh').onclick = () => this.checkStatus(false);
-    $('btnNlmLogin').onclick = () => this.loginAndWatch();
-    $('btnPushNlm').onclick = () => this.pushToNotebookLM();
+    $('btnNlmRefresh').onclick = async () => {
+      await this.checkStatus(false);
+      if (this.bridgeState.authenticated && !this.sourcesUploaded && !this.isPushing) {
+        this.pushToNotebookLM({ openInBrowser: true });
+      }
+    };
+    $('btnNlmLogin').onclick = () => this.connectAndAutoPush();
+    $('btnPushNlm').onclick = () => this.pushToNotebookLM({ openInBrowser: true });
+    $('btnNlmCookieConnect').onclick = () => this.authWithCookie();
     $('btnOpenNlmWeb').onclick = () => this.copyAndOpenWeb();
     $('btnDownloadNlmSource').onclick = () => this.downloadSourceMd();
     $('btnCopyStudioOut').onclick = () => copyToClipboard($('studioOutput')?.innerText || '', 'học liệu Studio');
     $('btnExecuteActiveTab').onclick = () => this.executeSingle(this.activeTab, true);
+    $('chkAutoPushOnConnect').onchange = (e) => { this.autoPushOnConnect = e.target.checked; };
     $('chkAutoExecuteStudio').onchange = (e) => { this.autoExecuteOnSelect = e.target.checked; };
     $('btnNlmCheckAll').onclick = () => document.querySelectorAll('#nlmArtifactChecks input[type=checkbox]').forEach((c) => (c.checked = true));
     $('btnNlmUncheckAll').onclick = () => document.querySelectorAll('#nlmArtifactChecks input[type=checkbox]').forEach((c) => (c.checked = false));
@@ -2383,6 +2409,66 @@ const NotebookLM = {
 
     this.switchStudioTab(this.activeTab || 'report', false);
     this.checkStatus(true);
+  },
+
+  buildAutoPushPayload(openInBrowser = true) {
+    const selected = [...document.querySelectorAll('#nlmArtifactChecks input:checked')].map((i) => i.value);
+    const artifacts = selected.length ? selected : this.features.map((f) => f.id);
+    const targetNb = $('nlmTargetNotebook')?.value || this.lastNotebookId || '';
+    return {
+      notebook_id: targetNb,
+      title: `Đọc hiểu THPT – ${App.analysis.title}`,
+      sources: this.buildSourcePackage(),
+      artifacts,
+      focus_prompt: $('nlmFocusPrompt')?.value.trim() || '',
+      sources_already_uploaded: !!(this.sourcesUploaded && targetNb && targetNb === this.lastNotebookId),
+      open_in_browser: openInBrowser,
+    };
+  },
+
+  applyPushResult(res) {
+    if (!res || !res.ok) return;
+    this.lastNotebookId = res.notebook_id;
+    this.lastNotebookUrl = res.notebook_url;
+    this.sourcesUploaded = true;
+
+    arr(res.created_artifacts).forEach((art) => {
+      const t = art.artifact_type;
+      if (t === 'mind_map' && art.mind_map_json) {
+        try {
+          const tree = JSON.parse(art.mind_map_json);
+          this.liveResults[t] = { source: 'Google NotebookLM', kind: 'mind_map', tree };
+          this.itemState[t] = { status: 'done', msg: '🎉 Đã tạo & nhận Bản đồ tư duy trực tiếp từ Google NotebookLM!' };
+        } catch (_) {}
+      } else if (t) {
+        this.itemState[t] = {
+          status: 'running',
+          msg: `Đã đẩy dữ liệu & đang tạo "${this.featLabel(t)}" bên trong Google NotebookLM…`,
+        };
+        this.startArtifactPoller(t, res.notebook_id, art.artifact_id);
+      }
+    });
+    arr(res.errors).forEach((err) => {
+      this.itemState[err.type] = { status: 'error', msg: err.error };
+    });
+    this.updatePillBadges();
+    this.renderStudioTab(this.activeTab);
+
+    const box = $('nlmPushResult');
+    if (box) {
+      box.hidden = false;
+      const createdList = arr(res.created_artifacts).map((x) => `<li>✅ <strong>${esc(this.featLabel(x.artifact_type))}</strong>: Đã khởi tạo bên trong Google NotebookLM &amp; đang đồng bộ về App</li>`).join('');
+      const errList = arr(res.errors).map((x) => `<li style="color:#fca5a5">⚠️ ${esc(this.featLabel(x.type))}: ${esc(x.error)}</li>`).join('');
+      box.innerHTML = `
+        <div>🎉 <strong>Đã kết nối &amp; tự động đẩy toàn bộ dữ liệu qua Google NotebookLM thành công!</strong></div>
+        <div style="margin:6px 0">✨ <strong>Google NotebookLM đang tự động tạo các tính năng Studio bên trong Notebook của bạn và sẽ đồng bộ kết quả về khung bên phải!</strong></div>
+        <ul style="margin-left:18px;margin-top:6px">${createdList}${errList}</ul>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <a class="btn small primary" href="${esc(res.notebook_url)}" target="_blank" rel="noopener" style="text-decoration:none">↗ Mở xem các tính năng bên Google NotebookLM</a>
+          <button type="button" class="btn small ghost" id="btnPollNlmStudio">🔄 Kiểm tra tiến độ Studio</button>
+        </div>`;
+      $('btnPollNlmStudio').onclick = () => this.pollStudio();
+    }
   },
 
   updatePillBadges() {
@@ -2453,44 +2539,109 @@ const NotebookLM = {
           sel.innerHTML = defaultOpt + this.bridgeState.notebooks.map((nb) => `<option value="${esc(nb.id)}">📒 ${esc(nb.title)} (${nb.source_count || 0} nguồn)</option>`).join('');
           if (curVal) sel.value = curVal;
         }
+        if (data.last_auto_push && data.last_auto_push.ok) {
+          this.applyPushResult(data.last_auto_push);
+          toast('🎉 Đã kết nối & tự động đẩy dữ liệu qua Google NotebookLM để tạo các tính năng Studio!');
+          return;
+        }
         if (!silent) toast('✅ Đã kết nối trực tiếp với tài khoản Google NotebookLM!');
+        // KHI KẾT NỐI NOTEBOOKLM -> TỰ ĐỘNG ĐẨY DỮ LIỆU QUA NOTEBOOKLM ĐỂ TẠO RA CÁC TÍNH NĂNG BÊN NOTEBOOKLM!
+        if (this.autoPushOnConnect && !this.sourcesUploaded && !this.isPushing) {
+          this.pushToNotebookLM({ openInBrowser: true, autoTriggered: true });
+        }
       } else {
         badge.className = 'nlm-badge warn';
-        badge.textContent = '🟡 Cầu nối sẵn sàng · Cần bấm "🔑 Đăng nhập NotebookLM"';
-        if (!silent) toast(data.error || 'Hãy bấm "🔑 Đăng nhập NotebookLM" để xác thực tài khoản Google.', true);
+        badge.textContent = data.login_in_progress
+          ? '⏳ Đang chờ bạn đăng nhập trên cửa sổ Google NotebookLM…'
+          : '🟡 Cầu nối sẵn sàng · Bấm "🔑 Kết nối & Tự động đẩy qua NotebookLM"';
+        if (!silent) toast(data.error || 'Hãy bấm "🔑 Kết nối & Tự động đẩy qua NotebookLM" để xác thực tài khoản Google.', true);
       }
     } catch (e) {
       this.bridgeState = { connected: false, authenticated: false, notebooks: [], error: e.message };
       badge.className = 'nlm-badge warn';
       badge.textContent = App.apiKey()
         ? '🟢 Chế độ AI Studio Trực tiếp (Tự động thực hiện & hiện kết quả ngay trên App)'
-        : '🌐 Chế độ Web (Nhập Gemini API Key hoặc chạy Chay_Game.bat để đấu nối tự động)';
-      if (!silent) toast('Đang ở chế độ Web trực tiếp. Bạn có thể bấm chọn bất kỳ mục nào để thực hiện và xem kết quả ngay trên App!');
+        : '🌐 Chế độ Web (Bấm "🔑 Kết nối & Tự động đẩy qua NotebookLM" hoặc bật Chay_Game.bat)';
+      if (!silent) toast('Đang ở chế độ Web. Hãy chạy Chay_Game.bat để tự động tạo trực tiếp trong tài khoản Google NotebookLM của bạn!');
+    }
+  },
+
+  async connectAndAutoPush() {
+    await this.checkStatus(true);
+    if (this.bridgeState.connected && this.bridgeState.authenticated) {
+      return this.pushToNotebookLM({ openInBrowser: true });
+    }
+    return this.loginAndWatch(() => {
+      if (!this.sourcesUploaded && !this.isPushing) {
+        this.pushToNotebookLM({ openInBrowser: true });
+      }
+    });
+  },
+
+  async authWithCookie() {
+    const cookieText = $('nlmCookieInput')?.value.trim() || '';
+    if (!cookieText) return toast('Hãy dán chuỗi Cookie hoặc lệnh cURL từ trang notebooklm.google.com vào ô.', true);
+    const btn = $('btnNlmCookieConnect');
+    btn.disabled = true;
+    const oldText = btn.textContent;
+    btn.textContent = '⏳ Đang xác thực & đẩy dữ liệu qua Google NotebookLM…';
+    try {
+      const res = await this.api('/api/notebooklm/auth-cookie', {
+        cookie_text: cookieText,
+        auto_push_payload: this.buildAutoPushPayload(true),
+      });
+      if (!res.ok) throw new Error(res.error || 'Không xác thực được Cookie.');
+      await this.checkStatus(true);
+      if (res.push_result && res.push_result.ok) {
+        this.applyPushResult(res.push_result);
+      }
+      toast('🎉 Đã kết nối Google NotebookLM & tự động đẩy dữ liệu qua tạo các tính năng Studio!');
+    } catch (e) {
+      toast(e.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = oldText;
     }
   },
 
   async loginAndWatch(afterLoginCallback = null) {
     try {
-      const data = await this.api('/api/notebooklm/login', {});
-      toast(data.message || 'Đã mở trình duyệt đăng nhập Google NotebookLM. Đang chờ xác thực tự động…');
+      const payload = this.buildAutoPushPayload(true);
+      const data = await this.api('/api/notebooklm/login', { auto_push_payload: payload });
+      if (data.already_authenticated && data.push_result?.ok) {
+        this.applyPushResult(data.push_result);
+        toast('🎉 Đã tự động đẩy dữ liệu qua Google NotebookLM và khởi tạo các tính năng Studio!');
+        return;
+      }
+      toast(data.message || 'Đã mở trình duyệt đăng nhập Google NotebookLM. Ngay khi đăng nhập xong sẽ tự động đẩy dữ liệu!');
+      const box = $('nlmPushResult');
+      if (box) {
+        box.hidden = false;
+        box.innerHTML = '⏳ <strong>Đang chờ đăng nhập Google NotebookLM…</strong> Ngay khi bạn đăng nhập xong trên cửa sổ trình duyệt vừa mở, hệ thống sẽ <strong>tự động tạo Notebook, đẩy dữ liệu qua Google NotebookLM và tạo các tính năng Studio</strong> cho bạn!';
+      }
       if (this.loginWatchTimer) clearInterval(this.loginWatchTimer);
       let checks = 0;
       this.loginWatchTimer = setInterval(async () => {
         checks++;
-        if (checks > 60) {
+        if (checks > 90) {
           clearInterval(this.loginWatchTimer);
           return;
         }
         await this.checkStatus(true);
         if (this.bridgeState.authenticated) {
           clearInterval(this.loginWatchTimer);
-          toast('🎉 Đăng nhập Google NotebookLM thành công! Đang tự động đấu nối dữ liệu…');
-          if (afterLoginCallback) afterLoginCallback();
+          toast('🎉 Đăng nhập Google NotebookLM thành công! Đã tự động đấu nối và đẩy dữ liệu qua NotebookLM!');
+          if (afterLoginCallback && !this.sourcesUploaded && !this.isPushing) {
+            afterLoginCallback();
+          }
         }
       }, 3000);
     } catch (e) {
-      window.open('https://notebooklm.google.com/', '_blank', 'noopener');
-      toast('Đã mở trang Google NotebookLM. Nếu chạy trên máy tính, hãy mở bằng Chay_Game.bat để đồng bộ tự động.');
+      // Nếu mở trên Web mà chưa bật cầu nối cục bộ: tự động copy trọn bộ dữ liệu, tải file .md và mở Google NotebookLM
+      await this.copyAndOpenWeb();
+      if (App.apiKey()) {
+        this.pushToNotebookLM({ openInBrowser: false });
+      }
     }
   },
 
@@ -2666,114 +2817,84 @@ CHỈ TRẢ VỀ JSON: {"headers": ["STT", "Yếu tố / Hình tượng / Nghệ
     }
   },
 
-  /* ── Chạy hàng loạt các mục đã tích chọn & tự động trả kết quả lên App ── */
-  async pushToNotebookLM() {
+  /* ── Chạy hàng loạt các mục đã tích chọn & tự động tạo bên Google NotebookLM + trả kết quả lên App ── */
+  async pushToNotebookLM(opts = {}) {
+    if (this.isPushing) return;
+    const { openInBrowser = true, autoTriggered = false } = opts;
     const selected = [...document.querySelectorAll('#nlmArtifactChecks input:checked')].map((i) => i.value);
-    if (!selected.length) return toast('Hãy tích chọn ít nhất 1 mục để thực hiện.', true);
+    const artifacts = selected.length ? selected : this.features.map((f) => f.id);
 
-    if (!this.bridgeState.connected) {
+    if (!this.bridgeState.connected && !autoTriggered) {
       await this.checkStatus(true);
     }
 
-    // Nếu cầu nối cục bộ đang bật nhưng chưa đăng nhập Google NotebookLM -> Tự động mở đăng nhập & chờ thực hiện
-    if (this.bridgeState.connected && !this.bridgeState.authenticated && !App.apiKey()) {
-      toast('Đang mở cửa sổ đăng nhập Google NotebookLM – ngay khi đăng nhập xong, ứng dụng sẽ tự động đẩy dữ liệu và hiện kết quả!');
-      return this.loginAndWatch(() => this.pushToNotebookLM());
+    // Nếu cầu nối cục bộ đang bật nhưng chưa đăng nhập Google NotebookLM -> Tự động mở đăng nhập & tự động đẩy dữ liệu ngay khi đăng nhập xong
+    if (this.bridgeState.connected && !this.bridgeState.authenticated) {
+      toast('Đang mở cửa sổ đăng nhập Google NotebookLM – ngay khi đăng nhập xong, ứng dụng sẽ tự động đẩy dữ liệu và tạo các tính năng bên NotebookLM!');
+      return this.loginAndWatch(() => this.pushToNotebookLM({ openInBrowser: true }));
     }
 
     // Nếu không có cầu nối NotebookLM đã đăng nhập nhưng có Gemini API Key -> chạy trực tiếp các mục đã chọn trên App
     if (!this.bridgeState.authenticated && App.apiKey()) {
       const btn = $('btnPushNlm');
-      btn.disabled = true;
-      const oldText = btn.textContent;
-      btn.textContent = `⏳ Đang thực hiện ${selected.length} mục đã chọn & hiển thị lên App…`;
+      if (btn) btn.disabled = true;
+      const oldText = btn ? btn.textContent : '';
+      if (btn) btn.textContent = `⏳ Đang thực hiện ${artifacts.length} mục đã chọn & hiển thị lên App…`;
       try {
-        this.switchStudioTab(selected[0], false);
-        for (const tab of selected) {
+        this.switchStudioTab(artifacts[0], false);
+        for (const tab of artifacts) {
           await this.executeWithGeminiAI(tab);
         }
-        toast(`🎉 Đã thực hiện xong ${selected.length} mục và hiển thị trực tiếp trên App!`);
+        toast(`🎉 Đã thực hiện xong ${artifacts.length} mục và hiển thị trực tiếp trên App!`);
       } finally {
-        btn.disabled = false;
-        btn.textContent = oldText;
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = oldText;
+        }
       }
       return;
     }
 
     if (!this.bridgeState.connected) {
-      toast('Chưa bật cầu nối cục bộ (Chay_Game.bat) hoặc nhập Gemini API Key – chuyển sang Copy trọn bộ dữ liệu & Mở Google NotebookLM Web!');
+      toast('Đã copy trọn bộ dữ liệu vào bộ nhớ tạm & mở Google NotebookLM Web!');
       return this.copyAndOpenWeb();
     }
 
+    this.isPushing = true;
     const btn = $('btnPushNlm');
     const box = $('nlmPushResult');
-    btn.disabled = true;
-    const oldText = btn.textContent;
-    btn.textContent = '⏳ Đang đấu nối Google NotebookLM, chuyển dữ liệu & thực hiện…';
-    box.hidden = false;
-    box.innerHTML = '⏳ Đang tạo Notebook, chuyển dữ liệu ngữ liệu + sơ đồ tư duy và yêu cầu Google NotebookLM thực hiện các mục đã chọn…';
+    if (btn) btn.disabled = true;
+    const oldText = btn ? btn.textContent : '';
+    if (btn) btn.textContent = '⏳ Đang tự động đẩy dữ liệu qua Google NotebookLM & tạo các tính năng…';
+    if (box) {
+      box.hidden = false;
+      box.innerHTML = '⏳ Đang tạo Notebook trên Google NotebookLM, chuyển dữ liệu ngữ liệu + sơ đồ tư duy và tự động khởi tạo các tính năng Studio bên NotebookLM…';
+    }
 
-    selected.forEach((tab) => {
-      this.itemState[tab] = { status: 'running', msg: `Đang chuyển dữ liệu & thực hiện "${this.featLabel(tab)}" trên Google NotebookLM…` };
+    artifacts.forEach((tab) => {
+      this.itemState[tab] = { status: 'running', msg: `Đang chuyển dữ liệu & tạo "${this.featLabel(tab)}" bên trong Google NotebookLM…` };
     });
     this.updatePillBadges();
     this.renderStudioTab(this.activeTab);
 
     try {
-      const targetNb = $('nlmTargetNotebook')?.value || this.lastNotebookId || '';
-      const res = await this.api('/api/notebooklm/push', {
-        notebook_id: targetNb,
-        title: `Đọc hiểu THPT – ${App.analysis.title}`,
-        sources: this.buildSourcePackage(),
-        artifacts: selected,
-        focus_prompt: $('nlmFocusPrompt').value.trim(),
-        sources_already_uploaded: !!(this.sourcesUploaded && targetNb && targetNb === this.lastNotebookId),
-      });
+      const res = await this.api('/api/notebooklm/push', this.buildAutoPushPayload(openInBrowser));
       if (!res.ok) throw new Error(res.error || 'Lỗi khi đẩy dữ liệu sang NotebookLM.');
 
-      this.lastNotebookId = res.notebook_id;
-      this.lastNotebookUrl = res.notebook_url;
-      this.sourcesUploaded = true;
-
-      // Xử lý ngay các mục hoàn tất tức thì (như mind_map) và bật poller tự động tải kết quả về App cho các mục còn lại
-      arr(res.created_artifacts).forEach((art) => {
-        const t = art.artifact_type;
-        if (t === 'mind_map' && art.mind_map_json) {
-          try {
-            const tree = JSON.parse(art.mind_map_json);
-            this.liveResults[t] = { source: 'Google NotebookLM', kind: 'mind_map', tree };
-            this.itemState[t] = { status: 'done', msg: '🎉 Đã nhận Bản đồ tư duy trực tiếp từ Google NotebookLM!' };
-          } catch (_) {}
-        } else if (t) {
-          this.startArtifactPoller(t, res.notebook_id, art.artifact_id);
-        }
-      });
-      arr(res.errors).forEach((err) => {
-        this.itemState[err.type] = { status: 'error', msg: err.error };
-      });
-      this.updatePillBadges();
-      this.renderStudioTab(this.activeTab);
-
-      const createdList = arr(res.created_artifacts).map((x) => `<li>✅ <strong>${esc(this.featLabel(x.artifact_type))}</strong>: Đang xử lý &amp; tự động tải kết quả về khung bên phải</li>`).join('');
-      const errList = arr(res.errors).map((x) => `<li style="color:#fca5a5">⚠️ ${esc(this.featLabel(x.type))}: ${esc(x.error)}</li>`).join('');
-
-      box.innerHTML = `
-        <div>🎉 <strong>Đã đấu nối &amp; chuyển dữ liệu thành công lên Google NotebookLM!</strong></div>
-        <div style="margin:6px 0">✨ <strong>Kết quả đang được tự động tải về và hiển thị trực tiếp ở khung bên phải ngay khi hoàn tất!</strong></div>
-        <ul style="margin-left:18px;margin-top:6px">${createdList}${errList}</ul>
-        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-          <a class="btn small primary" href="${esc(res.notebook_url)}" target="_blank" rel="noopener" style="text-decoration:none">↗ Mở xem trên Google NotebookLM</a>
-          <button type="button" class="btn small ghost" id="btnPollNlmStudio">🔄 Kiểm tra tiến độ Studio</button>
-        </div>`;
-      $('btnPollNlmStudio').onclick = () => this.pollStudio();
-      toast('🎉 Đã chuyển dữ liệu qua Google NotebookLM! Kết quả sẽ tự động hiển thị lên App.');
+      this.applyPushResult(res);
+      toast('🎉 Đã tự động đẩy dữ liệu qua Google NotebookLM & khởi tạo các tính năng bên NotebookLM!');
     } catch (e) {
-      box.innerHTML = `⚠️ <strong>Chưa đẩy tự động được:</strong> ${esc(e.message)}<br>
-        💡 Bạn có thể bấm <strong>"🔑 Đăng nhập NotebookLM"</strong> để làm mới phiên, hoặc bấm <strong>"⚡ Thực hiện mục này"</strong> ở cột phải.`;
+      if (box) {
+        box.innerHTML = `⚠️ <strong>Chưa đẩy tự động được:</strong> ${esc(e.message)}<br>
+          💡 Bạn có thể bấm <strong>"🔑 Kết nối &amp; Tự động đẩy qua NotebookLM"</strong> để làm mới phiên, hoặc dán Cookie ở mục bên trên.`;
+      }
       toast(e.message, true);
     } finally {
-      btn.disabled = false;
-      btn.textContent = oldText;
+      this.isPushing = false;
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = oldText;
+      }
     }
   },
 
@@ -3319,7 +3440,10 @@ function bindGlobal() {
   $('btnStart').onclick = () => Game.start();
   $('btnPrint').onclick = () => window.print();
   $('btnMindMapJump').onclick = () => $('mindMapSection')?.scrollIntoView({ behavior: 'smooth' });
-  $('btnNlmJump').onclick = () => $('nlmSection')?.scrollIntoView({ behavior: 'smooth' });
+  $('btnNlmJump').onclick = () => {
+    $('nlmSection')?.scrollIntoView({ behavior: 'smooth' });
+    NotebookLM.connectAndAutoPush();
+  };
   $('btnStatsJump').onclick = () => $('statsSection')?.scrollIntoView({ behavior: 'smooth' });
   $('btnExportCsv').onclick = () => Result.exportCsv();
   $('btnReplay').onclick = () => Game.start();

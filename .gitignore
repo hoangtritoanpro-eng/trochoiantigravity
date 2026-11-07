@@ -31,7 +31,9 @@ desktop.ini
 __pycache__/
 gemini-notebook-mcp-cli/
 game-doc-hieu-van-ban/nlm_outputs/
+game-doc-hieu-van-ban/.nlm_storage/
 nlm_outputs/
+.nlm_storage/
 
 # Audio files: chỉ tải âm thanh đúng/sai lên GitHub
 *.mp3

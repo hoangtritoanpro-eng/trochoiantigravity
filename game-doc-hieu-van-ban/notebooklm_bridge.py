@@ -25,8 +25,12 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
+import threading
+import time
 import traceback
 import urllib.parse
+import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -37,8 +41,25 @@ NLM_OUTPUT_DIR = HERE / "nlm_outputs"
 NLM_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 REPO_CLI_SRC = HERE.parent / "gemini-notebook-mcp-cli" / "src"
-if REPO_CLI_SRC.exists() and str(REPO_CLI_SRC) not in sys.path:
-    sys.path.insert(0, str(REPO_CLI_SRC))
+if REPO_CLI_SRC.exists():
+    if str(REPO_CLI_SRC) not in sys.path:
+        sys.path.insert(0, str(REPO_CLI_SRC))
+    cur_pp = os.environ.get("PYTHONPATH", "")
+    if str(REPO_CLI_SRC) not in cur_pp:
+        os.environ["PYTHONPATH"] = (
+            f"{REPO_CLI_SRC}{os.pathsep}{cur_pp}" if cur_pp else str(REPO_CLI_SRC)
+        )
+
+# Đảm bảo lưu hồ sơ đăng nhập ở chế độ file và có thư mục lưu hợp lệ trên Windows
+os.environ.setdefault("NLM_AUTH_STORAGE", "file")
+if not os.environ.get("NOTEBOOKLM_MCP_CLI_PATH"):
+    default_home_storage = Path.home() / ".notebooklm-mcp-cli"
+    try:
+        (default_home_storage / "profiles").mkdir(parents=True, exist_ok=True)
+    except Exception:
+        local_storage = HERE / ".nlm_storage"
+        local_storage.mkdir(parents=True, exist_ok=True)
+        os.environ["NOTEBOOKLM_MCP_CLI_PATH"] = str(local_storage)
 
 try:
     from notebooklm_tools.core.client import NotebookLMClient
@@ -55,6 +76,13 @@ try:
 except Exception as import_err:
     HAS_NLM = False
     IMPORT_ERR_MSG = str(import_err)
+
+# Trạng thái tự động đăng nhập & tự động đẩy dữ liệu
+LOGIN_STATE: dict[str, Any] = {
+    "in_progress": False,
+    "error": "",
+    "last_auto_push": None,
+}
 
 
 def build_nlm_client(profile: str | None = None) -> NotebookLMClient:
@@ -186,7 +214,73 @@ def create_one_artifact(
         )
     else:
         raise ValueError(f"Loại học liệu không hợp lệ: {art_type}")
-    return dict(res)
+    out = dict(res)
+    out["artifact_type"] = art_type
+    return out
+
+
+def execute_push_payload(client: NotebookLMClient, body: dict[str, Any]) -> dict[str, Any]:
+    """Đẩy dữ liệu nguồn lên Google NotebookLM và tự động khởi tạo các tính năng Studio trên NotebookLM."""
+    notebook_id = str(body.get("notebook_id") or "").strip()
+    title = str(body.get("title") or "Đọc hiểu Ngữ văn THPT").strip()
+    sources = body.get("sources") or []
+    artifacts = body.get("artifacts") or [
+        "audio",
+        "slide_deck",
+        "video",
+        "mind_map",
+        "report",
+        "flashcards",
+        "quiz",
+        "infographic",
+        "data_table",
+    ]
+    focus_prompt = str(body.get("focus_prompt") or "").strip()
+    sources_already_uploaded = bool(body.get("sources_already_uploaded"))
+    open_in_browser = bool(body.get("open_in_browser", True))
+
+    notebook_id, notebook_url, source_ids = ensure_notebook_and_sources(
+        client,
+        notebook_id,
+        title,
+        sources,
+        skip_sources_if_exists=sources_already_uploaded,
+    )
+
+    created_artifacts: list[dict[str, Any]] = []
+    artifact_errors: list[dict[str, str]] = []
+
+    for idx, art_type in enumerate(artifacts):
+        if idx > 0:
+            time.sleep(0.35)
+        try:
+            res = create_one_artifact(
+                client,
+                notebook_id,
+                str(art_type),
+                title,
+                source_ids=source_ids or None,
+                focus_prompt=focus_prompt,
+            )
+            created_artifacts.append(res)
+        except Exception as art_err:
+            artifact_errors.append({"type": str(art_type), "error": str(art_err)})
+
+    if open_in_browser and notebook_url:
+        try:
+            webbrowser.open(notebook_url)
+        except Exception:
+            pass
+
+    return {
+        "ok": True,
+        "notebook_id": notebook_id,
+        "notebook_url": notebook_url,
+        "title": title,
+        "sources_added": len(source_ids),
+        "created_artifacts": created_artifacts,
+        "errors": artifact_errors,
+    }
 
 
 def ensure_notebook_and_sources(
@@ -419,6 +513,7 @@ class BridgeHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Private-Network", "true")
         super().end_headers()
 
     def do_OPTIONS(self) -> None:
@@ -460,6 +555,8 @@ class BridgeHandler(SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path == "/api/notebooklm/login":
             return self.handle_login()
+        if parsed.path == "/api/notebooklm/auth-cookie":
+            return self.handle_auth_cookie()
         if parsed.path == "/api/notebooklm/push":
             return self.handle_push()
         if parsed.path == "/api/notebooklm/execute-one":
@@ -479,6 +576,8 @@ class BridgeHandler(SimpleHTTPRequestHandler):
         try:
             client = build_nlm_client()
             res = notebooks_service.list_notebooks(client, max_results=25)
+            auto_push = LOGIN_STATE.get("last_auto_push")
+            LOGIN_STATE["last_auto_push"] = None
             return self.send_json(
                 {
                     "ok": True,
@@ -486,6 +585,8 @@ class BridgeHandler(SimpleHTTPRequestHandler):
                     "authenticated": True,
                     "notebooks": res.get("notebooks", []),
                     "count": res.get("count", 0),
+                    "login_in_progress": LOGIN_STATE["in_progress"],
+                    "last_auto_push": auto_push,
                 }
             )
         except Exception as e:
@@ -494,22 +595,140 @@ class BridgeHandler(SimpleHTTPRequestHandler):
                     "ok": True,
                     "bridge": True,
                     "authenticated": False,
+                    "login_in_progress": LOGIN_STATE["in_progress"],
+                    "login_error": LOGIN_STATE["error"],
                     "error": str(e),
                 }
             )
 
     def handle_login(self) -> None:
+        body = self.read_json()
+        auto_push_payload = body.get("auto_push_payload")
+
+        # Nếu đã đăng nhập sẵn và có auto_push_payload -> Đẩy dữ liệu qua NotebookLM ngay lập tức!
         try:
-            cmd = [sys.executable, "-m", "notebooklm_tools.cli.main", "login"]
-            subprocess.Popen(cmd, cwd=str(HERE))
+            client = build_nlm_client()
+            notebooks_service.list_notebooks(client, max_results=5)
+            if auto_push_payload:
+                push_res = execute_push_payload(client, auto_push_payload)
+                return self.send_json(
+                    {
+                        "ok": True,
+                        "already_authenticated": True,
+                        "auto_pushed": True,
+                        "push_result": push_res,
+                        "message": "Đã kết nối & tự động đẩy dữ liệu qua Google NotebookLM để tạo các tính năng Studio!",
+                    }
+                )
+        except Exception:
+            pass
+
+        def _bg_login_worker(payload: dict[str, Any] | None) -> None:
+            LOGIN_STATE["in_progress"] = True
+            LOGIN_STATE["error"] = ""
+            try:
+                from notebooklm_tools.utils.cdp import extract_cookies_via_cdp, terminate_chrome
+
+                profile_name = get_config().auth.default_profile or "default"
+                auth = AuthManager(profile_name)
+                try:
+                    result = extract_cookies_via_cdp(
+                        auto_launch=True,
+                        wait_for_login=True,
+                        login_timeout=300,
+                        profile_name=profile_name,
+                        clear_profile=False,
+                    )
+                    auth.save_profile(
+                        cookies=result["cookies"],
+                        csrf_token=result.get("csrf_token", ""),
+                        session_id=result.get("session_id", ""),
+                        email=result.get("email", ""),
+                        force=True,
+                        build_label=result.get("build_label", ""),
+                        base_host=result.get("base_host", ""),
+                    )
+                finally:
+                    try:
+                        terminate_chrome()
+                    except Exception:
+                        pass
+
+                # Ngay khi đăng nhập xong -> Tự động đẩy dữ liệu qua Google NotebookLM và tạo các tính năng Studio!
+                if payload:
+                    client = build_nlm_client(profile_name)
+                    LOGIN_STATE["last_auto_push"] = execute_push_payload(client, payload)
+            except Exception as err:
+                LOGIN_STATE["error"] = str(err)
+                # Fallback chạy CLI login nếu CDP trực tiếp gặp lỗi
+                try:
+                    cmd = [
+                        sys.executable,
+                        "-m",
+                        "notebooklm_tools.cli.main",
+                        "login",
+                        "--storage",
+                        "file",
+                        "--force",
+                    ]
+                    subprocess.Popen(cmd, cwd=str(HERE), env=os.environ.copy())
+                except Exception:
+                    pass
+            finally:
+                LOGIN_STATE["in_progress"] = False
+
+        if not LOGIN_STATE["in_progress"]:
+            threading.Thread(
+                target=_bg_login_worker, args=(auto_push_payload,), daemon=True
+            ).start()
+
+        return self.send_json(
+            {
+                "ok": True,
+                "message": "Đã mở trình duyệt đăng nhập Google NotebookLM. Ngay khi bạn đăng nhập xong, hệ thống sẽ TỰ ĐỘNG đẩy dữ liệu qua NotebookLM và tạo các tính năng Studio!",
+            }
+        )
+
+    def handle_auth_cookie(self) -> None:
+        """Cho phép dán trực tiếp Cookie hoặc lệnh cURL từ trang Google NotebookLM để kết nối & đẩy tự động."""
+        try:
+            body = self.read_json()
+            cookie_text = str(body.get("cookie_text") or "").strip()
+            auto_push_payload = body.get("auto_push_payload")
+            if not cookie_text:
+                return self.send_json({"ok": False, "error": "Chưa có dữ liệu Cookie / cURL."}, 400)
+
+            profile_name = get_config().auth.default_profile or "default"
+            auth = AuthManager(profile_name)
+            with tempfile.NamedTemporaryFile(
+                "w", encoding="utf-8", suffix=".txt", delete=False
+            ) as tmp:
+                tmp.write(cookie_text)
+                tmp_path = tmp.name
+            try:
+                auth.login_with_file(tmp_path)
+            finally:
+                try:
+                    os.remove(tmp_path)
+                except Exception:
+                    pass
+
+            client = build_nlm_client(profile_name)
+            push_res = None
+            if auto_push_payload:
+                push_res = execute_push_payload(client, auto_push_payload)
+
             return self.send_json(
                 {
                     "ok": True,
-                    "message": "Đã mở trình duyệt để đăng nhập Google NotebookLM. Ngay khi bạn đăng nhập xong, ứng dụng sẽ tự động nhận diện và thực hiện!",
+                    "authenticated": True,
+                    "push_result": push_res,
+                    "message": "Đã kết nối Google NotebookLM thành công và tự động đẩy dữ liệu qua tạo các tính năng Studio!",
                 }
             )
         except Exception as e:
-            return self.send_json({"ok": False, "error": f"Không khởi chạy được nlm login: {e}"}, 500)
+            traceback.print_exc()
+            return self.send_json({"ok": False, "error": f"Không xác thực được Cookie: {e}"}, 500)
 
     def handle_studio_status(self, notebook_id: str) -> None:
         if not notebook_id:
@@ -600,50 +819,8 @@ class BridgeHandler(SimpleHTTPRequestHandler):
         try:
             body = self.read_json()
             client = build_nlm_client()
-
-            notebook_id = str(body.get("notebook_id") or "").strip()
-            title = str(body.get("title") or "Đọc hiểu Ngữ văn THPT").strip()
-            sources = body.get("sources") or []
-            artifacts = body.get("artifacts") or []
-            focus_prompt = str(body.get("focus_prompt") or "").strip()
-            sources_already_uploaded = bool(body.get("sources_already_uploaded"))
-
-            notebook_id, notebook_url, source_ids = ensure_notebook_and_sources(
-                client,
-                notebook_id,
-                title,
-                sources,
-                skip_sources_if_exists=sources_already_uploaded,
-            )
-
-            created_artifacts: list[dict[str, Any]] = []
-            artifact_errors: list[dict[str, str]] = []
-
-            for art_type in artifacts:
-                try:
-                    res = create_one_artifact(
-                        client,
-                        notebook_id,
-                        str(art_type),
-                        title,
-                        source_ids=source_ids or None,
-                        focus_prompt=focus_prompt,
-                    )
-                    created_artifacts.append(res)
-                except Exception as art_err:
-                    artifact_errors.append({"type": str(art_type), "error": str(art_err)})
-
-            return self.send_json(
-                {
-                    "ok": True,
-                    "notebook_id": notebook_id,
-                    "notebook_url": notebook_url,
-                    "title": title,
-                    "sources_added": len(source_ids),
-                    "created_artifacts": created_artifacts,
-                    "errors": artifact_errors,
-                }
-            )
+            res = execute_push_payload(client, body)
+            return self.send_json(res)
         except Exception as e:
             traceback.print_exc()
             return self.send_json({"ok": False, "error": str(e)}, 500)
