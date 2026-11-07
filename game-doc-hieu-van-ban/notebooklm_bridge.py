@@ -83,6 +83,7 @@ LOGIN_STATE: dict[str, Any] = {
     "in_progress": False,
     "error": "",
     "last_auto_push": None,
+    "pending_payload": None,
 }
 
 
@@ -282,10 +283,11 @@ def execute_push_payload(client: NotebookLMClient, body: dict[str, Any]) -> dict
 
     created_artifacts: list[dict[str, Any]] = []
     artifact_errors: list[dict[str, str]] = []
+    browser_opened = False
 
     for idx, art_type in enumerate(ordered_artifacts):
         if idx > 0:
-            time.sleep(0.4)
+            time.sleep(0.15)
         try:
             res = create_one_artifact(
                 client,
@@ -299,7 +301,15 @@ def execute_push_payload(client: NotebookLMClient, body: dict[str, Any]) -> dict
         except Exception as art_err:
             artifact_errors.append({"type": str(art_type), "error": str(art_err)})
 
-    if open_in_browser and notebook_url:
+        # Mở ngay trang Google NotebookLM sau khi đã nạp xong Nguồn + 9 Ghi chú Studio + Sơ đồ tư duy
+        if open_in_browser and notebook_url and not browser_opened and idx == 0:
+            browser_opened = True
+            try:
+                webbrowser.open(notebook_url)
+            except Exception:
+                pass
+
+    if open_in_browser and notebook_url and not browser_opened:
         try:
             webbrowser.open(notebook_url)
         except Exception:
@@ -334,20 +344,29 @@ def ensure_notebook_and_sources(
     else:
         notebook_url = notebooks_service.notebook_url(client, notebook_id)
 
+    notebook_url = str(notebook_url or "").replace(
+        "https://notebook.google.com/", "https://notebooklm.google.com/"
+    )
+
     source_ids: list[str] = []
     if created_new or not skip_sources_if_exists:
-        for src in sources:
-            s_title = str(src.get("title") or "Ngữ liệu đọc hiểu").strip()
-            s_text = str(src.get("text") or "").strip()
-            if not s_text:
-                continue
+        valid_sources = [
+            (
+                str(src.get("title") or "Ngữ liệu đọc hiểu").strip(),
+                str(src.get("text") or "").strip(),
+            )
+            for src in sources
+            if str(src.get("text") or "").strip()
+        ]
+        for idx, (s_title, s_text) in enumerate(valid_sources):
+            is_last = idx == len(valid_sources) - 1
             added = sources_service.add_source(
                 client,
                 notebook_id,
                 "text",
                 text=s_text,
                 title=s_title,
-                wait=True,
+                wait=is_last,
                 wait_timeout=90.0,
             )
             if added and added.get("source_id"):
@@ -610,6 +629,13 @@ class BridgeHandler(SimpleHTTPRequestHandler):
         try:
             client = build_nlm_client()
             res = notebooks_service.list_notebooks(client, max_results=25)
+            if LOGIN_STATE.get("pending_payload") and not LOGIN_STATE["in_progress"]:
+                pending = LOGIN_STATE["pending_payload"]
+                LOGIN_STATE["pending_payload"] = None
+                try:
+                    LOGIN_STATE["last_auto_push"] = execute_push_payload(client, pending)
+                except Exception as push_err:
+                    LOGIN_STATE["error"] = str(push_err)
             auto_push = LOGIN_STATE.get("last_auto_push")
             LOGIN_STATE["last_auto_push"] = None
             return self.send_json(
@@ -638,13 +664,17 @@ class BridgeHandler(SimpleHTTPRequestHandler):
     def handle_login(self) -> None:
         body = self.read_json()
         auto_push_payload = body.get("auto_push_payload")
+        if auto_push_payload:
+            LOGIN_STATE["pending_payload"] = auto_push_payload
 
         # Nếu đã đăng nhập sẵn và có auto_push_payload -> Đẩy dữ liệu qua NotebookLM ngay lập tức!
         try:
             client = build_nlm_client()
             notebooks_service.list_notebooks(client, max_results=5)
-            if auto_push_payload:
-                push_res = execute_push_payload(client, auto_push_payload)
+            payload_to_push = LOGIN_STATE.get("pending_payload") or auto_push_payload
+            if payload_to_push:
+                LOGIN_STATE["pending_payload"] = None
+                push_res = execute_push_payload(client, payload_to_push)
                 return self.send_json(
                     {
                         "ok": True,
@@ -660,41 +690,54 @@ class BridgeHandler(SimpleHTTPRequestHandler):
         def _bg_login_worker(payload: dict[str, Any] | None) -> None:
             LOGIN_STATE["in_progress"] = True
             LOGIN_STATE["error"] = ""
+            profile_name = get_config().auth.default_profile or "default"
             try:
-                from notebooklm_tools.utils.cdp import extract_cookies_via_cdp, terminate_chrome
+                from notebooklm_tools.utils.cdp import (
+                    extract_cookies_via_cdp,
+                    has_chrome_profile,
+                    run_headless_auth,
+                    terminate_chrome,
+                )
 
-                profile_name = get_config().auth.default_profile or "default"
-                auth = AuthManager(profile_name)
-                try:
-                    result = extract_cookies_via_cdp(
-                        auto_launch=True,
-                        wait_for_login=True,
-                        login_timeout=300,
-                        profile_name=profile_name,
-                        clear_profile=False,
-                    )
-                    auth.save_profile(
-                        cookies=result["cookies"],
-                        csrf_token=result.get("csrf_token", ""),
-                        session_id=result.get("session_id", ""),
-                        email=result.get("email", ""),
-                        force=True,
-                        build_label=result.get("build_label", ""),
-                        base_host=result.get("base_host", ""),
-                    )
-                finally:
+                logged_in_ok = False
+                # 1. Thử làm mới phiên tự động (Headless Auth) nếu đã có Chrome Profile của tài khoản
+                if has_chrome_profile(profile_name):
                     try:
-                        terminate_chrome()
+                        tokens = run_headless_auth(profile_name=profile_name)
+                        if tokens:
+                            logged_in_ok = True
                     except Exception:
                         pass
 
-                # Ngay khi đăng nhập xong -> Tự động đẩy dữ liệu qua Google NotebookLM và tạo các tính năng Studio!
-                if payload:
-                    client = build_nlm_client(profile_name)
-                    LOGIN_STATE["last_auto_push"] = execute_push_payload(client, payload)
+                # 2. Nếu chưa có hoặc cần đăng nhập trực tiếp trên trình duyệt
+                if not logged_in_ok:
+                    auth = AuthManager(profile_name)
+                    try:
+                        result = extract_cookies_via_cdp(
+                            auto_launch=True,
+                            wait_for_login=True,
+                            login_timeout=300,
+                            profile_name=profile_name,
+                            clear_profile=False,
+                        )
+                        auth.save_profile(
+                            cookies=result["cookies"],
+                            csrf_token=result.get("csrf_token", ""),
+                            session_id=result.get("session_id", ""),
+                            email=result.get("email", ""),
+                            force=True,
+                            build_label=result.get("build_label", ""),
+                            base_host=result.get("base_host", ""),
+                        )
+                        logged_in_ok = True
+                    finally:
+                        try:
+                            terminate_chrome()
+                        except Exception:
+                            pass
             except Exception as err:
                 LOGIN_STATE["error"] = str(err)
-                # Fallback chạy CLI login nếu CDP trực tiếp gặp lỗi
+                # 3. Fallback chạy CLI login (hỗ trợ tự động migrate legacy Chrome profile) và chờ hoàn tất
                 try:
                     cmd = [
                         sys.executable,
@@ -705,10 +748,22 @@ class BridgeHandler(SimpleHTTPRequestHandler):
                         "file",
                         "--force",
                     ]
-                    subprocess.Popen(cmd, cwd=str(HERE), env=os.environ.copy())
+                    proc = subprocess.Popen(cmd, cwd=str(HERE), env=os.environ.copy())
+                    proc.wait(timeout=320)
                 except Exception:
                     pass
             finally:
+                # Ngay khi đăng nhập xong -> Tự động đẩy dữ liệu qua Google NotebookLM và tạo các tính năng Studio!
+                target_payload = LOGIN_STATE.get("pending_payload") or payload
+                if target_payload:
+                    try:
+                        client = build_nlm_client(profile_name)
+                        notebooks_service.list_notebooks(client, max_results=5)
+                        LOGIN_STATE["pending_payload"] = None
+                        LOGIN_STATE["last_auto_push"] = execute_push_payload(client, target_payload)
+                        LOGIN_STATE["error"] = ""
+                    except Exception as push_err:
+                        LOGIN_STATE["error"] = str(push_err)
                 LOGIN_STATE["in_progress"] = False
 
         if not LOGIN_STATE["in_progress"]:

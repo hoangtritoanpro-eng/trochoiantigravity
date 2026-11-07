@@ -2738,13 +2738,24 @@ const NotebookLM = {
       const box = $('nlmPushResult');
       if (box) {
         box.hidden = false;
-        box.innerHTML = '⏳ <strong>Đang chờ đăng nhập Google NotebookLM…</strong> Ngay khi bạn đăng nhập xong trên cửa sổ trình duyệt vừa mở, hệ thống sẽ <strong>tự động tạo Notebook, đẩy dữ liệu qua Google NotebookLM và tạo các tính năng Studio</strong> cho bạn!';
+        box.innerHTML = `⏳ <strong>Đang chờ đăng nhập Google NotebookLM…</strong> Ngay khi bạn đăng nhập xong trên cửa sổ trình duyệt vừa mở, hệ thống sẽ <strong>tự động tạo Notebook, đẩy dữ liệu qua Google NotebookLM và tạo các tính năng Studio</strong> cho bạn!
+          <div style="margin-top:8px">
+            <button type="button" class="btn small primary" id="btnForcePushNow">🚀 Đã đăng nhập xong? Bấm đẩy ngay sản phẩm sang Google NotebookLM</button>
+          </div>`;
+        if ($('btnForcePushNow')) {
+          $('btnForcePushNow').onclick = async () => {
+            await this.checkStatus(false);
+            if (this.bridgeState.authenticated && !this.sourcesUploaded && !this.isPushing) {
+              this.pushToNotebookLM({ openInBrowser: true });
+            }
+          };
+        }
       }
       if (this.loginWatchTimer) clearInterval(this.loginWatchTimer);
       let checks = 0;
       this.loginWatchTimer = setInterval(async () => {
         checks++;
-        if (checks > 90) {
+        if (checks > 300) {
           clearInterval(this.loginWatchTimer);
           return;
         }
